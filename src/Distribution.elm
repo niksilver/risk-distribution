@@ -1,6 +1,6 @@
 module Distribution exposing
     ( Layer(Layer), Limit(AtLeast, AtMost), Interval(Closed, Open)
-    , interval
+    , interval, bestCounterpart
     )
 
 -- A layer of a distribution
@@ -39,3 +39,30 @@ interval (Layer layer1) (Layer layer2) =
 to4Dp : Float -> Float
 to4Dp x =
     (x * 1000 |> round |> toFloat) / 1000
+
+-- Given find a layer's best counterpart for determining an interval
+
+bestCounterpart : Layer -> List Layer -> Maybe Layer
+bestCounterpart y ys =
+    ys
+        |> greaterThanAndOpposite y
+        |> sortByValue
+        |> List.head
+
+greaterThanAndOpposite : Layer -> List Layer -> List Layer
+greaterThanAndOpposite y ys =
+    let
+        greaterThan (Layer d1) (Layer d2) =
+            d1.value > d2.value
+        opposite (Layer d1) (Layer d2) =
+            d1.limit /= d2.limit
+    in
+        List.filter (\y2 -> greaterThan y2 y && opposite y2 y) ys
+
+sortByValue : List Layer -> List Layer
+sortByValue ys =
+    let
+        value (Layer d) = d.value
+    in
+        List.sortBy value ys
+
