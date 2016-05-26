@@ -50,5 +50,14 @@ intervalTest =
           (Open)
           (interval layer1 layer2)
 
+    , test "From --) and --) we should recognise an open interval" <|
+      let
+          layer1 = Layer { prob = 1.0, limit = AtMost, value = 6.7 }
+          layer2 = Layer { prob = 1.0, limit = AtMost, value = 3.4 }
+      in
+          assertEqual
+          (Open)
+          (interval layer1 layer2)
+
     ]
 

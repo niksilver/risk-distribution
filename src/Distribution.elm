@@ -24,7 +24,7 @@ type Interval
 
 interval : Layer -> Layer -> Interval
 interval (Layer layer1) (Layer layer2) =
-    if (layer1.limit == AtLeast && layer2.limit == AtLeast) then
+    if (layer1.limit == layer2.limit) then
         Open
     else
         Closed (min layer1.value layer2.value) (max layer1.value layer2.value)
