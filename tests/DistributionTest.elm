@@ -10,6 +10,7 @@ all =
     [ intervalTestOpenClosedRange
     , intervalTestProbability
     , bestGreaterCounterpartTest
+    , bestLesserCounterpartTest
     ]
 
 closedRange : Interval -> Maybe (Float, Float)
@@ -180,6 +181,52 @@ bestGreaterCounterpartTest =
       assertEqual
       (Nothing)
       (bestGreaterCounterpart y8 layers)
+
+    ]
+
+bestLesserCounterpartTest : Test
+bestLesserCounterpartTest =
+    suite "bestLesserCounterpartTest"
+
+    [ test "Best lesser counterpart for y1 should not exist" <|
+      assertEqual
+      (Nothing)
+      (bestLesserCounterpart y1 layers)
+
+    , test "Best lesser counterpart for y2 should not exist" <|
+      assertEqual
+      (Nothing)
+      (bestLesserCounterpart y2 layers)
+
+    , test "Best lesser counterpart for y3 should be y6" <|
+      assertEqual
+      (Just y6)
+      (bestLesserCounterpart y3 layers)
+
+    , test "Best lesser counterpart for y4 should be y7" <|
+      assertEqual
+      (Just y7)
+      (bestLesserCounterpart y4 layers)
+
+    , test "Best lesser counterpart for y5 should be y1" <|
+      assertEqual
+      (Just y1)
+      (bestLesserCounterpart y5 layers)
+
+    , test "Best lesser counterpart for y6 should be y2" <|
+      assertEqual
+      (Just y2)
+      (bestLesserCounterpart y6 layers)
+
+    , test "Best lesser counterpart for y7 should be y2" <|
+      assertEqual
+      (Just y2)
+      (bestLesserCounterpart y7 layers)
+
+    , test "Best lesser counterpart for y8 should be y4" <|
+      assertEqual
+      (Just y4)
+      (bestLesserCounterpart y8 layers)
 
     ]
 
