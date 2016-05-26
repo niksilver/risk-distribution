@@ -145,5 +145,20 @@ bestCounterpartTest =
           (Just y5)
           (bestCounterpart y1 layers)
 
+        , test "Best counterpart for y2 should be y6" <|
+          assertEqual
+          (Just y6)
+          (bestCounterpart y2 layers)
+
+        , test "Best counterpart for y3 should be y8" <|
+          assertEqual
+          (Just y8)
+          (bestCounterpart y3 layers)
+
+        , test "Best counterpart for y4 should be y8" <|
+          assertEqual
+          (Just y8)
+          (bestCounterpart y4 layers)
+
         ]
 
