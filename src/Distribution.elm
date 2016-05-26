@@ -17,7 +17,7 @@ type Limit = AtLeast | AtMost
 -- How to layers overlap (if at all)
 
 type Interval
-    = Closed Float Float
+    = Closed { lower : Float, upper : Float }
     | Open
 
 -- Deduce an interval, if any, given two layers
@@ -27,5 +27,8 @@ interval (Layer layer1) (Layer layer2) =
     if (layer1.limit == layer2.limit) then
         Open
     else
-        Closed (min layer1.value layer2.value) (max layer1.value layer2.value)
+        Closed
+            { lower = min layer1.value layer2.value
+            , upper = max layer1.value layer2.value
+            }
 
