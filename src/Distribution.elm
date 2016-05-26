@@ -22,6 +22,6 @@ type Overlap
 -- Find the overlap, if any, between two layers
 
 overlap : Layer -> Layer -> Overlap
-overlap layer1 layer2 =
-    Closed 7.0 123.0
+overlap (Layer layer1) (Layer layer2) =
+    Closed layer1.value layer2.value
 
