@@ -7,18 +7,25 @@ import ElmTest exposing (..)
 all : Test
 all =
     suite "DistributionTest"
-    [ intervalTest
+    [ intervalTestOpenClosedRange
+    , intervalTestProbability
     ]
 
 closedRange : Interval -> Maybe (Float, Float)
 closedRange interval =
     case interval of
         Open -> Nothing
-        Closed range -> Just (range.lower, range.upper)
+        Closed desc -> Just (desc.lower, desc.upper)
 
-intervalTest : Test
-intervalTest =
-    suite "intervalTest"
+probability : Interval -> Maybe Float
+probability interval =
+    case interval of
+        Open -> Nothing
+        Closed desc -> Just desc.prob
+
+intervalTestOpenClosedRange : Test
+intervalTestOpenClosedRange =
+    suite "intervalTest - open/closed range"
 
     [ test "From (-- and --) we should recognise a closed interval (1)" <|
       let
@@ -67,3 +74,26 @@ intervalTest =
 
     ]
 
+intervalTestProbability : Test
+intervalTestProbability =
+    suite "intervalTest - probability"
+
+    [ test "From (-- and --) overlapping we should get the right probability" <|
+      let
+          layer1 = Layer { prob = 0.50, limit = AtLeast, value = 7.0 }
+          layer2 = Layer { prob = 0.70, limit = AtMost, value = 123.0 }
+      in
+          assertEqual
+          (Just 0.20)
+          (interval layer1 layer2 |> probability)
+
+    , test "From --) and (-- overlapping we should get the right probability" <|
+      let
+          layer1 = Layer { prob = 0.90, limit = AtMost, value = 123.0 }
+          layer2 = Layer { prob = 0.80, limit = AtLeast, value = 7.0 }
+      in
+          assertEqual
+          (Just 0.70)
+          (interval layer1 layer2 |> probability)
+
+    ]

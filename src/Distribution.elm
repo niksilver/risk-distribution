@@ -17,7 +17,7 @@ type Limit = AtLeast | AtMost
 -- How to layers overlap (if at all)
 
 type Interval
-    = Closed { lower : Float, upper : Float }
+    = Closed { lower : Float, upper : Float, prob : Float }
     | Open
 
 -- Deduce an interval, if any, given two layers
@@ -30,5 +30,12 @@ interval (Layer layer1) (Layer layer2) =
         Closed
             { lower = min layer1.value layer2.value
             , upper = max layer1.value layer2.value
+            , prob = layer1.prob + layer2.prob - 1 |> to4Dp
             }
 
+-- Round a float to 4 decimal places, to avoid silly numbers due
+-- to precision loss.
+
+to4Dp : Float -> Float
+to4Dp x =
+    (x * 1000 |> round |> toFloat) / 1000
