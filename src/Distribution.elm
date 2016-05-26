@@ -23,5 +23,5 @@ type Interval
 
 interval : Layer -> Layer -> Interval
 interval (Layer layer1) (Layer layer2) =
-    Closed layer1.value layer2.value
+    Closed (min layer1.value layer2.value) (max layer1.value layer2.value)
 
