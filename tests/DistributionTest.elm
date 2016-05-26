@@ -161,5 +161,25 @@ bestGreaterCounterpartTest =
       (Just y8)
       (bestGreaterCounterpart y4 layers)
 
+    , test "Best greater counterpart for y5 should be y3" <|
+      assertEqual
+      (Just y3)
+      (bestGreaterCounterpart y5 layers)
+
+    , test "Best greater counterpart for y6 should be y3" <|
+      assertEqual
+      (Just y3)
+      (bestGreaterCounterpart y6 layers)
+
+    , test "Best greater counterpart for y7 should be y4" <|
+      assertEqual
+      (Just y4)
+      (bestGreaterCounterpart y7 layers)
+
+    , test "Best greater counterpart for y8 should not exist" <|
+      assertEqual
+      (Nothing)
+      (bestGreaterCounterpart y8 layers)
+
     ]
 
