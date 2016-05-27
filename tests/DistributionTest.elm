@@ -11,6 +11,7 @@ all =
     , intervalTestProbability
     , bestGreaterCounterpartTest
     , bestLesserCounterpartTest
+    , intervalsTest
     ]
 
 closedRange : Interval -> Maybe (Float, Float)
@@ -227,6 +228,22 @@ bestLesserCounterpartTest =
       assertEqual
       (Just y4)
       (bestLesserCounterpart y8 layers)
+
+    ]
+
+intervalsTest : Test
+intervalsTest =
+    suite "intervalsTest"
+
+    [ test "Given no layers, should return empty list" <|
+      assertEqual
+      []
+      (intervals [])
+
+    , test "Given one layer, should return empty list" <|
+      assertEqual
+      []
+      (intervals [y1])
 
     ]
 

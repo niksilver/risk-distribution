@@ -1,6 +1,8 @@
 module Distribution exposing
     ( Layer(Layer), Limit(AtLeast, AtMost), Interval(Closed, Open)
-    , interval, bestGreaterCounterpart, bestLesserCounterpart
+    , interval
+    , bestGreaterCounterpart, bestLesserCounterpart
+    , intervals
     )
 
 -- A layer of a distribution
@@ -93,4 +95,10 @@ sortByDecreasingValue ys =
         decreasingValue (Layer d) = -1 * d.value
     in
         List.sortBy decreasingValue ys
+
+-- Get all the best (closed) intervals given some layers
+
+intervals : List Layer -> List Interval
+intervals ys =
+    []
 
