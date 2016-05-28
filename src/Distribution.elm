@@ -1,6 +1,7 @@
 module Distribution exposing
     ( Layer(Layer), Limit(AtLeast, AtMost), Interval(Closed, Open)
     , interval
+    , sortIntervals
     , bestGreaterCounterpart, bestLesserCounterpart
     , intervals
     )
@@ -41,6 +42,32 @@ interval (Layer layer1) (Layer layer2) =
 to4Dp : Float -> Float
 to4Dp x =
     (x * 1000 |> round |> toFloat) / 1000
+
+-- Sort a list of intervals.
+-- Open intervals come at the end.
+-- Closed intervals are ordered first by the lower bound, then the upper bound.
+-- The probability is ignored.
+
+sortIntervals : List Interval -> List Interval
+sortIntervals x1 =
+    let
+        -- Compare two intervals; open intervals are "larger"
+        comp : Interval -> Interval -> Order
+        comp int1 int2 =
+            case (int1, int2) of
+                (Open, Open) -> EQ
+                (Open, Closed _) -> GT
+                (Closed _, Open) -> LT
+                (Closed c1, Closed c2) ->
+                    let
+                        lowerComp = compare c1.lower c2.lower
+                    in
+                        if (lowerComp == EQ) then
+                            compare c1.upper c2.upper
+                        else
+                            lowerComp
+    in
+        List.sortWith comp x1
 
 -- Find a layer's best counterpart for determining an interval,
 -- that's greater than this one

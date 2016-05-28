@@ -11,8 +11,21 @@ all =
     , intervalTestProbability
     , bestGreaterCounterpartTest
     , bestLesserCounterpartTest
+    , sortIntervalsTest
     , intervalsTest
     ]
+
+ 
+-- Utilities -----------------------------------------------
+
+
+assertSameIntervals : List Interval -> List Interval -> Assertion
+assertSameIntervals x1 x2 =
+    let
+        x1Sorted = sortIntervals x1
+        x2Sorted = sortIntervals x2
+    in
+        assertEqual x1Sorted x2Sorted
 
 closedRange : Interval -> Maybe (Float, Float)
 closedRange interval =
@@ -25,6 +38,10 @@ probability interval =
     case interval of
         Open -> Nothing
         Closed desc -> Just desc.prob
+
+
+-- Tests ----------------------------------------------------
+
 
 intervalTestOpenClosedRange : Test
 intervalTestOpenClosedRange =
@@ -231,10 +248,57 @@ bestLesserCounterpartTest =
 
     ]
 
+sortIntervalsTest : Test
+sortIntervalsTest =
+    suite "sortIntervalsTest" <|
+
+        {- Intervals in this suite:
+        
+              1.0  2.0  3.0  4.0  5.0  6.0  7.0
+               |----|----|----|----|----|----|
+           i1  (---------)
+           i2       (----)
+           i3            (---------)
+           i4       (---------)
+           i5            (----)
+           i6       (-----------
+        -}
+
+        let
+            i1 = Closed { lower = 1.0, upper = 3.0, prob = 1.0 }
+            i2 = Closed { lower = 2.0, upper = 3.0, prob = 1.0 }
+            i3 = Closed { lower = 3.0, upper = 5.0, prob = 1.0 }
+            i4 = Closed { lower = 2.0, upper = 4.0, prob = 1.0 }
+            i5 = Closed { lower = 3.0, upper = 4.0, prob = 1.0 }
+            i6 = Open
+        in
+            [ test "Empty list sorted should be empty" <|
+              assertEqual
+              []
+              (sortIntervals [])
+
+            , test ("Intervals with all different lower bounds "
+                ++ "should be sorted by lower bounds") <|
+              assertEqual
+              [i1, i2, i3]
+              (sortIntervals [i3, i2, i1])
+
+            , test ("Intervals with all same lower bounds "
+                ++ "should be sorted by lower then upper bounds") <|
+              assertEqual
+              [i2, i4, i5, i3]
+              (sortIntervals [i5, i4, i3, i2])
+
+            , test "Open intervals should be ordered last" <|
+              assertEqual
+              [i1, i4, i5, i6]
+              (sortIntervals [i5, i4, i6, i1])
+
+            ]
+
 intervalsTest : Test
 intervalsTest =
     suite "intervalsTest"
-
     [ test "Given no layers, should return empty list" <|
       assertEqual
       []
