@@ -123,9 +123,33 @@ sortByDecreasingValue ys =
     in
         List.sortBy decreasingValue ys
 
--- Get all the best (closed) intervals given some layers
+-- Get all the (closed) intervals given some layers
 
 intervals : List Layer -> List Interval
 intervals ys =
-    []
+    let
+        pairYs = pairs ys
+        addInterval : (Layer, Layer) -> List Interval -> List Interval
+        addInterval (y1, y2) ints =
+            case (interval y1 y2) of
+                Open -> ints
+                Closed desc -> (Closed desc) :: ints
+    in
+        List.foldl addInterval [] pairYs
+
+-- Get all the pairs of elements of a list
+
+pairs : List a -> List (a, a)
+pairs xs =
+    pairs' xs []
+
+pairs' : List a -> List (a, a) -> List (a, a)
+pairs' xs accum =
+    case xs of
+        [] -> accum
+        x1 :: tail ->
+            let
+                headPairs = List.map (\x2 -> (x1, x2)) tail
+            in
+                pairs' tail (List.append headPairs accum)
 

@@ -309,5 +309,10 @@ intervalsTest =
       []
       (intervals [y1])
 
+    , test "Given two intersecting layers, should work out single interval" <|
+      assertEqual
+      [ Closed { lower = 20.0, upper = 50.0, prob = 0.15 } ]
+      (intervals [y1, y5])
+
     ]
 
