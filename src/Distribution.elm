@@ -27,8 +27,32 @@ type Interval
 
 interval : Layer -> Layer -> Interval
 interval (Layer layer1) (Layer layer2) =
-    if (layer1.limit == layer2.limit) then
-        Open
+    if (layer1.limit == AtLeast && layer2.limit == AtLeast) then
+        let
+            (earlier, later) =
+                if (layer1.value < layer2.value) then
+                    (layer1, layer2)
+                else
+                    (layer2, layer1)
+        in
+            Closed
+                { lower = earlier.value
+                , upper = later.value
+                , prob = earlier.prob - later.prob |> to4Dp
+                }
+    else if (layer1.limit == AtMost && layer2.limit == AtMost) then
+        let
+            (earlier, later) =
+                if (layer1.value < layer2.value) then
+                    (layer1, layer2)
+                else
+                    (layer2, layer1)
+        in
+             Closed
+                { lower = earlier.value
+                , upper = later.value
+                , prob = later.prob - earlier.prob |> to4Dp
+                }
     else
         Closed
             { lower = min layer1.value layer2.value

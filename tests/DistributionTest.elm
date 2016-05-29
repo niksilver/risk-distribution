@@ -83,23 +83,41 @@ intervalTestOpenClosedRange =
           (Just (55.0, 66.0))
           (interval layer1 layer2 |> closedRange)
 
-    , test "From (-- and (-- we should recognise an open interval" <|
+    , test "From early (-- and later (-- we should recognise a closed interval" <|
       let
-          layer1 = Layer { prob = 1.0, limit = AtLeast, value = 6.7 }
+          layer1 = Layer { prob = 1.0, limit = AtLeast, value = 3.4 }
+          layer2 = Layer { prob = 0.8, limit = AtLeast, value = 6.7 }
+      in
+          assertEqual
+          (Just (3.4, 6.7))
+          (interval layer1 layer2 |> closedRange)
+
+    , test "From late (-- and earlier (-- we should recognise a closed interval" <|
+      let
+          layer1 = Layer { prob = 0.75, limit = AtLeast, value = 6.7 }
           layer2 = Layer { prob = 1.0, limit = AtLeast, value = 3.4 }
       in
           assertEqual
-          (Open)
-          (interval layer1 layer2)
+          (Just (3.4, 6.7))
+          (interval layer1 layer2 |> closedRange)
 
-    , test "From --) and --) we should recognise an open interval" <|
+    , test "From early --) and later --) we should recognise a closed interval" <|
       let
-          layer1 = Layer { prob = 1.0, limit = AtMost, value = 6.7 }
-          layer2 = Layer { prob = 1.0, limit = AtMost, value = 3.4 }
+          layer1 = Layer { prob = 0.6, limit = AtMost, value = 3.3 }
+          layer2 = Layer { prob = 1.0, limit = AtMost, value = 7.7 }
       in
           assertEqual
-          (Open)
-          (interval layer1 layer2)
+          (Just (3.3, 7.7))
+          (interval layer1 layer2 |> closedRange)
+
+    , test "From late --) and earlier --) we should recognise a closed interval" <|
+      let
+          layer1 = Layer { prob = 1.0, limit = AtMost, value = 6.6 }
+          layer2 = Layer { prob = 0.3, limit = AtMost, value = 3.2 }
+      in
+          assertEqual
+          (Just (3.2, 6.6))
+          (interval layer1 layer2 |> closedRange)
 
     ]
 
@@ -123,6 +141,42 @@ intervalTestProbability =
       in
           assertEqual
           (Just 0.70)
+          (interval layer1 layer2 |> probability)
+
+    , test "From early (-- and later (-- we should get the right probability" <|
+      let
+          layer1 = Layer { prob = 0.9, limit = AtLeast, value = 3.4 }
+          layer2 = Layer { prob = 0.8, limit = AtLeast, value = 6.7 }
+      in
+          assertEqual
+          (Just 0.1)
+          (interval layer1 layer2 |> probability)
+
+    , test "From late (-- and earlier (-- we should get the right probability" <|
+      let
+          layer1 = Layer { prob = 0.7, limit = AtLeast, value = 7.7 }
+          layer2 = Layer { prob = 0.9, limit = AtLeast, value = 3.3 }
+      in
+          assertEqual
+          (Just 0.2)
+          (interval layer1 layer2 |> probability)
+
+    , test "From early --) and later --) we should get the right probability" <|
+      let
+          layer1 = Layer { prob = 0.6, limit = AtMost, value = 3.3 }
+          layer2 = Layer { prob = 1.0, limit = AtMost, value = 7.7 }
+      in
+          assertEqual
+          (Just 0.4)
+          (interval layer1 layer2 |> probability)
+
+    , test "From late --) and earlier --) we should get the right probability" <|
+      let
+          layer1 = Layer { prob = 0.75, limit = AtMost, value = 8.8 }
+          layer2 = Layer { prob = 0.45, limit = AtMost, value = 4.6 }
+      in
+          assertEqual
+          (Just 0.30)
           (interval layer1 layer2 |> probability)
 
     ]
@@ -313,6 +367,11 @@ intervalsTest =
       assertEqual
       [ Closed { lower = 20.0, upper = 50.0, prob = 0.15 } ]
       (intervals [y1, y5])
+
+    , test "Given two intersecting layers reversed, should work out single interval" <|
+      assertEqual
+      [ Closed { lower = 20.0, upper = 50.0, prob = 0.15 } ]
+      (intervals [y5, y1])
 
     ]
 
