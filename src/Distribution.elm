@@ -27,37 +27,23 @@ type Interval
 
 interval : Layer -> Layer -> Interval
 interval (Layer layer1) (Layer layer2) =
-    if (layer1.limit == AtLeast && layer2.limit == AtLeast) then
-        let
-            (earlier, later) =
-                if (layer1.value < layer2.value) then
-                    (layer1, layer2)
-                else
-                    (layer2, layer1)
-        in
-            Closed
-                { lower = earlier.value
-                , upper = later.value
-                , prob = earlier.prob - later.prob |> to4Dp
-                }
-    else if (layer1.limit == AtMost && layer2.limit == AtMost) then
-        let
-            (earlier, later) =
-                if (layer1.value < layer2.value) then
-                    (layer1, layer2)
-                else
-                    (layer2, layer1)
-        in
-             Closed
-                { lower = earlier.value
-                , upper = later.value
-                , prob = later.prob - earlier.prob |> to4Dp
-                }
-    else
+    let
+        (earlier, later) =
+            if (layer1.value < layer2.value) then
+                (layer1, layer2)
+            else
+                (layer2, layer1)
+        probability =
+            case (layer1.limit, layer2.limit) of
+                (AtLeast, AtLeast) -> earlier.prob - later.prob
+                (AtMost, AtMost) -> later.prob - earlier.prob
+                (AtLeast, AtMost) -> layer1.prob + layer2.prob - 1
+                (AtMost, AtLeast) -> layer1.prob + layer2.prob - 1
+    in
         Closed
-            { lower = min layer1.value layer2.value
-            , upper = max layer1.value layer2.value
-            , prob = layer1.prob + layer2.prob - 1 |> to4Dp
+            { lower = earlier.value
+            , upper = later.value
+            , prob = probability |> to4Dp
             }
 
 -- Round a float to 4 decimal places, to avoid silly numbers due
