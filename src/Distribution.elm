@@ -140,12 +140,12 @@ intervals ys =
     let
         laterLayer (Layer desc) (Layer desc2) = desc2.value > desc.value
         layerValue (Layer desc) = desc.value
-        counterpart y =
+        bestInterval y =
             List.filter (laterLayer y) ys
                 |> List.sortBy layerValue
                 |> List.head
         toInterval layer =
-            case (counterpart layer) of
+            case (bestInterval layer) of
                 Nothing -> []
                 Just layer2 -> [interval layer layer2]
     in
