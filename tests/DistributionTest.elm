@@ -9,9 +9,6 @@ all =
     suite "DistributionTest"
     [ intervalTestOpenClosedRange
     , intervalTestProbability
-    , bestGreaterCounterpartTest
-    , bestLesserCounterpartTest
-    , sortIntervalsTest
     , intervalsTest
     ]
 
@@ -38,6 +35,32 @@ probability interval =
     case interval of
         Open -> Nothing
         Closed desc -> Just desc.prob
+
+--- Sort a list of intervals.
+--- Open intervals come at the end.
+--- Closed intervals are ordered first by the lower bound, then the upper bound.
+--- The probability is ignored.
+
+sortIntervals : List Interval -> List Interval
+sortIntervals x1 =
+    let
+        -- Compare two intervals; open intervals are "larger"
+        comp : Interval -> Interval -> Order
+        comp int1 int2 =
+            case (int1, int2) of
+                (Open, Open) -> EQ
+                (Open, Closed _) -> GT
+                (Closed _, Open) -> LT
+                (Closed c1, Closed c2) ->
+                    let
+                        lowerComp = compare c1.lower c2.lower
+                    in
+                        if (lowerComp == EQ) then
+                            compare c1.upper c2.upper
+                        else
+                            lowerComp
+    in
+        List.sortWith comp x1
 
 
 -- Tests ----------------------------------------------------
@@ -209,146 +232,6 @@ y6 = Layer { prob = 0.40, limit = AtMost, value = 85.0 }
 y7 = Layer { prob = 0.50, limit = AtMost, value = 110.0 }
 y8 = Layer { prob = 1.00, limit = AtMost, value = 300.0 }
 layers = [ y7, y5, y3, y1, y2, y4, y6, y8 ]
-
-bestGreaterCounterpartTest : Test
-bestGreaterCounterpartTest =
-    suite "bestGreaterCounterpartTest"
-
-    [ test "Best greater counterpart for y1 should be y5" <|
-      assertEqual
-      (Just y5)
-      (bestGreaterCounterpart y1 layers)
-
-    , test "Best greater counterpart for y2 should be y6" <|
-      assertEqual
-      (Just y6)
-      (bestGreaterCounterpart y2 layers)
-
-    , test "Best greater counterpart for y3 should be y8" <|
-      assertEqual
-      (Just y8)
-      (bestGreaterCounterpart y3 layers)
-
-    , test "Best greater counterpart for y4 should be y8" <|
-      assertEqual
-      (Just y8)
-      (bestGreaterCounterpart y4 layers)
-
-    , test "Best greater counterpart for y5 should be y3" <|
-      assertEqual
-      (Just y3)
-      (bestGreaterCounterpart y5 layers)
-
-    , test "Best greater counterpart for y6 should be y3" <|
-      assertEqual
-      (Just y3)
-      (bestGreaterCounterpart y6 layers)
-
-    , test "Best greater counterpart for y7 should be y4" <|
-      assertEqual
-      (Just y4)
-      (bestGreaterCounterpart y7 layers)
-
-    , test "Best greater counterpart for y8 should not exist" <|
-      assertEqual
-      (Nothing)
-      (bestGreaterCounterpart y8 layers)
-
-    ]
-
-bestLesserCounterpartTest : Test
-bestLesserCounterpartTest =
-    suite "bestLesserCounterpartTest"
-
-    [ test "Best lesser counterpart for y1 should not exist" <|
-      assertEqual
-      (Nothing)
-      (bestLesserCounterpart y1 layers)
-
-    , test "Best lesser counterpart for y2 should not exist" <|
-      assertEqual
-      (Nothing)
-      (bestLesserCounterpart y2 layers)
-
-    , test "Best lesser counterpart for y3 should be y6" <|
-      assertEqual
-      (Just y6)
-      (bestLesserCounterpart y3 layers)
-
-    , test "Best lesser counterpart for y4 should be y7" <|
-      assertEqual
-      (Just y7)
-      (bestLesserCounterpart y4 layers)
-
-    , test "Best lesser counterpart for y5 should be y1" <|
-      assertEqual
-      (Just y1)
-      (bestLesserCounterpart y5 layers)
-
-    , test "Best lesser counterpart for y6 should be y2" <|
-      assertEqual
-      (Just y2)
-      (bestLesserCounterpart y6 layers)
-
-    , test "Best lesser counterpart for y7 should be y2" <|
-      assertEqual
-      (Just y2)
-      (bestLesserCounterpart y7 layers)
-
-    , test "Best lesser counterpart for y8 should be y4" <|
-      assertEqual
-      (Just y4)
-      (bestLesserCounterpart y8 layers)
-
-    ]
-
-sortIntervalsTest : Test
-sortIntervalsTest =
-    suite "sortIntervalsTest" <|
-
-        {- Intervals in this suite:
-        
-              1.0  2.0  3.0  4.0  5.0  6.0  7.0
-               |----|----|----|----|----|----|
-           i1  (---------)
-           i2       (----)
-           i3            (---------)
-           i4       (---------)
-           i5            (----)
-           i6       (-----------
-        -}
-
-        let
-            i1 = Closed { lower = 1.0, upper = 3.0, prob = 1.0 }
-            i2 = Closed { lower = 2.0, upper = 3.0, prob = 1.0 }
-            i3 = Closed { lower = 3.0, upper = 5.0, prob = 1.0 }
-            i4 = Closed { lower = 2.0, upper = 4.0, prob = 1.0 }
-            i5 = Closed { lower = 3.0, upper = 4.0, prob = 1.0 }
-            i6 = Open
-        in
-            [ test "Empty list sorted should be empty" <|
-              assertEqual
-              []
-              (sortIntervals [])
-
-            , test ("Intervals with all different lower bounds "
-                ++ "should be sorted by lower bounds") <|
-              assertEqual
-              [i1, i2, i3]
-              (sortIntervals [i3, i2, i1])
-
-            , test ("Intervals with all same lower bounds "
-                ++ "should be sorted by lower then upper bounds") <|
-              assertEqual
-              [i2, i4, i5, i3]
-              (sortIntervals [i5, i4, i3, i2])
-
-            , test "Open intervals should be ordered last" <|
-              assertEqual
-              [i1, i4, i5, i6]
-              (sortIntervals [i5, i4, i6, i1])
-
-            ]
 
 intervalsTest : Test
 intervalsTest =

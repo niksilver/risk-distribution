@@ -1,8 +1,6 @@
 module Distribution exposing
     ( Layer(Layer), Limit(AtLeast, AtMost), Interval(Closed, Open)
     , interval
-    , sortIntervals
-    , bestGreaterCounterpart, bestLesserCounterpart
     , intervals
     )
 
@@ -53,86 +51,6 @@ to4Dp : Float -> Float
 to4Dp x =
     (x * 1000 |> round |> toFloat) / 1000
 
--- Sort a list of intervals.
--- Open intervals come at the end.
--- Closed intervals are ordered first by the lower bound, then the upper bound.
--- The probability is ignored.
-
-sortIntervals : List Interval -> List Interval
-sortIntervals x1 =
-    let
-        -- Compare two intervals; open intervals are "larger"
-        comp : Interval -> Interval -> Order
-        comp int1 int2 =
-            case (int1, int2) of
-                (Open, Open) -> EQ
-                (Open, Closed _) -> GT
-                (Closed _, Open) -> LT
-                (Closed c1, Closed c2) ->
-                    let
-                        lowerComp = compare c1.lower c2.lower
-                    in
-                        if (lowerComp == EQ) then
-                            compare c1.upper c2.upper
-                        else
-                            lowerComp
-    in
-        List.sortWith comp x1
-
--- Find a layer's best counterpart for determining an interval,
--- that's greater than this one
-
-bestGreaterCounterpart : Layer -> List Layer -> Maybe Layer
-bestGreaterCounterpart y ys =
-    ys
-        |> greaterThanAndOpposite y
-        |> sortByValue
-        |> List.head
-
-greaterThanAndOpposite : Layer -> List Layer -> List Layer
-greaterThanAndOpposite y ys =
-    let
-        greaterThan (Layer d1) (Layer d2) =
-            d1.value > d2.value
-        opposite (Layer d1) (Layer d2) =
-            d1.limit /= d2.limit
-    in
-        List.filter (\y2 -> greaterThan y2 y && opposite y2 y) ys
-
-sortByValue : List Layer -> List Layer
-sortByValue ys =
-    let
-        value (Layer d) = d.value
-    in
-        List.sortBy value ys
-
--- Find a layer's best counterpart for determining an interval,
--- that's less than this one
-
-bestLesserCounterpart : Layer -> List Layer -> Maybe Layer
-bestLesserCounterpart y ys =
-    ys
-        |> lessThanAndOpposite y
-        |> sortByDecreasingValue
-        |> List.head
-
-lessThanAndOpposite : Layer -> List Layer -> List Layer
-lessThanAndOpposite y ys =
-    let
-        lessThan (Layer d1) (Layer d2) =
-            d1.value < d2.value
-        opposite (Layer d1) (Layer d2) =
-            d1.limit /= d2.limit
-    in
-        List.filter (\y2 -> lessThan y2 y && opposite y2 y) ys
-
-sortByDecreasingValue : List Layer -> List Layer
-sortByDecreasingValue ys =
-    let
-        decreasingValue (Layer d) = -1 * d.value
-    in
-        List.sortBy decreasingValue ys
-
 -- Get all the (closed) intervals given some layers
 
 intervals : List Layer -> List Interval
@@ -151,20 +69,4 @@ intervals ys =
     in
         List.map toInterval ys
             |> List.concat
-
--- Get all the pairs of elements of a list
-
-pairs : List a -> List (a, a)
-pairs xs =
-    pairs' xs []
-
-pairs' : List a -> List (a, a) -> List (a, a)
-pairs' xs accum =
-    case xs of
-        [] -> accum
-        x1 :: tail ->
-            let
-                headPairs = List.map (\x2 -> (x1, x2)) tail
-            in
-                pairs' tail (List.append headPairs accum)
 
