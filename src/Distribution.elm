@@ -1,5 +1,5 @@
 module Distribution exposing
-    ( Layer(Layer), Limit(AtLeast, AtMost), Interval(Closed, Open)
+    ( Layer(Layer), Limit(AtLeast, AtMost), Interval(Closed)
     , interval
     , intervals
     )
@@ -15,11 +15,10 @@ type Layer =
 
 type Limit = AtLeast | AtMost
 
--- How to layers overlap (if at all)
+-- How two layers overlap
 
 type Interval
     = Closed { lower : Float, upper : Float, prob : Float }
-    | Open
 
 -- Deduce an interval, if any, given two layers
 

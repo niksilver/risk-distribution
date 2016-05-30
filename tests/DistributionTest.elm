@@ -24,17 +24,15 @@ assertSameIntervals x1 x2 =
     in
         assertEqual x1Sorted x2Sorted
 
-closedRange : Interval -> Maybe (Float, Float)
-closedRange interval =
+range : Interval -> (Float, Float)
+range interval =
     case interval of
-        Open -> Nothing
-        Closed desc -> Just (desc.lower, desc.upper)
+        Closed desc -> (desc.lower, desc.upper)
 
-probability : Interval -> Maybe Float
+probability : Interval -> Float
 probability interval =
     case interval of
-        Open -> Nothing
-        Closed desc -> Just desc.prob
+        Closed desc -> desc.prob
 
 --- Sort a list of intervals.
 --- Open intervals come at the end.
@@ -44,21 +42,16 @@ probability interval =
 sortIntervals : List Interval -> List Interval
 sortIntervals x1 =
     let
-        -- Compare two intervals; open intervals are "larger"
+        -- Compare two intervals
         comp : Interval -> Interval -> Order
-        comp int1 int2 =
-            case (int1, int2) of
-                (Open, Open) -> EQ
-                (Open, Closed _) -> GT
-                (Closed _, Open) -> LT
-                (Closed c1, Closed c2) ->
-                    let
-                        lowerComp = compare c1.lower c2.lower
-                    in
-                        if (lowerComp == EQ) then
-                            compare c1.upper c2.upper
-                        else
-                            lowerComp
+        comp (Closed c1) (Closed c2) =
+            let
+                lowerComp = compare c1.lower c2.lower
+            in
+                if (lowerComp == EQ) then
+                    compare c1.upper c2.upper
+                else
+                    lowerComp
     in
         List.sortWith comp x1
 
@@ -76,8 +69,8 @@ intervalTestOpenClosedRange =
           layer2 = Layer { prob = 1.0, limit = AtMost, value = 123.0 }
       in
           assertEqual
-          (Just (7.0, 123.0))
-          (interval layer1 layer2 |> closedRange)
+          (7.0, 123.0)
+          (interval layer1 layer2 |> range)
 
     , test "From (-- and --) overlapping we should recognise a closed interval (2)" <|
       let
@@ -85,8 +78,8 @@ intervalTestOpenClosedRange =
           layer2 = Layer { prob = 1.0, limit = AtMost, value = 6.7 }
       in
           assertEqual
-          (Just (3.4, 6.7))
-          (interval layer1 layer2 |> closedRange)
+          (3.4, 6.7)
+          (interval layer1 layer2 |> range)
 
     , test "From --) and (-- overlapping we should recognise a closed interval" <|
       let
@@ -94,8 +87,8 @@ intervalTestOpenClosedRange =
           layer2 = Layer { prob = 1.0, limit = AtLeast, value = 3.4 }
       in
           assertEqual
-          (Just (3.4, 6.7))
-          (interval layer1 layer2 |> closedRange)
+          (3.4, 6.7)
+          (interval layer1 layer2 |> range)
 
     , test "From --) and (-- not overlapping we should recognise a closed interval" <|
       let
@@ -103,8 +96,8 @@ intervalTestOpenClosedRange =
           layer2 = Layer { prob = 1.0, limit = AtLeast, value = 66.0 }
       in
           assertEqual
-          (Just (55.0, 66.0))
-          (interval layer1 layer2 |> closedRange)
+          (55.0, 66.0)
+          (interval layer1 layer2 |> range)
 
     , test "From early (-- and later (-- we should recognise a closed interval" <|
       let
@@ -112,8 +105,8 @@ intervalTestOpenClosedRange =
           layer2 = Layer { prob = 0.8, limit = AtLeast, value = 6.7 }
       in
           assertEqual
-          (Just (3.4, 6.7))
-          (interval layer1 layer2 |> closedRange)
+          (3.4, 6.7)
+          (interval layer1 layer2 |> range)
 
     , test "From late (-- and earlier (-- we should recognise a closed interval" <|
       let
@@ -121,8 +114,8 @@ intervalTestOpenClosedRange =
           layer2 = Layer { prob = 1.0, limit = AtLeast, value = 3.4 }
       in
           assertEqual
-          (Just (3.4, 6.7))
-          (interval layer1 layer2 |> closedRange)
+          (3.4, 6.7)
+          (interval layer1 layer2 |> range)
 
     , test "From early --) and later --) we should recognise a closed interval" <|
       let
@@ -130,8 +123,8 @@ intervalTestOpenClosedRange =
           layer2 = Layer { prob = 1.0, limit = AtMost, value = 7.7 }
       in
           assertEqual
-          (Just (3.3, 7.7))
-          (interval layer1 layer2 |> closedRange)
+          (3.3, 7.7)
+          (interval layer1 layer2 |> range)
 
     , test "From late --) and earlier --) we should recognise a closed interval" <|
       let
@@ -139,8 +132,8 @@ intervalTestOpenClosedRange =
           layer2 = Layer { prob = 0.3, limit = AtMost, value = 3.2 }
       in
           assertEqual
-          (Just (3.2, 6.6))
-          (interval layer1 layer2 |> closedRange)
+          (3.2, 6.6)
+          (interval layer1 layer2 |> range)
 
     ]
 
@@ -154,7 +147,7 @@ intervalTestProbability =
           layer2 = Layer { prob = 0.70, limit = AtMost, value = 123.0 }
       in
           assertEqual
-          (Just 0.20)
+          (0.20)
           (interval layer1 layer2 |> probability)
 
     , test "From --) and (-- overlapping we should get the right probability" <|
@@ -163,7 +156,7 @@ intervalTestProbability =
           layer2 = Layer { prob = 0.80, limit = AtLeast, value = 7.0 }
       in
           assertEqual
-          (Just 0.70)
+          (0.70)
           (interval layer1 layer2 |> probability)
 
     , test "From early (-- and later (-- we should get the right probability" <|
@@ -172,7 +165,7 @@ intervalTestProbability =
           layer2 = Layer { prob = 0.8, limit = AtLeast, value = 6.7 }
       in
           assertEqual
-          (Just 0.1)
+          (0.1)
           (interval layer1 layer2 |> probability)
 
     , test "From late (-- and earlier (-- we should get the right probability" <|
@@ -181,7 +174,7 @@ intervalTestProbability =
           layer2 = Layer { prob = 0.9, limit = AtLeast, value = 3.3 }
       in
           assertEqual
-          (Just 0.2)
+          (0.2)
           (interval layer1 layer2 |> probability)
 
     , test "From early --) and later --) we should get the right probability" <|
@@ -190,7 +183,7 @@ intervalTestProbability =
           layer2 = Layer { prob = 1.0, limit = AtMost, value = 7.7 }
       in
           assertEqual
-          (Just 0.4)
+          (0.4)
           (interval layer1 layer2 |> probability)
 
     , test "From late --) and earlier --) we should get the right probability" <|
@@ -199,7 +192,7 @@ intervalTestProbability =
           layer2 = Layer { prob = 0.45, limit = AtMost, value = 4.6 }
       in
           assertEqual
-          (Just 0.30)
+          (0.30)
           (interval layer1 layer2 |> probability)
 
     ]
