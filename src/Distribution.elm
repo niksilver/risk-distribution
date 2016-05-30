@@ -138,9 +138,11 @@ sortByDecreasingValue ys =
 intervals : List Layer -> List Interval
 intervals ys =
     let
-        counterpart (Layer desc) =
-            List.filter (\(Layer desc2) -> desc2.value > desc.value) ys
-                |> List.sortBy (\(Layer desc2) -> desc2.value)
+        laterLayer (Layer desc) (Layer desc2) = desc2.value > desc.value
+        layerValue (Layer desc) = desc.value
+        counterpart y =
+            List.filter (laterLayer y) ys
+                |> List.sortBy layerValue
                 |> List.head
         toInterval layer =
             case (counterpart layer) of
