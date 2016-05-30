@@ -51,7 +51,7 @@ to4Dp : Float -> Float
 to4Dp x =
     (x * 1000 |> round |> toFloat) / 1000
 
--- Get all the (closed) intervals given some layers
+-- Get all the set of shortest (closed) intervals given some layers
 
 intervals : List Layer -> List Interval
 intervals ys =
