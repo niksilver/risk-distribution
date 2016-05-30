@@ -373,5 +373,17 @@ intervalsTest =
       [ Closed { lower = 20.0, upper = 50.0, prob = 0.15 } ]
       (intervals [y5, y1])
 
+    , test "Given two layers in same direction, should work out single interval" <|
+      assertEqual
+      [ Closed { lower = 20.0, upper = 110.0, prob = 0.50 } ]
+      (intervals [y1, y3])
+
+    , test "Given three layers in same direction, should work out two intervals" <|
+      assertSameIntervals
+      [ Closed { lower = 20.0, upper = 50.0, prob = 0.15 }
+      , Closed { lower = 50.0, upper = 110.0, prob = 0.35 }
+      ]
+      (intervals [y1, y2, y3])
+
     ]
 

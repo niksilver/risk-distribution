@@ -138,14 +138,17 @@ sortByDecreasingValue ys =
 intervals : List Layer -> List Interval
 intervals ys =
     let
-        pairYs = pairs ys
-        addInterval : (Layer, Layer) -> List Interval -> List Interval
-        addInterval (y1, y2) ints =
-            case (interval y1 y2) of
-                Open -> ints
-                Closed desc -> (Closed desc) :: ints
+        counterpart (Layer desc) =
+            List.filter (\(Layer desc2) -> desc2.value > desc.value) ys
+                |> List.sortBy (\(Layer desc2) -> desc2.value)
+                |> List.head
+        toInterval layer =
+            case (counterpart layer) of
+                Nothing -> []
+                Just layer2 -> [interval layer layer2]
     in
-        List.foldl addInterval [] pairYs
+        List.map toInterval ys
+            |> List.concat
 
 -- Get all the pairs of elements of a list
 
