@@ -261,5 +261,13 @@ intervalsTest =
       ]
       (intervals [y1, y2, y3])
 
+    , test "Given four layers, should work out three intervals" <|
+      assertSameIntervals
+      [ Closed { lower = 20.0, upper = 50.0, prob = 0.15 }
+      , Closed { lower = 50.0, upper = 110.0, prob = 0.35 }
+      , Closed { lower = 110.0, upper = 300.0, prob = 0.50 }
+      ]
+      (intervals [y8, y7, y1, y2])
+
     ]
 
