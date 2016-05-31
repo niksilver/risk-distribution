@@ -1,22 +1,19 @@
-import Html exposing (Html)
+import Chart
+
 import Html.App exposing (program)
 
-type alias Model = String
+type alias Model = Chart.Model
 
-type Msg = Ping
+type alias Msg = Chart.Msg
 
 main : Program Never
 main =
     program
-        { init = ("Hello, world!", Cmd.none)
-        , view = view
+        { init = (Chart.init, Cmd.none)
+        , view = Chart.view
         , update = (\msg model -> (model, Cmd.none))
         , subscriptions = subscriptions
         }
-
-view : Model -> Html Msg
-view model =
-    Html.text model
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
