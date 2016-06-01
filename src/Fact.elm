@@ -1,6 +1,6 @@
 module Fact exposing (Model, Msg, init, view)
 
-import Html exposing (Html, text)
+import Html exposing (Html, text, div)
 
 import Distribution exposing (Interval(Closed))
 
@@ -14,4 +14,17 @@ init =
 
 view : Model -> Html Msg
 view model =
-    model |> toString |> text
+    div []
+    [ textView model
+    ]
+
+textView : Model -> Html Msg
+textView model =
+    case model of
+        Closed cls ->
+            "There is a " ++ (cls.prob |> toString)
+            ++ " probability that it's between "
+            ++ (cls.lower |> toString) ++ " and "
+            ++ (cls.upper |> toString)
+            |> text
+
