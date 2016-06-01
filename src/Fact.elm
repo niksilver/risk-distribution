@@ -9,7 +9,10 @@ import Distribution exposing (Interval)
 
 -- Our model of a fact
 
-type alias Model = Interval
+type alias Model =
+    { text : { probPerc : String }
+    , data : Interval
+    }
 
 -- Things that can change: probability
 
@@ -19,7 +22,9 @@ type Msg = Prob String
 
 init : Model
 init =
-    { lower = 0, upper = 10, prob = 0.10 }
+    { text = { probPerc = "10" }
+    , data = { lower = 0, upper = 10, prob = 0.10 }
+    }
 
 -- Updating the model
 
@@ -27,13 +32,26 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
         Prob probStr ->
-            ( { model | prob = parseProb probStr model.prob }
+            ( updateProb probStr model
             , Cmd.none
             )
 
-parseProb : String -> Float -> Float
-parseProb str default =
-    Result.withDefault default (String.toFloat str)
+updateProb : String -> Model -> Model
+updateProb str model =
+    let
+        text = model.text
+        data = model.data
+    in
+        case (String.toFloat str) of
+            Ok prob ->
+                { model
+                | text = { text | probPerc = str }
+                , data = { data | prob = prob / 100 }
+                }
+            Err _ ->
+                { model
+                | text = { text | probPerc = str }
+                }
 
 -- Rendering a fact
 
@@ -44,11 +62,11 @@ view model =
     , p [] [ textView model ]
     ]
 
-probBox : Float -> Html Msg
-probBox prob =
+probBox : Model -> Html Msg
+probBox model =
     input
     [ type' "input"
-    , value (toString prob)
+    , value model.text.probPerc
     , onInput Prob
     ]
     []
@@ -57,13 +75,14 @@ formView : Model -> Html Msg
 formView model =
         span []
         [ "There is a " |> text
-        , probBox model.prob
-        , " probability that it's between "
-            ++ (model.lower |> toString) ++ " and "
-            ++ (model.upper |> toString)
+        , probBox model
+        , "% chance that it's between "
+            ++ (model.data.lower |> toString) ++ " and "
+            ++ (model.data.upper |> toString)
             |> text
         ]
 
 textView : Model -> Html Msg
 textView model =
-    model |> toString |> text
+    model.data |> toString |> text
+
