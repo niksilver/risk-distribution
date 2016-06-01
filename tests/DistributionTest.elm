@@ -58,8 +58,8 @@ intervalTestRange =
 
     [ test "From (-- and --) overlapping we should recognise a closed interval (1)" <|
       let
-          layer1 = Layer { prob = 1.0, limit = AtLeast, value = 7.0 }
-          layer2 = Layer { prob = 1.0, limit = AtMost, value = 123.0 }
+          layer1 = { prob = 1.0, limit = AtLeast, value = 7.0 }
+          layer2 = { prob = 1.0, limit = AtMost, value = 123.0 }
       in
           assertEqual
           (7.0, 123.0)
@@ -67,8 +67,8 @@ intervalTestRange =
 
     , test "From (-- and --) overlapping we should recognise a closed interval (2)" <|
       let
-          layer1 = Layer { prob = 1.0, limit = AtLeast, value = 3.4 }
-          layer2 = Layer { prob = 1.0, limit = AtMost, value = 6.7 }
+          layer1 = { prob = 1.0, limit = AtLeast, value = 3.4 }
+          layer2 = { prob = 1.0, limit = AtMost, value = 6.7 }
       in
           assertEqual
           (3.4, 6.7)
@@ -76,8 +76,8 @@ intervalTestRange =
 
     , test "From --) and (-- overlapping we should recognise a closed interval" <|
       let
-          layer1 = Layer { prob = 1.0, limit = AtMost, value = 6.7 }
-          layer2 = Layer { prob = 1.0, limit = AtLeast, value = 3.4 }
+          layer1 = { prob = 1.0, limit = AtMost, value = 6.7 }
+          layer2 = { prob = 1.0, limit = AtLeast, value = 3.4 }
       in
           assertEqual
           (3.4, 6.7)
@@ -85,8 +85,8 @@ intervalTestRange =
 
     , test "From --) and (-- not overlapping we should recognise a closed interval" <|
       let
-          layer1 = Layer { prob = 1.0, limit = AtMost, value = 55.0 }
-          layer2 = Layer { prob = 1.0, limit = AtLeast, value = 66.0 }
+          layer1 = { prob = 1.0, limit = AtMost, value = 55.0 }
+          layer2 = { prob = 1.0, limit = AtLeast, value = 66.0 }
       in
           assertEqual
           (55.0, 66.0)
@@ -94,8 +94,8 @@ intervalTestRange =
 
     , test "From early (-- and later (-- we should recognise a closed interval" <|
       let
-          layer1 = Layer { prob = 1.0, limit = AtLeast, value = 3.4 }
-          layer2 = Layer { prob = 0.8, limit = AtLeast, value = 6.7 }
+          layer1 = { prob = 1.0, limit = AtLeast, value = 3.4 }
+          layer2 = { prob = 0.8, limit = AtLeast, value = 6.7 }
       in
           assertEqual
           (3.4, 6.7)
@@ -103,8 +103,8 @@ intervalTestRange =
 
     , test "From late (-- and earlier (-- we should recognise a closed interval" <|
       let
-          layer1 = Layer { prob = 0.75, limit = AtLeast, value = 6.7 }
-          layer2 = Layer { prob = 1.0, limit = AtLeast, value = 3.4 }
+          layer1 = { prob = 0.75, limit = AtLeast, value = 6.7 }
+          layer2 = { prob = 1.0, limit = AtLeast, value = 3.4 }
       in
           assertEqual
           (3.4, 6.7)
@@ -112,8 +112,8 @@ intervalTestRange =
 
     , test "From early --) and later --) we should recognise a closed interval" <|
       let
-          layer1 = Layer { prob = 0.6, limit = AtMost, value = 3.3 }
-          layer2 = Layer { prob = 1.0, limit = AtMost, value = 7.7 }
+          layer1 = { prob = 0.6, limit = AtMost, value = 3.3 }
+          layer2 = { prob = 1.0, limit = AtMost, value = 7.7 }
       in
           assertEqual
           (3.3, 7.7)
@@ -121,8 +121,8 @@ intervalTestRange =
 
     , test "From late --) and earlier --) we should recognise a closed interval" <|
       let
-          layer1 = Layer { prob = 1.0, limit = AtMost, value = 6.6 }
-          layer2 = Layer { prob = 0.3, limit = AtMost, value = 3.2 }
+          layer1 = { prob = 1.0, limit = AtMost, value = 6.6 }
+          layer2 = { prob = 0.3, limit = AtMost, value = 3.2 }
       in
           assertEqual
           (3.2, 6.6)
@@ -136,8 +136,8 @@ intervalTestProbability =
 
     [ test "From (-- and --) overlapping we should get the right probability" <|
       let
-          layer1 = Layer { prob = 0.50, limit = AtLeast, value = 7.0 }
-          layer2 = Layer { prob = 0.70, limit = AtMost, value = 123.0 }
+          layer1 = { prob = 0.50, limit = AtLeast, value = 7.0 }
+          layer2 = { prob = 0.70, limit = AtMost, value = 123.0 }
       in
           assertEqual
           (0.20)
@@ -145,8 +145,8 @@ intervalTestProbability =
 
     , test "From --) and (-- overlapping we should get the right probability" <|
       let
-          layer1 = Layer { prob = 0.90, limit = AtMost, value = 123.0 }
-          layer2 = Layer { prob = 0.80, limit = AtLeast, value = 7.0 }
+          layer1 = { prob = 0.90, limit = AtMost, value = 123.0 }
+          layer2 = { prob = 0.80, limit = AtLeast, value = 7.0 }
       in
           assertEqual
           (0.70)
@@ -154,8 +154,8 @@ intervalTestProbability =
 
     , test "From early (-- and later (-- we should get the right probability" <|
       let
-          layer1 = Layer { prob = 0.9, limit = AtLeast, value = 3.4 }
-          layer2 = Layer { prob = 0.8, limit = AtLeast, value = 6.7 }
+          layer1 = { prob = 0.9, limit = AtLeast, value = 3.4 }
+          layer2 = { prob = 0.8, limit = AtLeast, value = 6.7 }
       in
           assertEqual
           (0.1)
@@ -163,8 +163,8 @@ intervalTestProbability =
 
     , test "From late (-- and earlier (-- we should get the right probability" <|
       let
-          layer1 = Layer { prob = 0.7, limit = AtLeast, value = 7.7 }
-          layer2 = Layer { prob = 0.9, limit = AtLeast, value = 3.3 }
+          layer1 = { prob = 0.7, limit = AtLeast, value = 7.7 }
+          layer2 = { prob = 0.9, limit = AtLeast, value = 3.3 }
       in
           assertEqual
           (0.2)
@@ -172,8 +172,8 @@ intervalTestProbability =
 
     , test "From early --) and later --) we should get the right probability" <|
       let
-          layer1 = Layer { prob = 0.6, limit = AtMost, value = 3.3 }
-          layer2 = Layer { prob = 1.0, limit = AtMost, value = 7.7 }
+          layer1 = { prob = 0.6, limit = AtMost, value = 3.3 }
+          layer2 = { prob = 1.0, limit = AtMost, value = 7.7 }
       in
           assertEqual
           (0.4)
@@ -181,8 +181,8 @@ intervalTestProbability =
 
     , test "From late --) and earlier --) we should get the right probability" <|
       let
-          layer1 = Layer { prob = 0.75, limit = AtMost, value = 8.8 }
-          layer2 = Layer { prob = 0.45, limit = AtMost, value = 4.6 }
+          layer1 = { prob = 0.75, limit = AtMost, value = 8.8 }
+          layer2 = { prob = 0.45, limit = AtMost, value = 4.6 }
       in
           assertEqual
           (0.30)
@@ -209,14 +209,14 @@ intervalTestProbability =
   We will list those out of order...
 -}
 
-y1 = Layer { prob = 1.00, limit = AtLeast, value = 20.0 }
-y2 = Layer { prob = 0.85, limit = AtLeast, value = 50.0 }
-y3 = Layer { prob = 0.50, limit = AtLeast, value = 110.0 }
-y4 = Layer { prob = 0.10, limit = AtLeast, value = 200.0 }
-y5 = Layer { prob = 0.15, limit = AtMost, value = 50.0 }
-y6 = Layer { prob = 0.40, limit = AtMost, value = 85.0 }
-y7 = Layer { prob = 0.50, limit = AtMost, value = 110.0 }
-y8 = Layer { prob = 1.00, limit = AtMost, value = 300.0 }
+y1 = { prob = 1.00, limit = AtLeast, value = 20.0 }
+y2 = { prob = 0.85, limit = AtLeast, value = 50.0 }
+y3 = { prob = 0.50, limit = AtLeast, value = 110.0 }
+y4 = { prob = 0.10, limit = AtLeast, value = 200.0 }
+y5 = { prob = 0.15, limit = AtMost, value = 50.0 }
+y6 = { prob = 0.40, limit = AtMost, value = 85.0 }
+y7 = { prob = 0.50, limit = AtMost, value = 110.0 }
+y8 = { prob = 1.00, limit = AtMost, value = 300.0 }
 layers = [ y7, y5, y3, y1, y2, y4, y6, y8 ]
 
 intervalsTest : Test

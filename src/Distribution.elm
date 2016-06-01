@@ -1,17 +1,16 @@
 module Distribution exposing
-    ( Layer(Layer), Limit(AtLeast, AtMost), Interval
+    ( Layer, Limit(AtLeast, AtMost), Interval
     , interval
     , intervals
     )
 
 -- A layer of a distribution
 
-type Layer =
-    Layer
-        { prob : Float
-        , limit : Limit
-        , value : Float
-        }
+type alias Layer =
+    { prob : Float
+    , limit : Limit
+    , value : Float
+    }
 
 type Limit = AtLeast | AtMost
 
@@ -23,7 +22,7 @@ type alias Interval
 -- Deduce an interval, if any, given two layers
 
 interval : Layer -> Layer -> Interval
-interval (Layer layer1) (Layer layer2) =
+interval layer1 layer2 =
     let
         (earlier, later) =
             if (layer1.value < layer2.value) then
@@ -54,8 +53,8 @@ to4Dp x =
 intervals : List Layer -> List Interval
 intervals ys =
     let
-        laterLayer (Layer desc) (Layer desc2) = desc2.value > desc.value
-        layerValue (Layer desc) = desc.value
+        laterLayer layer layer2 = layer2.value > layer.value
+        layerValue layer = layer.value
         bestInterval y =
             List.filter (laterLayer y) ys
                 |> List.sortBy layerValue
