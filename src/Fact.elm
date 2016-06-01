@@ -15,7 +15,7 @@ import Distribution exposing (Layer, Limit(AtMost, AtLeast))
 -- Our model of a fact
 
 type alias Model =
-    { text : { probPerc : String }
+    { text : { probPerc : String, value : String }
     , data : Layer
     }
 
@@ -23,13 +23,14 @@ type alias Model =
 
 type Msg
     = Prob String
+    | Value String
     | ChangeLimit
 
 -- Initial model
 
 init : Model
 init =
-    { text = { probPerc = "10" }
+    { text = { probPerc = "10", value = "20" }
     , data = { prob = 0.10, limit = AtLeast, value = 20.0 }
     }
 
@@ -40,6 +41,10 @@ update msg model =
     case msg of
         Prob probStr ->
             ( updateProb probStr model
+            , Cmd.none
+            )
+        Value valueStr ->
+            ( updateValue valueStr model
             , Cmd.none
             )
         ChangeLimit ->
@@ -58,6 +63,21 @@ updateProb str model =
             Ok prob ->
                 { model'
                 | data = { data | prob = prob / 100 }
+                }
+            Err _ ->
+                model'
+
+updateValue : String -> Model -> Model
+updateValue str model =
+    let
+        text = model.text
+        data = model.data
+        model' = { model | text = { text | value = str } }
+    in
+        case (String.toFloat str) of
+            Ok value ->
+                { model'
+                | data = { data | value = value }
                 }
             Err _ ->
                 model'
@@ -91,6 +111,15 @@ probBox model =
     ]
     []
 
+valueBox : Model -> Html Msg
+valueBox model =
+    input
+    [ type' "input"
+    , value model.text.value
+    , onInput Value
+    ]
+    []
+
 limitControl : Model -> Html Msg
 limitControl model =
     let
@@ -112,7 +141,8 @@ formView model =
         , probBox model
         , "% chance that it's " |> text
         , limitControl model
-        , " " ++ (model.data.value |> toString) |> text
+        , " " |> text
+        , valueBox model
         ]
 
 textView : Model -> Html Msg
