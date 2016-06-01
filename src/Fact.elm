@@ -1,6 +1,7 @@
 module Fact exposing (Model, Msg, init, view)
 
-import Html exposing (Html, text, div)
+import Html exposing (Html, text, div, span, input)
+import Html.Attributes exposing (type', value)
 
 import Distribution exposing (Interval(Closed))
 
@@ -15,16 +16,25 @@ init =
 view : Model -> Html Msg
 view model =
     div []
-    [ textView model
+    [ formView model
     ]
 
-textView : Model -> Html Msg
-textView model =
+probBox : Float -> Html Msg
+probBox prob =
+    input
+    [ type' "input", value (toString prob) ]
+    []
+
+formView : Model -> Html Msg
+formView model =
     case model of
         Closed cls ->
-            "There is a " ++ (cls.prob |> toString)
-            ++ " probability that it's between "
-            ++ (cls.lower |> toString) ++ " and "
-            ++ (cls.upper |> toString)
-            |> text
+            span []
+            [ "There is a " |> text
+            , probBox cls.prob
+            , " probability that it's between "
+                ++ (cls.lower |> toString) ++ " and "
+                ++ (cls.upper |> toString)
+                |> text
+            ]
 
