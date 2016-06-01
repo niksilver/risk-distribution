@@ -1,9 +1,14 @@
 module Fact exposing (Model, Msg, init, update, view)
 
 import String
-import Html exposing (Html, text, div, span, p, input)
-import Html.Attributes exposing (type', value)
-import Html.Events exposing (onInput)
+import Html exposing
+    ( Html
+    , text, div, span, p
+    , a
+    , input
+    )
+import Html.Attributes exposing (type', href, value)
+import Html.Events exposing (onClick, onInput)
 
 import Distribution exposing (Layer, Limit(AtMost, AtLeast))
 
@@ -16,7 +21,9 @@ type alias Model =
 
 -- Things that can change: probability
 
-type Msg = Prob String
+type Msg
+    = Prob String
+    | ChangeLimit
 
 -- Initial model
 
@@ -35,6 +42,10 @@ update msg model =
             ( updateProb probStr model
             , Cmd.none
             )
+        ChangeLimit ->
+            ( toggleLimit model
+            , Cmd.none
+            )
 
 updateProb : String -> Model -> Model
 updateProb str model =
@@ -50,6 +61,17 @@ updateProb str model =
                 }
             Err _ ->
                 model'
+
+toggleLimit : Model -> Model
+toggleLimit model =
+    let
+        limit' =
+            case (model.data.limit) of
+                AtMost -> AtLeast
+                AtLeast -> AtMost
+        data = model.data
+    in
+        { model | data = { data | limit = limit' } }
 
 -- Rendering a fact
 
@@ -69,22 +91,28 @@ probBox model =
     ]
     []
 
-limitString : Model -> String
-limitString model =
-    case model.data.limit of
-        AtLeast -> "at least"
-        AtMost -> "at most"
+limitControl : Model -> Html Msg
+limitControl model =
+    let
+        content =
+            case model.data.limit of
+                AtLeast -> "at least"
+                AtMost -> "at most"
+    in
+        a
+        [ href "#"
+        , onClick ChangeLimit
+        ]
+        [ content |> text ]
 
 formView : Model -> Html Msg
 formView model =
         span []
         [ "There is a " |> text
         , probBox model
-        , "% chance that it's "
-            ++ (limitString model)
-            ++ " "
-            ++ (model.data.value |> toString)
-            |> text
+        , "% chance that it's " |> text
+        , limitControl model
+        , " " ++ (model.data.value |> toString) |> text
         ]
 
 textView : Model -> Html Msg
