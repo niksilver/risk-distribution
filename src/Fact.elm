@@ -5,13 +5,13 @@ import Html exposing (Html, text, div, span, p, input)
 import Html.Attributes exposing (type', value)
 import Html.Events exposing (onInput)
 
-import Distribution exposing (Interval)
+import Distribution exposing (Layer, Limit(AtMost, AtLeast))
 
 -- Our model of a fact
 
 type alias Model =
     { text : { probPerc : String }
-    , data : Interval
+    , data : Layer
     }
 
 -- Things that can change: probability
@@ -23,7 +23,7 @@ type Msg = Prob String
 init : Model
 init =
     { text = { probPerc = "10" }
-    , data = { lower = 0, upper = 10, prob = 0.10 }
+    , data = { prob = 0.10, limit = AtLeast, value = 20.0 }
     }
 
 -- Updating the model
@@ -69,14 +69,21 @@ probBox model =
     ]
     []
 
+limitString : Model -> String
+limitString model =
+    case model.data.limit of
+        AtLeast -> "at least"
+        AtMost -> "at most"
+
 formView : Model -> Html Msg
 formView model =
         span []
         [ "There is a " |> text
         , probBox model
-        , "% chance that it's between "
-            ++ (model.data.lower |> toString) ++ " and "
-            ++ (model.data.upper |> toString)
+        , "% chance that it's "
+            ++ (limitString model)
+            ++ " "
+            ++ (model.data.value |> toString)
             |> text
         ]
 
