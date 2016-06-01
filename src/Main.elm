@@ -1,16 +1,16 @@
-import Chart
+import Fact
 
 import Html.App exposing (program)
 
-type alias Model = Chart.Model
+type alias Model = Fact.Model
 
-type alias Msg = Chart.Msg
+type alias Msg = Fact.Msg
 
 main : Program Never
 main =
     program
-        { init = (Chart.init, Cmd.none)
-        , view = Chart.view
+        { init = (Fact.init, Cmd.none)
+        , view = Fact.view
         , update = (\msg model -> (model, Cmd.none))
         , subscriptions = subscriptions
         }
