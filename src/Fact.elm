@@ -41,17 +41,15 @@ updateProb str model =
     let
         text = model.text
         data = model.data
+        model' = { model | text = { text | probPerc = str } }
     in
         case (String.toFloat str) of
             Ok prob ->
-                { model
-                | text = { text | probPerc = str }
-                , data = { data | prob = prob / 100 }
+                { model'
+                | data = { data | prob = prob / 100 }
                 }
             Err _ ->
-                { model
-                | text = { text | probPerc = str }
-                }
+                model'
 
 -- Rendering a fact
 
