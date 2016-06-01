@@ -11,7 +11,7 @@ main =
     program
         { init = (Fact.init, Cmd.none)
         , view = Fact.view
-        , update = (\msg model -> (model, Cmd.none))
+        , update = Fact.update
         , subscriptions = subscriptions
         }
 
