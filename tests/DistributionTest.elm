@@ -7,7 +7,7 @@ import ElmTest exposing (..)
 all : Test
 all =
     suite "DistributionTest"
-    [ intervalTestOpenClosedRange
+    [ intervalTestRange
     , intervalTestProbability
     , intervalsTest
     ]
@@ -26,17 +26,10 @@ assertSameIntervals x1 x2 =
 
 range : Interval -> (Float, Float)
 range interval =
-    case interval of
-        Closed desc -> (desc.lower, desc.upper)
-
-probability : Interval -> Float
-probability interval =
-    case interval of
-        Closed desc -> desc.prob
+    (interval.lower, interval.upper)
 
 --- Sort a list of intervals.
---- Open intervals come at the end.
---- Closed intervals are ordered first by the lower bound, then the upper bound.
+--- They are ordered first by the lower bound, then the upper bound.
 --- The probability is ignored.
 
 sortIntervals : List Interval -> List Interval
@@ -44,12 +37,12 @@ sortIntervals x1 =
     let
         -- Compare two intervals
         comp : Interval -> Interval -> Order
-        comp (Closed c1) (Closed c2) =
+        comp i1 i2 =
             let
-                lowerComp = compare c1.lower c2.lower
+                lowerComp = compare i1.lower i2.lower
             in
                 if (lowerComp == EQ) then
-                    compare c1.upper c2.upper
+                    compare i1.upper i2.upper
                 else
                     lowerComp
     in
@@ -59,8 +52,8 @@ sortIntervals x1 =
 -- Tests ----------------------------------------------------
 
 
-intervalTestOpenClosedRange : Test
-intervalTestOpenClosedRange =
+intervalTestRange : Test
+intervalTestRange =
     suite "intervalTest - open/closed range"
 
     [ test "From (-- and --) overlapping we should recognise a closed interval (1)" <|
@@ -148,7 +141,7 @@ intervalTestProbability =
       in
           assertEqual
           (0.20)
-          (interval layer1 layer2 |> probability)
+          (interval layer1 layer2 |> .prob)
 
     , test "From --) and (-- overlapping we should get the right probability" <|
       let
@@ -157,7 +150,7 @@ intervalTestProbability =
       in
           assertEqual
           (0.70)
-          (interval layer1 layer2 |> probability)
+          (interval layer1 layer2 |> .prob)
 
     , test "From early (-- and later (-- we should get the right probability" <|
       let
@@ -166,7 +159,7 @@ intervalTestProbability =
       in
           assertEqual
           (0.1)
-          (interval layer1 layer2 |> probability)
+          (interval layer1 layer2 |> .prob)
 
     , test "From late (-- and earlier (-- we should get the right probability" <|
       let
@@ -175,7 +168,7 @@ intervalTestProbability =
       in
           assertEqual
           (0.2)
-          (interval layer1 layer2 |> probability)
+          (interval layer1 layer2 |> .prob)
 
     , test "From early --) and later --) we should get the right probability" <|
       let
@@ -184,7 +177,7 @@ intervalTestProbability =
       in
           assertEqual
           (0.4)
-          (interval layer1 layer2 |> probability)
+          (interval layer1 layer2 |> .prob)
 
     , test "From late --) and earlier --) we should get the right probability" <|
       let
@@ -193,7 +186,7 @@ intervalTestProbability =
       in
           assertEqual
           (0.30)
-          (interval layer1 layer2 |> probability)
+          (interval layer1 layer2 |> .prob)
 
     ]
 
@@ -241,31 +234,31 @@ intervalsTest =
 
     , test "Given two intersecting layers, should work out single interval" <|
       assertEqual
-      [ Closed { lower = 20.0, upper = 50.0, prob = 0.15 } ]
+      [ { lower = 20.0, upper = 50.0, prob = 0.15 } ]
       (intervals [y1, y5])
 
     , test "Given two intersecting layers reversed, should work out single interval" <|
       assertEqual
-      [ Closed { lower = 20.0, upper = 50.0, prob = 0.15 } ]
+      [ { lower = 20.0, upper = 50.0, prob = 0.15 } ]
       (intervals [y5, y1])
 
     , test "Given two layers in same direction, should work out single interval" <|
       assertEqual
-      [ Closed { lower = 20.0, upper = 110.0, prob = 0.50 } ]
+      [ { lower = 20.0, upper = 110.0, prob = 0.50 } ]
       (intervals [y1, y3])
 
     , test "Given three layers in same direction, should work out two intervals" <|
       assertSameIntervals
-      [ Closed { lower = 20.0, upper = 50.0, prob = 0.15 }
-      , Closed { lower = 50.0, upper = 110.0, prob = 0.35 }
+      [ { lower = 20.0, upper = 50.0, prob = 0.15 }
+      , { lower = 50.0, upper = 110.0, prob = 0.35 }
       ]
       (intervals [y1, y2, y3])
 
     , test "Given four layers, should work out three intervals" <|
       assertSameIntervals
-      [ Closed { lower = 20.0, upper = 50.0, prob = 0.15 }
-      , Closed { lower = 50.0, upper = 110.0, prob = 0.35 }
-      , Closed { lower = 110.0, upper = 300.0, prob = 0.50 }
+      [ { lower = 20.0, upper = 50.0, prob = 0.15 }
+      , { lower = 50.0, upper = 110.0, prob = 0.35 }
+      , { lower = 110.0, upper = 300.0, prob = 0.50 }
       ]
       (intervals [y8, y7, y1, y2])
 

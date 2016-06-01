@@ -5,12 +5,11 @@ import Html exposing (Html, text, div, span, p, input)
 import Html.Attributes exposing (type', value)
 import Html.Events exposing (onInput)
 
-import Distribution exposing (Interval(Closed))
+import Distribution exposing (Interval)
 
 -- Our model of a fact
 
-type alias Model =
-    { lower : Float, upper : Float, prob : Float }
+type alias Model = Interval
 
 -- Things that can change: probability
 

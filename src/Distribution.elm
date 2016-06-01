@@ -1,5 +1,5 @@
 module Distribution exposing
-    ( Layer(Layer), Limit(AtLeast, AtMost), Interval(Closed)
+    ( Layer(Layer), Limit(AtLeast, AtMost), Interval
     , interval
     , intervals
     )
@@ -17,8 +17,8 @@ type Limit = AtLeast | AtMost
 
 -- How two layers overlap
 
-type Interval
-    = Closed { lower : Float, upper : Float, prob : Float }
+type alias Interval
+    = { lower : Float, upper : Float, prob : Float }
 
 -- Deduce an interval, if any, given two layers
 
@@ -37,11 +37,10 @@ interval (Layer layer1) (Layer layer2) =
                 (AtLeast, AtMost) -> layer1.prob + layer2.prob - 1
                 (AtMost, AtLeast) -> layer1.prob + layer2.prob - 1
     in
-        Closed
-            { lower = earlier.value
-            , upper = later.value
-            , prob = probability |> to4Dp
-            }
+        { lower = earlier.value
+        , upper = later.value
+        , prob = probability |> to4Dp
+        }
 
 -- Round a float to 4 decimal places, to avoid silly numbers due
 -- to precision loss.
