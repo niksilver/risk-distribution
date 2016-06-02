@@ -9,7 +9,7 @@ import Html exposing
     )
 import Html.Attributes exposing
     ( href
-    , class
+    , class, style
     , type', value, placeholder
     )
 import Html.Events exposing (onClick, onInput)
@@ -113,6 +113,7 @@ probBox model =
         input
         [ type' "text"
         , class "form-control"
+        , style [ ("width", "5em"), ("text-align", "right") ]
         , placeholder "Probability"
         , value model.text.probPerc
         , onInput Prob
