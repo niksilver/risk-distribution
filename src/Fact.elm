@@ -5,9 +5,13 @@ import Html exposing
     ( Html
     , text, div, span, p
     , a
-    , input
+    , form, input
     )
-import Html.Attributes exposing (type', href, value)
+import Html.Attributes exposing
+    ( href
+    , class
+    , type', value, placeholder
+    )
 import Html.Events exposing (onClick, onInput)
 
 import Distribution exposing (Layer, Limit(AtMost, AtLeast))
@@ -104,12 +108,17 @@ view model =
 
 probBox : Model -> Html Msg
 probBox model =
-    input
-    [ type' "input"
-    , value model.text.probPerc
-    , onInput Prob
+    div [ class "form-group" ]
+    [
+        input
+        [ type' "text"
+        , class "form-control"
+        , placeholder "Probability"
+        , value model.text.probPerc
+        , onInput Prob
+        ]
+        []
     ]
-    []
 
 valueBox : Model -> Html Msg
 valueBox model =
@@ -136,7 +145,8 @@ limitControl model =
 
 formView : Model -> Html Msg
 formView model =
-        span []
+        form
+        [ class "form-inline" ]
         [ "There is a " |> text
         , probBox model
         , "% chance that it's " |> text
