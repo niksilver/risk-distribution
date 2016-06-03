@@ -106,33 +106,52 @@ view model =
     , p [] [ textView model ]
     ]
 
-probBox : Model -> Html Msg
-probBox model =
+type alias TextBoxSpec =
+    { id : String
+    , label : String
+    , width : String
+    , value : String
+    , mapping : (String -> Msg)
+    }
+
+textBox : TextBoxSpec -> Html Msg
+textBox spec =
     div [ class "form-group" ]
     [ label
-        [ for "probPerc"
+        [ for spec.id
         , class "sr-only"
         ]
-        [ text "Percentage" ]
+        [ text spec.label ]
     , input
         [ type' "text"
-        , id "probPerc"
+        , id spec.id
         , class "form-control"
-        , style [ ("width", "5em"), ("text-align", "right") ]
-        , value model.text.probPerc
-        , onInput Prob
+        , style [ ("width", spec.width), ("text-align", "right") ]
+        , value spec.value
+        , onInput spec.mapping
         ]
         []
     ]
 
+probBox : Model -> Html Msg
+probBox model =
+    textBox
+        { id = "probPerc"
+        , label = "Percentage"
+        , width = "5em"
+        , value = model.text.probPerc
+        , mapping = Prob
+        }
+
 valueBox : Model -> Html Msg
 valueBox model =
-    input
-    [ type' "input"
-    , value model.text.value
-    , onInput Value
-    ]
-    []
+    textBox
+        { id = "probPerc"
+        , label = "Percentage"
+        , width = "7em"
+        , value = model.text.value
+        , mapping = Value
+        }
 
 limitControl : Model -> Html Msg
 limitControl model =
