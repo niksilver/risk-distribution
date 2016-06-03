@@ -5,12 +5,12 @@ import Html exposing
     ( Html
     , text, div, span, p
     , a
-    , form, input
+    , form, input, label
     )
 import Html.Attributes exposing
     ( href
-    , class, style
-    , type', value, placeholder
+    , class, style, id
+    , type', value, placeholder, for
     )
 import Html.Events exposing (onClick, onInput)
 
@@ -109,12 +109,16 @@ view model =
 probBox : Model -> Html Msg
 probBox model =
     div [ class "form-group" ]
-    [
-        input
+    [ label
+        [ for "probPerc"
+        , class "sr-only"
+        ]
+        [ text "Percentage" ]
+    , input
         [ type' "text"
+        , id "probPerc"
         , class "form-control"
         , style [ ("width", "5em"), ("text-align", "right") ]
-        , placeholder "Probability"
         , value model.text.probPerc
         , onInput Prob
         ]
