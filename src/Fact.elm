@@ -2,17 +2,18 @@ module Fact exposing (Model, Msg, init, update, view)
 
 import String
 import Html exposing
-    ( Html
+    ( Html, Attribute
     , text, div, span, p
     , a
-    , form, input, label
+    , form, input, label, select, option
     )
 import Html.Attributes exposing
     ( href
     , class, style, id
-    , type', value, placeholder, for
+    , type', value, placeholder, for, selected
     )
-import Html.Events exposing (onClick, onInput)
+import Html.Events exposing (onClick, onInput, on)
+import Json.Decode
 
 import Distribution exposing (Layer, Limit(AtMost, AtLeast))
 
@@ -153,19 +154,23 @@ valueBox model =
         , mapping = Value
         }
 
+onChange : msg -> Attribute msg
+onChange message =
+    on "change" (Json.Decode.succeed message)
+
 limitControl : Model -> Html Msg
 limitControl model =
-    let
-        content =
-            case model.data.limit of
-                AtLeast -> "at least"
-                AtMost -> "at most"
-    in
-        a
-        [ href "#"
-        , onClick ChangeLimit
-        ]
-        [ content |> text ]
+    select
+    [ class "form-control"
+    , onChange ChangeLimit
+    ]
+    [ option
+        [ selected (model.data.limit == AtMost) ]
+        [ text "at most" ]
+    , option
+        [ selected (model.data.limit == AtLeast) ]
+        [ text "at least" ]
+    ]
 
 formView : Model -> Html Msg
 formView model =
