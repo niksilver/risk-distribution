@@ -12,7 +12,7 @@ import Html.Attributes exposing
     , class, style, id
     , type', value, placeholder, for, selected
     )
-import Html.Events exposing (onClick, onInput, on)
+import Html.Events exposing (onInput, on)
 import Json.Decode
 
 import Distribution exposing (Layer, Limit(AtMost, AtLeast))
