@@ -33,7 +33,7 @@ updateFact factId factMsg model =
         updateOne {id, fact} =
             IndexedFact
                 id
-                (if (id /= factId) then fact else (Fact.update factMsg fact |> fst))
+                (if (id == factId) then (Fact.update factMsg fact) else fact)
     in
         { model | iFacts = List.map updateOne model.iFacts }
 

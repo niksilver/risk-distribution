@@ -41,21 +41,15 @@ init =
 
 -- Updating the model
 
-update : Msg -> Model -> (Model, Cmd Msg)
+update : Msg -> Model -> Model
 update msg model =
     case msg of
         Prob probStr ->
-            ( updateProb probStr model
-            , Cmd.none
-            )
+            updateProb probStr model
         Value valueStr ->
-            ( updateValue valueStr model
-            , Cmd.none
-            )
+            updateValue valueStr model
         ChangeLimit ->
-            ( toggleLimit model
-            , Cmd.none
-            )
+            toggleLimit model
 
 updateProb : String -> Model -> Model
 updateProb str model =
