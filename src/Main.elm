@@ -1,17 +1,17 @@
-import Fact
+import FactList
 
 import Html.App exposing (program)
 
-type alias Model = Fact.Model
+type alias Model = FactList.Model
 
-type alias Msg = Fact.Msg
+type alias Msg = FactList.Msg
 
 main : Program Never
 main =
     program
-        { init = (Fact.init, Cmd.none)
-        , view = Fact.view
-        , update = Fact.update
+        { init = (FactList.init, Cmd.none)
+        , view = FactList.view
+        , update = FactList.update
         , subscriptions = subscriptions
         }
 
