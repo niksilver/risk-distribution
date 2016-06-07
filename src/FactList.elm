@@ -1,6 +1,8 @@
 module FactList exposing (Model, Msg, init, update, view)
 
-import Html exposing (Html, div)
+import Html exposing (Html, div, button, text)
+import Html.Attributes exposing (class, type')
+import Html.Events exposing (onClick)
 import Html.App as App
 
 import Fact
@@ -14,6 +16,7 @@ type alias IndexedFact = { id : Int, fact : Fact.Model }
 
 type Msg
     = ToFact Int Fact.Msg
+    | Add
 
 init : Model
 init =
@@ -26,6 +29,8 @@ update msg model =
     case msg of
         ToFact id factMsg ->
             (updateFact id factMsg model, Cmd.none)
+        Add ->
+            (addFact model, Cmd.none)
 
 updateFact : Int -> Fact.Msg -> Model -> Model
 updateFact factId factMsg model =
@@ -37,12 +42,30 @@ updateFact factId factMsg model =
     in
         { model | iFacts = List.map updateOne model.iFacts }
 
+addFact : Model -> Model
+addFact model =
+    { next = model.next + 1
+    , iFacts = List.append model.iFacts [ { id = model.next, fact = Fact.init } ]
+    }
+
 view : Model -> Html Msg
 view model =
     div []
-        (List.map factView model.iFacts)
+        (List.append
+            (List.map factView model.iFacts)
+            [ addView ]
+        )
 
 factView : IndexedFact -> Html Msg
 factView { id, fact } =
     App.map (ToFact id) (Fact.view fact)
+
+addView : Html Msg
+addView =
+    button
+    [ class "btn btn-default"
+    , type' "button"
+    , onClick Add
+    ]
+    [ text "Add" ]
 
