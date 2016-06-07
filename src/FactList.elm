@@ -52,7 +52,7 @@ view : Model -> Html Msg
 view model =
     div []
         (List.append
-            (List.map factView model.iFacts)
+            (List.map (\f -> p [] [ factView f ]) model.iFacts)
             [ p [] [ addView ]
             , p [] [ textView model ]
             ]

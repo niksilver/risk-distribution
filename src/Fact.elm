@@ -35,8 +35,8 @@ type Msg
 
 init : Model
 init =
-    { text = { probPerc = "10", value = "20" }
-    , data = { prob = 0.10, limit = AtLeast, value = 20.0 }
+    { text = { probPerc = "0", value = "0" }
+    , data = { prob = 0.0, limit = AtLeast, value = 0.0 }
     }
 
 -- Updating the model
