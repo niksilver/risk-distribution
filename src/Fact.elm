@@ -3,7 +3,7 @@ module Fact exposing (Model, Msg, init, update, view)
 import String
 import Html exposing
     ( Html, Attribute
-    , text, div
+    , text, div, span
     , a
     , form, input, label, select, option
     )
@@ -96,8 +96,7 @@ toggleLimit model =
 
 view : Model -> Html Msg
 view model =
-        form
-        [ class "form-inline" ]
+        span []
         [ "There is a " |> text
         , probBox model
         , "% chance that it's " |> text
