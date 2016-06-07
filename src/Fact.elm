@@ -3,7 +3,7 @@ module Fact exposing (Model, Msg, init, update, view)
 import String
 import Html exposing
     ( Html, Attribute
-    , text, div, span, p
+    , text, div
     , a
     , form, input, label, select, option
     )
@@ -96,10 +96,15 @@ toggleLimit model =
 
 view : Model -> Html Msg
 view model =
-    div []
-    [ p [] [ formView model ]
-    , p [] [ textView model ]
-    ]
+        form
+        [ class "form-inline" ]
+        [ "There is a " |> text
+        , probBox model
+        , "% chance that it's " |> text
+        , limitControl model
+        , " " |> text
+        , valueBox model
+        ]
 
 type alias TextBoxSpec =
     { id : String
@@ -165,20 +170,4 @@ limitControl model =
         [ selected (model.data.limit == AtLeast) ]
         [ text "at least" ]
     ]
-
-formView : Model -> Html Msg
-formView model =
-        form
-        [ class "form-inline" ]
-        [ "There is a " |> text
-        , probBox model
-        , "% chance that it's " |> text
-        , limitControl model
-        , " " |> text
-        , valueBox model
-        ]
-
-textView : Model -> Html Msg
-textView model =
-    model.data |> toString |> text
 

@@ -1,6 +1,6 @@
 module FactList exposing (Model, Msg, init, update, view)
 
-import Html exposing (Html, div, button, text)
+import Html exposing (Html, div, p, button, text)
 import Html.Attributes exposing (class, type')
 import Html.Events exposing (onClick)
 import Html.App as App
@@ -53,7 +53,9 @@ view model =
     div []
         (List.append
             (List.map factView model.iFacts)
-            [ addView ]
+            [ p [] [ addView ]
+            , p [] [ textView model ]
+            ]
         )
 
 factView : IndexedFact -> Html Msg
@@ -68,4 +70,8 @@ addView =
     , onClick Add
     ]
     [ text "Add" ]
+
+textView : Model -> Html Msg
+textView model =
+    model |> toString |> text
 
