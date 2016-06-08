@@ -1,27 +1,27 @@
 module UI exposing (Model, Msg, init, view, update)
 
-import FactList as FL
+import FactList
 
 import Html exposing (Html, div, p, text)
 
 
-type alias Model = FL.Model
+type alias Model = FactList.Model
 
-type alias Msg = FL.Msg
+type alias Msg = FactList.Msg
 
 
 -- Initialisation
 
 init : Model
 init =
-    FL.init
+    FactList.init
 
 
 -- Update
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
-    FL.update msg model
+    FactList.update msg model
 
 
 -- View
@@ -29,7 +29,7 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div []
-    [ FL.view model
+    [ FactList.view model
     , textView model
     ]
 
