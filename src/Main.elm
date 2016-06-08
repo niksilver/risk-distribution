@@ -1,17 +1,18 @@
-import FactList
+import UI
 
 import Html.App exposing (program)
 
-type alias Model = FactList.Model
 
-type alias Msg = FactList.Msg
+type alias Model = UI.Model
+
+type alias Msg = UI.Msg
 
 main : Program Never
 main =
     program
-        { init = (FactList.init, Cmd.none)
-        , view = FactList.view
-        , update = FactList.update
+        { init = (UI.init, Cmd.none)
+        , view = UI.view
+        , update = UI.update
         , subscriptions = subscriptions
         }
 

@@ -1,5 +1,7 @@
 module Fact exposing (Model, Msg, init, update, view)
 
+-- A statement describing the probability of some value range
+
 import String
 import Html exposing
     ( Html, Attribute
