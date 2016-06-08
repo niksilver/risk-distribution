@@ -1,4 +1,4 @@
-module FactList exposing (Model, Msg, init, update, view)
+module FactList exposing (Model, Msg, init, layers, update, view)
 
 import Html exposing (Html, div, p, button, text)
 import Html.Attributes exposing (style, class, type')
@@ -6,6 +6,7 @@ import Html.Events exposing (onClick)
 import Html.App as App
 
 import Fact
+import Distribution as Dist
 
 
 type alias Model =
@@ -27,6 +28,14 @@ init =
     , iFacts = [ { id = 0, fact = Fact.init } ]
     }
 
+
+-- Extract the raw layers from the model
+
+layers : Model -> List Dist.Layer
+layers model =
+    model.iFacts
+        |> List.map .fact
+        |> List.map Fact.layer
 
 
 -- Updates

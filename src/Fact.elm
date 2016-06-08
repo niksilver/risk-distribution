@@ -1,4 +1,4 @@
-module Fact exposing (Model, Msg, init, update, view)
+module Fact exposing (Model, Msg, init, layer, update, view)
 
 -- A statement describing the probability of some value range
 
@@ -26,7 +26,7 @@ type alias Model =
     , data : Layer
     }
 
--- Things that can change: probability
+-- Things that can change
 
 type Msg
     = Prob String
@@ -40,6 +40,12 @@ init =
     { text = { probPerc = "0", value = "0" }
     , data = { prob = 0.0, limit = AtLeast, value = 0.0 }
     }
+
+-- Extract the layer
+
+layer : Model -> Layer
+layer =
+    .data
 
 -- Updating the model
 
