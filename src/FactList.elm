@@ -79,7 +79,6 @@ view model =
         (List.append
             (List.map removableFactView model.iFacts)
             [ p [] [ addView ]
-            , p [] [ textView model ]
             ]
         )
 
@@ -114,8 +113,4 @@ addView =
     , onClick Add
     ]
     [ text "Add" ]
-
-textView : Model -> Html Msg
-textView model =
-    model |> toString |> text
 
