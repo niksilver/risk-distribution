@@ -2,6 +2,7 @@ module Distribution exposing
     ( Layer, Limit(AtLeast, AtMost), Interval
     , interval
     , intervals
+    , range
     )
 
 -- A layer of a distribution
@@ -14,7 +15,7 @@ type alias Layer =
 
 type Limit = AtLeast | AtMost
 
--- How two layers overlap
+-- How two layers overlap to produce a region of probability
 
 type alias Interval
     = { lower : Float, upper : Float, prob : Float }
@@ -67,3 +68,18 @@ intervals ys =
         List.map toInterval ys
             |> List.concat
 
+-- Get the min and max of a number of intervals
+
+range : List Interval -> Maybe (Float, Float)
+range ints =
+    let
+        extract : (Maybe Float, Maybe Float) -> Maybe (Float, Float)
+        extract (a, b) =
+            case (a, b) of
+                (Nothing, _) -> Nothing
+                (_, Nothing) -> Nothing
+                (Just x, Just y) -> Just (x, y)
+        maybeMin = List.map .lower ints |> List.minimum
+        maybeMax = List.map .upper ints |> List.maximum
+    in
+        extract (maybeMin, maybeMax)

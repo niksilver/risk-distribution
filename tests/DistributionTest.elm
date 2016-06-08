@@ -10,6 +10,7 @@ all =
     [ intervalTestRange
     , intervalTestProbability
     , intervalsTest
+    , rangeTest
     ]
 
  
@@ -24,8 +25,8 @@ assertSameIntervals x1 x2 =
     in
         assertEqual x1Sorted x2Sorted
 
-range : Interval -> (Float, Float)
-range interval =
+range' : Interval -> (Float, Float)
+range' interval =
     (interval.lower, interval.upper)
 
 --- Sort a list of intervals.
@@ -54,7 +55,7 @@ sortIntervals x1 =
 
 intervalTestRange : Test
 intervalTestRange =
-    suite "intervalTest - open/closed range"
+    suite "intervalTest - open/closed range'"
 
     [ test "From (-- and --) overlapping we should recognise a closed interval (1)" <|
       let
@@ -63,7 +64,7 @@ intervalTestRange =
       in
           assertEqual
           (7.0, 123.0)
-          (interval layer1 layer2 |> range)
+          (interval layer1 layer2 |> range')
 
     , test "From (-- and --) overlapping we should recognise a closed interval (2)" <|
       let
@@ -72,7 +73,7 @@ intervalTestRange =
       in
           assertEqual
           (3.4, 6.7)
-          (interval layer1 layer2 |> range)
+          (interval layer1 layer2 |> range')
 
     , test "From --) and (-- overlapping we should recognise a closed interval" <|
       let
@@ -81,7 +82,7 @@ intervalTestRange =
       in
           assertEqual
           (3.4, 6.7)
-          (interval layer1 layer2 |> range)
+          (interval layer1 layer2 |> range')
 
     , test "From --) and (-- not overlapping we should recognise a closed interval" <|
       let
@@ -90,7 +91,7 @@ intervalTestRange =
       in
           assertEqual
           (55.0, 66.0)
-          (interval layer1 layer2 |> range)
+          (interval layer1 layer2 |> range')
 
     , test "From early (-- and later (-- we should recognise a closed interval" <|
       let
@@ -99,7 +100,7 @@ intervalTestRange =
       in
           assertEqual
           (3.4, 6.7)
-          (interval layer1 layer2 |> range)
+          (interval layer1 layer2 |> range')
 
     , test "From late (-- and earlier (-- we should recognise a closed interval" <|
       let
@@ -108,7 +109,7 @@ intervalTestRange =
       in
           assertEqual
           (3.4, 6.7)
-          (interval layer1 layer2 |> range)
+          (interval layer1 layer2 |> range')
 
     , test "From early --) and later --) we should recognise a closed interval" <|
       let
@@ -117,7 +118,7 @@ intervalTestRange =
       in
           assertEqual
           (3.3, 7.7)
-          (interval layer1 layer2 |> range)
+          (interval layer1 layer2 |> range')
 
     , test "From late --) and earlier --) we should recognise a closed interval" <|
       let
@@ -126,7 +127,7 @@ intervalTestRange =
       in
           assertEqual
           (3.2, 6.6)
-          (interval layer1 layer2 |> range)
+          (interval layer1 layer2 |> range')
 
     ]
 
@@ -261,6 +262,33 @@ intervalsTest =
       , { lower = 110.0, upper = 300.0, prob = 0.50 }
       ]
       (intervals [y8, y7, y1, y2])
+
+    ]
+
+rangeTest : Test
+rangeTest =
+    suite "range'Test"
+
+    [ test "No intervals should give no range" <|
+      assertEqual
+      Nothing
+      (range [])
+
+    , test "One interval should give its range" <|
+      assertEqual
+      (Just (20.0, 50.0))
+      (range
+        [ { lower = 20.0, upper = 50.0, prob = 0.15 } ]
+      )
+
+    , test "Two intervals in order should give the right range" <|
+      assertEqual
+      (Just (20.0, 75.0))
+      (range
+        [ { lower = 20.0, upper = 50.0, prob = 0.15 }
+        , { lower = 50.0, upper = 75.0, prob = 0.20 }
+        ]
+      )
 
     ]
 
