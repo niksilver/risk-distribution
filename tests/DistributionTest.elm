@@ -290,5 +290,14 @@ rangeTest =
         ]
       )
 
+    , test "Two intervals in reverse order should give the right range" <|
+      assertEqual
+      (Just (20.0, 75.0))
+      (range
+        [ { lower = 50.0, upper = 75.0, prob = 0.20 }
+        , { lower = 20.0, upper = 50.0, prob = 0.15 }
+        ]
+      )
+
     ]
 
