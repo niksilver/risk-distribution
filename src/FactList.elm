@@ -1,7 +1,7 @@
 module FactList exposing (Model, Msg, init, update, view)
 
 import Html exposing (Html, div, p, button, text)
-import Html.Attributes exposing (class, type')
+import Html.Attributes exposing (style, class, type')
 import Html.Events exposing (onClick)
 import Html.App as App
 
@@ -88,6 +88,7 @@ removeView { id, fact } =
     button
     [ class "btn btn-default"
     , type' "button"
+    , style [ ("margin-left", "3em") ]
     , onClick (Remove id)
     ]
     [ text "Remove" ]
