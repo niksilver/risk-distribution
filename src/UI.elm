@@ -1,6 +1,7 @@
 module UI exposing (Model, Msg, init, view, update)
 
 import FactList
+import Chart
 
 import Html exposing (Html, div, p, text)
 
@@ -30,12 +31,6 @@ view : Model -> Html Msg
 view model =
     div []
     [ FactList.view model
-    , textView model
-    ]
-
-textView : Model -> Html Msg
-textView model =
-    p []
-    [ model |> toString |> text
+    , Chart.view model
     ]
 
