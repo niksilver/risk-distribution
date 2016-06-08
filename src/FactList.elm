@@ -7,6 +7,7 @@ import Html.App as App
 
 import Fact
 
+
 type alias Model =
     { next : Int
     , iFacts : List IndexedFact
@@ -19,11 +20,16 @@ type Msg
     | Add
     | Remove Int
 
+
 init : Model
 init =
     { next = 1
     , iFacts = [ { id = 0, fact = Fact.init } ]
     }
+
+
+
+-- Updates
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -47,9 +53,12 @@ updateFact factId factMsg model =
 
 addFact : Model -> Model
 addFact model =
-    { next = model.next + 1
-    , iFacts = List.append model.iFacts [ { id = model.next, fact = Fact.init } ]
-    }
+    let
+        newFact = { id = model.next, fact = Fact.init }
+    in
+        { next = model.next + 1
+        , iFacts = List.append model.iFacts [ newFact ]
+        }
 
 removeFact : Int -> Model -> Model
 removeFact removeId model =
@@ -61,11 +70,14 @@ removeFact removeId model =
         | iFacts = List.filter keep model.iFacts 
         }
 
+
+-- Views
+
 view : Model -> Html Msg
 view model =
     div []
         (List.append
-            (List.map (\f -> p [] [ removableFactView f ]) model.iFacts)
+            (List.map removableFactView model.iFacts)
             [ p [] [ addView ]
             , p [] [ textView model ]
             ]
@@ -73,7 +85,7 @@ view model =
 
 removableFactView : IndexedFact -> Html Msg
 removableFactView iFact =
-    div
+    p
     [ class "form-inline" ]
     [ factView iFact
     , removeView iFact
