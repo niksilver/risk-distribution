@@ -2,7 +2,7 @@ module Distribution exposing
     ( Layer, Limit(AtLeast, AtMost), Interval
     , interval
     , intervals
-    , range
+    , range, sort, unique
     )
 
 -- A layer of a distribution
@@ -31,11 +31,11 @@ interval layer1 layer2 =
             else
                 (layer2, layer1)
         probability =
-            case (layer1.limit, layer2.limit) of
+            case (earlier.limit, later.limit) of
                 (AtLeast, AtLeast) -> earlier.prob - later.prob
                 (AtMost, AtMost) -> later.prob - earlier.prob
                 (AtLeast, AtMost) -> layer1.prob + layer2.prob - 1
-                (AtMost, AtLeast) -> layer1.prob + layer2.prob - 1
+                (AtMost, AtLeast) -> 1 - layer1.prob - layer2.prob
     in
         { lower = earlier.value
         , upper = later.value
@@ -49,7 +49,8 @@ to4Dp : Float -> Float
 to4Dp x =
     (x * 1000 |> round |> toFloat) / 1000
 
--- Get all the set of shortest (closed) intervals given some layers
+-- Get all the set of shortest intervals given some layers.
+-- Intervals will be unique
 
 intervals : List Layer -> List Interval
 intervals ys =
@@ -67,6 +68,7 @@ intervals ys =
     in
         List.map toInterval ys
             |> List.concat
+            |> unique
 
 -- Get the min and max of a number of intervals
 
@@ -83,3 +85,42 @@ range ints =
         maybeMax = List.map .upper ints |> List.maximum
     in
         extract (maybeMin, maybeMax)
+
+--- Sort a list of intervals.
+--- They are ordered first by the lower bound, then the upper bound.
+--- The probability is ignored.
+
+sort : List Interval -> List Interval
+sort x1 =
+    let
+        -- Compare two intervals
+        comp : Interval -> Interval -> Order
+        comp i1 i2 =
+            let
+                lowerComp = compare i1.lower i2.lower
+            in
+                if (lowerComp == EQ) then
+                    compare i1.upper i2.upper
+                else
+                    lowerComp
+    in
+        List.sortWith comp x1
+
+-- Remove duplicates from a list
+
+unique : List a -> List a
+unique xs =
+    unique' xs []
+        |> List.reverse
+
+unique' : List a -> List a -> List a
+unique' xs accum =
+    case xs of
+        [] ->
+            accum
+        hd :: tl ->
+            if (List.member hd accum) then
+                unique' tl accum
+            else
+                unique' tl ( hd :: accum)
+

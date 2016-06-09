@@ -1,6 +1,6 @@
 module DistributionTest exposing (all)
 
-import Distribution exposing (..)
+import Distribution as Dist exposing (..)
 
 import ElmTest exposing (..)
 
@@ -20,35 +20,14 @@ all =
 assertSameIntervals : List Interval -> List Interval -> Assertion
 assertSameIntervals x1 x2 =
     let
-        x1Sorted = sortIntervals x1
-        x2Sorted = sortIntervals x2
+        x1Sorted = Dist.sort x1
+        x2Sorted = Dist.sort x2
     in
         assertEqual x1Sorted x2Sorted
 
 range' : Interval -> (Float, Float)
 range' interval =
     (interval.lower, interval.upper)
-
---- Sort a list of intervals.
---- They are ordered first by the lower bound, then the upper bound.
---- The probability is ignored.
-
-sortIntervals : List Interval -> List Interval
-sortIntervals x1 =
-    let
-        -- Compare two intervals
-        comp : Interval -> Interval -> Order
-        comp i1 i2 =
-            let
-                lowerComp = compare i1.lower i2.lower
-            in
-                if (lowerComp == EQ) then
-                    compare i1.upper i2.upper
-                else
-                    lowerComp
-    in
-        List.sortWith comp x1
-
 
 -- Tests ----------------------------------------------------
 
@@ -148,6 +127,24 @@ intervalTestProbability =
       let
           layer1 = { prob = 0.90, limit = AtMost, value = 123.0 }
           layer2 = { prob = 0.80, limit = AtLeast, value = 7.0 }
+      in
+          assertEqual
+          (0.70)
+          (interval layer1 layer2 |> .prob)
+
+    , test "From --) and (-- apart we should get the right probability" <|
+      let
+          layer1 = { prob = 0.20, limit = AtMost, value = 7.0 }
+          layer2 = { prob = 0.10, limit = AtLeast, value = 10.0 }
+      in
+          assertEqual
+          (0.70)
+          (interval layer1 layer2 |> .prob)
+
+    , test "From --) and (-- apart reversed we should get the right prob" <|
+      let
+          layer1 = { prob = 0.10, limit = AtLeast, value = 10.0 }
+          layer2 = { prob = 0.20, limit = AtMost, value = 7.0 }
       in
           assertEqual
           (0.70)
@@ -262,6 +259,16 @@ intervalsTest =
       , { lower = 110.0, upper = 300.0, prob = 0.50 }
       ]
       (intervals [y8, y7, y1, y2])
+
+    , test "Given many layers, should work out unique intervals" <|
+      assertSameIntervals
+      [ { lower = 20.0, upper = 50.0, prob = 0.15 }
+      , { lower = 50.0, upper = 85.0, prob = 0.25 }
+      , { lower = 85.0, upper = 110.0, prob = 0.10 }
+      , { lower = 110.0, upper = 200.0, prob = 0.40 }
+      , { lower = 200.0, upper = 300.0, prob = 0.10 }
+      ]
+      (intervals [ y3, y2, y6, y8, y1, y4, y5, y7 ])
 
     ]
 

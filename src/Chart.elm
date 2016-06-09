@@ -39,7 +39,7 @@ type alias Spec =
 rawSpec : List Dist.Layer -> Spec
 rawSpec layers =
     let
-        intervals = Dist.intervals layers
+        intervals = layers |> Dist.intervals |> Dist.sort
         int2Rect int =
             { left = int.lower
             , right = int.upper

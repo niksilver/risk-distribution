@@ -70,5 +70,21 @@ rawSpecTest =
           |> Maybe.map (\h -> h * (110.0 - 50.0))  -- Rectangle's area
       )
 
+    , test "Chart should list rectangles in order" <|
+      -- We're ignoring the height as lost accuracy confuses equality
+      assertEqual
+      [ { left = 20.0, right = 50.0 }
+      , { left = 50.0, right = 85.0 }
+      , { left = 85.0, right = 110.0 }
+      , { left = 110.0, right = 200.0 }
+      , { left = 200.0, right = 300.0 }
+      ]
+      ( [ y3, y2, y6, y8, y1, y4, y5, y7 ]
+          |> rawSpec
+          |> Maybe.map .rects
+          |> Maybe.withDefault []
+          |> List.map (\layer -> { left = layer.left, right = layer.right })
+      )
+
     ]
 
