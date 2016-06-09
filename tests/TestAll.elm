@@ -1,4 +1,5 @@
 import DistributionTest exposing (all)
+import ChartTest exposing (all)
 
 import ElmTest exposing (runSuiteHtml, suite)
 
@@ -7,4 +8,5 @@ main =
     runSuiteHtml <|
         suite "All tests"
         [ DistributionTest.all
+        , ChartTest.all
         ]
