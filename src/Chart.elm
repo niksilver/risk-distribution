@@ -1,4 +1,8 @@
-module Chart exposing (Spec, view, rawSpec)
+module Chart exposing
+    ( Spec
+    , rawSpec
+    , layersToView, view
+    )
 
 import FactList
 import Distribution as Dist
@@ -56,6 +60,12 @@ rawSpec layers =
 
 -- View
 
+layersToView : List Dist.Layer -> Html x
+layersToView layers =
+    case (rawSpec layers) of
+        Just spec -> view spec
+        Nothing -> text ""
+ 
 view : Spec -> Html x
 view spec =
     svg

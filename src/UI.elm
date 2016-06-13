@@ -29,8 +29,11 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    div []
-    [ FactList.view model
-    , Chart.view model
-    ]
+    let
+        layers = FactList.layers model
+    in
+        div []
+        [ FactList.view model
+        , Chart.layersToView layers
+        ]
 
