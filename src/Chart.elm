@@ -1,6 +1,7 @@
 module Chart exposing
-    ( Spec
+    ( Spec, ViewDims
     , rawSpec
+    , scaleX
     , layersToView, view
     )
 
@@ -12,18 +13,6 @@ import Svg exposing (svg, text', text)
 import Svg.Attributes exposing (width, height, x, y, viewBox)
 
 
-viewWidth : Float
-viewWidth = 1000
-
-viewHeight : Float
-viewHeight = 500
-
-leftPadding : Float
-leftPadding = 50
-
-topPadding : Float
-topPadding = 50
-
 -- Specification for a chart
 
 type alias Spec =
@@ -33,6 +22,21 @@ type alias Spec =
     , rects : List { left : Float, right : Float, height : Float }
     }
 
+-- Dimensions for a viewBox
+
+type alias ViewDims =
+    { left : Float
+    , top : Float
+    , width : Float
+    , height : Float
+    }
+
+viewDim =
+    { left = 50
+    , top = 50
+    , width = 800
+    , height = 500
+    }
 
 -- Produce a scaled and positioned spec for the chart
 
@@ -58,6 +62,12 @@ rawSpec layers =
             (Dist.range intervals)
             maxHeight
 
+-- Scale a point on the x-axis
+
+scaleX : ViewDims -> Spec -> Float -> Float
+scaleX dims spec x =
+    dims.left + (x - spec.minX) / (spec.maxX - spec.minX) * dims.width
+
 -- View
 
 layersToView : List Dist.Layer -> Html x
@@ -71,8 +81,8 @@ view spec =
     let
         viewBoxDim =
             "0 0 "
-            ++ (2 * leftPadding + viewWidth |> toString) ++ " "
-            ++ (2 * topPadding + viewHeight |> toString)
+            ++ (2 * viewDim.left + viewDim.width |> toString) ++ " "
+            ++ (2 * viewDim.top + viewDim.height |> toString)
     in
         svg
         [ width "100%"

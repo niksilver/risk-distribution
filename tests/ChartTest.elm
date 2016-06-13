@@ -9,6 +9,7 @@ all : Test
 all =
     suite "ChartTest"
     [ rawSpecTest
+    , scaleXTest
     ]
 
 {- Some layers...
@@ -88,3 +89,35 @@ rawSpecTest =
 
     ]
 
+scaleXTest : Test
+scaleXTest =
+    let
+        viewDims = { left = 3, top = 8, width = 1000, height = 50 }
+        spec =
+            { minX = 1
+            , maxX = 5
+            , maxY = 10
+            , rects =
+                [ { left = 1, right = 4, height = 8 }
+                , { left = 4, right = 5, height = 10 }
+                ]
+            }
+    in
+    suite "scaleXTest"
+
+    [ test "Scale x test for LHS" <|
+      assertEqual
+      3
+      (scaleX viewDims spec 1)
+
+    , test "Scale x test for RHS" <|
+      assertEqual
+      1003
+      (scaleX viewDims spec 5)
+
+    , test "Scale x test for middle" <|
+      assertEqual
+      (250 + 3)
+      (scaleX viewDims spec 2)
+
+    ]
