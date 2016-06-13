@@ -9,14 +9,14 @@ import Distribution as Dist
 
 import Html exposing (Html)
 import Svg exposing (svg, text', text)
-import Svg.Attributes exposing (width, height, x, y)
+import Svg.Attributes exposing (width, height, x, y, viewBox)
 
 
-viewBoxWidth : Float
-viewBoxWidth = 1000
+viewWidth : Float
+viewWidth = 1000
 
-viewBoxHeight : Float
-viewBoxHeight = 500
+viewHeight : Float
+viewHeight = 500
 
 leftPadding : Float
 leftPadding = 50
@@ -68,14 +68,21 @@ layersToView layers =
  
 view : Spec -> Html x
 view spec =
-    svg
-    [ width "100%"
-    , height "600px"
-    ]
-    [ text'
-      [ x "0"
-      , y "100"
-      ]
-      [ spec |> toString |> text
-      ]
-    ]
+    let
+        viewBoxDim =
+            "0 0 "
+            ++ (2 * leftPadding + viewWidth |> toString) ++ " "
+            ++ (2 * topPadding + viewHeight |> toString)
+    in
+        svg
+        [ width "100%"
+        , height "600px"
+        , viewBox viewBoxDim
+        ]
+        [ text'
+          [ x "0"
+          , y "100"
+          ]
+          [ spec |> toString |> text
+          ]
+        ]
