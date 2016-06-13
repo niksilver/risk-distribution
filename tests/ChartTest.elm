@@ -10,6 +10,7 @@ all =
     suite "ChartTest"
     [ rawSpecTest
     , scaleXTest
+    , scaleYTest
     ]
 
 {- Some layers...
@@ -121,3 +122,37 @@ scaleXTest =
       (scaleX viewDims spec 2)
 
     ]
+
+scaleYTest : Test
+scaleYTest =
+    let
+        viewDims = { left = 3, top = 8, width = 1000, height = 50 }
+        spec =
+            { minX = 1
+            , maxX = 5
+            , maxY = 10
+            , rects =
+                [ { left = 1, right = 4, height = 8 }
+                , { left = 4, right = 5, height = 10 }
+                ]
+            }
+    in
+    suite "scaleYTest"
+
+    [ test "Scale y test for top" <|
+      assertEqual
+      8
+      (scaleY viewDims spec 10)
+
+    , test "Scale y test for bottom" <|
+      assertEqual
+      58
+      (scaleY viewDims spec 0)
+
+    , test "Scale y test for middle" <|
+      assertEqual
+      (8 + 40)
+      (scaleY viewDims spec 2)
+
+    ]
+

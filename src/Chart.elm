@@ -1,7 +1,7 @@
 module Chart exposing
     ( Spec, ViewDims
     , rawSpec
-    , scaleX
+    , scaleX, scaleY
     , layersToView, view
     )
 
@@ -67,6 +67,12 @@ rawSpec layers =
 scaleX : ViewDims -> Spec -> Float -> Float
 scaleX dims spec x =
     dims.left + (x - spec.minX) / (spec.maxX - spec.minX) * dims.width
+
+-- Scale a point on the y-axis
+
+scaleY : ViewDims -> Spec -> Float -> Float
+scaleY dims spec y =
+    dims.top + (spec.maxY - y) / spec.maxY * dims.height
 
 -- View
 
