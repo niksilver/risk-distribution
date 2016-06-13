@@ -23,12 +23,11 @@ topPadding = 50
 -- Specification for a chart
 
 type alias Spec =
-    Maybe
-        { minX : Float
-        , maxX : Float
-        , maxY : Float
-        , rects : List { left : Float, right : Float, height : Float }
-        }
+    { minX : Float
+    , maxX : Float
+    , maxY : Float
+    , rects : List { left : Float, right : Float, height : Float }
+    }
 
 
 -- Produce a scaled and positioned spec for the chart
@@ -36,7 +35,7 @@ type alias Spec =
 -- First, a mechanism to get an unscaled spec.
 -- The area of each rectangle will be its probability
 
-rawSpec : List Dist.Layer -> Spec
+rawSpec : List Dist.Layer -> Maybe Spec
 rawSpec layers =
     let
         intervals = layers |> Dist.intervals |> Dist.sort
