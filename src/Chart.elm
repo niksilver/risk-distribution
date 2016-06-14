@@ -9,7 +9,10 @@ import FactList
 import Distribution as Dist
 
 import Html exposing (Html)
-import Svg exposing (svg, text', text)
+import Svg exposing
+    ( Svg
+    , svg, text
+    )
 import Svg.Attributes exposing (width, height, x, y, viewBox)
 
 
@@ -33,9 +36,9 @@ type alias ViewDims =
 
 viewDim =
     { left = 50
-    , top = 50
+    , top = 20
     , width = 800
-    , height = 500
+    , height = 350
     }
 
 -- Produce a scaled and positioned spec for the chart
@@ -92,13 +95,26 @@ view spec =
     in
         svg
         [ width "100%"
-        , height "600px"
+        , height "400px"
         , viewBox viewBoxDim
         ]
-        [ text'
-          [ x "0"
-          , y "100"
-          ]
-          [ spec |> toString |> text
-          ]
-        ]
+        (viewArea spec)
+
+-- Render just the distribution area
+
+viewArea : Spec -> List (Svg x)
+viewArea spec =
+    let
+        toX = scaleX viewDim spec
+        toY = scaleY viewDim spec
+        draw rect =
+            Svg.rect
+            [ x (toX rect.left |> toString)
+            , y (toY rect.height |> toString)
+            , width (toX (rect.right - rect.left) |> toString)
+            , height (toY 0 |> toString)
+            ]
+            []
+    in
+        List.map draw spec.rects
+
