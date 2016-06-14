@@ -9,6 +9,8 @@ all : Test
 all =
     suite "ChartTest"
     [ rawSpecTest
+    , scaleXTest
+    , scaleYTest
     , transformXTest
     , transformYTest
     ]
@@ -89,6 +91,73 @@ rawSpecTest =
       )
 
     ]
+
+scaleXTest : Test
+scaleXTest =
+    let
+        viewDims = { left = 3, top = 8, width = 1000, height = 50 }
+        spec =
+            { minX = 1
+            , maxX = 5
+            , maxY = 10
+            , rects =
+                [ { left = 1, right = 4, height = 8 }
+                , { left = 4, right = 5, height = 10 }
+                ]
+            }
+    in
+    suite "scaleXTest"
+
+    [ test "Scale x measure for zero length" <|
+      assertEqual
+      0
+      (scaleX viewDims spec 0)
+
+    , test "Scale x measure for full length" <|
+      assertEqual
+      1000
+      (scaleX viewDims spec 4)
+
+    , test "Scale x measure for middle length" <|
+      assertEqual
+      250
+      (scaleX viewDims spec 1)
+
+    ]
+
+scaleYTest : Test
+scaleYTest =
+    let
+        viewDims = { left = 3, top = 8, width = 1000, height = 50 }
+        spec =
+            { minX = 1
+            , maxX = 5
+            , maxY = 10
+            , rects =
+                [ { left = 1, right = 4, height = 8 }
+                , { left = 4, right = 5, height = 10 }
+                ]
+            }
+    in
+    suite "scaleYTest"
+
+    [ test "Scale y measure for zero height" <|
+      assertEqual
+      0
+      (scaleY viewDims spec 0)
+
+    , test "Scale y measure for full height" <|
+      assertEqual
+      50
+      (scaleY viewDims spec 10)
+
+    , test "Scale y measure for middle height" <|
+      assertEqual
+      10
+      (scaleY viewDims spec 2)
+
+    ]
+
 
 transformXTest : Test
 transformXTest =

@@ -1,6 +1,7 @@
 module Chart exposing
     ( Spec, ViewDims
     , rawSpec
+    , scaleX, scaleY
     , transformX, transformY
     , layersToView, view
     )
@@ -65,6 +66,16 @@ rawSpec layers =
             (Dist.range intervals)
             maxHeight
 
+-- Scale a length on the x- or y-axis from a spec to a view box.
+
+scaleX : ViewDims -> Spec -> Float -> Float
+scaleX dims spec length =
+    length / (spec.maxX - spec.minX) * dims.width
+
+scaleY : ViewDims -> Spec -> Float -> Float
+scaleY dims spec height =
+    height / spec.maxY * dims.height
+
 -- Transform a point on the x-axis or y-axis from its place in a spec
 -- to a place in the chart view box.
 
@@ -107,12 +118,14 @@ viewArea spec =
     let
         trX = transformX viewDim spec
         trY = transformY viewDim spec
+        scX = scaleX viewDim spec
+        scY = scaleY viewDim spec
         draw rect =
             Svg.rect
             [ x (rect.left |> trX |> toString)
             , y (rect.height |> trY |> toString)
-            , width (rect.right - rect.left |> trX |> toString)
-            , height (0 |> trY |> toString)
+            , width (rect.right - rect.left |> scX |> toString)
+            , height (rect.height |> scY |> toString)
             ]
             []
     in
