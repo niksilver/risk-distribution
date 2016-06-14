@@ -105,7 +105,7 @@ view spec =
 viewArea : Spec -> List (Svg x)
 viewArea spec =
     let
-        toX = scaleX viewDim (Debug.log "spec" spec)
+        toX = scaleX viewDim spec
         toY = scaleY viewDim spec
         draw rect =
             Svg.rect
