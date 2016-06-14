@@ -105,14 +105,14 @@ view spec =
 viewArea : Spec -> List (Svg x)
 viewArea spec =
     let
-        toX = scaleX viewDim spec
+        toX = scaleX viewDim (Debug.log "spec" spec)
         toY = scaleY viewDim spec
         draw rect =
             Svg.rect
-            [ x (toX rect.left |> toString)
-            , y (toY rect.height |> toString)
-            , width (toX (rect.right - rect.left) |> toString)
-            , height (toY 0 |> toString)
+            [ x (rect.left |> toX |> toString)
+            , y (rect.height |> toY |> toString)
+            , width (rect.right |> toX |> toString)
+            , height (0 |> toY |> toString)
             ]
             []
     in
