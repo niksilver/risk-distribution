@@ -9,8 +9,8 @@ all : Test
 all =
     suite "ChartTest"
     [ rawSpecTest
-    , scaleXTest
-    , scaleYTest
+    , transformXTest
+    , transformYTest
     ]
 
 {- Some layers...
@@ -90,8 +90,8 @@ rawSpecTest =
 
     ]
 
-scaleXTest : Test
-scaleXTest =
+transformXTest : Test
+transformXTest =
     let
         viewDims = { left = 3, top = 8, width = 1000, height = 50 }
         spec =
@@ -104,27 +104,27 @@ scaleXTest =
                 ]
             }
     in
-    suite "scaleXTest"
+    suite "transformXTest"
 
-    [ test "Scale x test for LHS" <|
+    [ test "Transform x test for LHS" <|
       assertEqual
       3
-      (scaleX viewDims spec 1)
+      (transformX viewDims spec 1)
 
-    , test "Scale x test for RHS" <|
+    , test "Transform x test for RHS" <|
       assertEqual
       1003
-      (scaleX viewDims spec 5)
+      (transformX viewDims spec 5)
 
-    , test "Scale x test for middle" <|
+    , test "Transform x test for middle" <|
       assertEqual
       (250 + 3)
-      (scaleX viewDims spec 2)
+      (transformX viewDims spec 2)
 
     ]
 
-scaleYTest : Test
-scaleYTest =
+transformYTest : Test
+transformYTest =
     let
         viewDims = { left = 3, top = 8, width = 1000, height = 50 }
         spec =
@@ -137,22 +137,22 @@ scaleYTest =
                 ]
             }
     in
-    suite "scaleYTest"
+    suite "transformYTest"
 
-    [ test "Scale y test for top" <|
+    [ test "Transform y test for top" <|
       assertEqual
       8
-      (scaleY viewDims spec 10)
+      (transformY viewDims spec 10)
 
-    , test "Scale y test for bottom" <|
+    , test "Transform y test for bottom" <|
       assertEqual
       58
-      (scaleY viewDims spec 0)
+      (transformY viewDims spec 0)
 
-    , test "Scale y test for middle" <|
+    , test "Transform y test for middle" <|
       assertEqual
       (8 + 40)
-      (scaleY viewDims spec 2)
+      (transformY viewDims spec 2)
 
     ]
 
