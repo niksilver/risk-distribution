@@ -1,7 +1,7 @@
 module ErrorsTest exposing (all)
 
 import Errors exposing (..)
-import Distribution exposing (Limit(AtMost, AtLeast))
+import Distribution exposing (Layer, Limit(AtMost, AtLeast))
 
 import ElmTest exposing (..)
 
@@ -40,7 +40,7 @@ errorsTest =
           y2 = { prob = 0.60, limit = AtLeast, value = 50.0 }
       in
           assertEqual
-          [ MoreThan100Percent ]
+          [ MoreThan100Percent 0 1 ]
           (errors [y1, y2])
 
     , test "Layers facing away from each other reversed with > 100% should report error" <|
@@ -49,7 +49,7 @@ errorsTest =
           y2 = { prob = 0.51, limit = AtMost, value = 20.0 }
       in
           assertEqual
-          [ MoreThan100Percent ]
+          [ MoreThan100Percent 1 0 ]
           (errors [y1, y2])
 
     , test "Layers facing away from each other with > 100% and hidden among others should report error" <|
@@ -59,8 +59,30 @@ errorsTest =
           y3 = { prob = 0.55, limit = AtLeast, value = 50.0 }
       in
           assertEqual
-          [ MoreThan100Percent ]
+          [ MoreThan100Percent 0 2 ]
           (errors [y1, y2, y3])
 
     ]
 
+indexTest : Test
+indexTest =
+    suite "indexTest"
+
+    [ test "No layers should yield no indexed layers" <|
+      assertEqual
+      []
+      (index [])
+
+    , test "Three layers should yield correct indexing" <|
+      let
+          y1 = { prob = 0.51, limit = AtMost, value = 20.0 }
+          y2 = { prob = 0.60, limit = AtLeast, value = 10.0 }
+          y3 = { prob = 0.55, limit = AtLeast, value = 50.0 }
+      in
+          assertEqual
+          [ { layer = y1, index = 0 }
+          , { layer = y2, index = 1 }
+          , { layer = y3, index = 2 }
+          ]
+          (index [ y1, y2, y3 ])
+    ]
