@@ -27,7 +27,10 @@ init =
     { next = 1
     , iFacts =
         [ { id = 0
-          , fact = Fact.init { prob = 0, limit = AtLeast, value = 1.0 }
+          , fact = Fact.init { prob = 1.0, limit = AtLeast, value = 0.0 }
+          }
+        , { id = 1
+          , fact = Fact.init { prob = 1.0, limit = AtMost, value = 10.0 }
           }
         ]
     }
