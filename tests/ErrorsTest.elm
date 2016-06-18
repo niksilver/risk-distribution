@@ -10,6 +10,7 @@ all =
     suite "ErrorsTest"
     [ errorsTestForOkay
     , errorsTestForMoreThan100Percent
+    , indexTest
     ]
 
 errorsTestForOkay : Test
