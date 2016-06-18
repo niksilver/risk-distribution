@@ -24,7 +24,7 @@ type Msg
 
 init : Model
 init =
-    { next = 1
+    { next = 2
     , iFacts =
         [ { id = 0
           , fact = Fact.init { prob = 1.0, limit = AtLeast, value = 0.0 }
@@ -70,13 +70,21 @@ updateFact factId factMsg model =
 addFact : Model -> Model
 addFact model =
     let
-        newFact =
-            { id = model.next
-            , fact = Fact.init { prob = 0, limit = AtLeast, value = 1.0 }
-            }
+        lastIFact = model.iFacts |> List.reverse |> List.head
+        -- The new iFact is the same as the last (if there is one)
+        newIFact =
+            case lastIFact of
+                Nothing ->
+                    { id = model.next
+                    , fact = Fact.init { prob = 1, limit = AtLeast, value = 0.0 }
+                    }
+                Just iFact ->
+                    { id = model.next
+                    , fact = iFact.fact
+                    }
     in
         { next = model.next + 1
-        , iFacts = List.append model.iFacts [ newFact ]
+        , iFacts = List.append model.iFacts [ newIFact ]
         }
 
 removeFact : Int -> Model -> Model
