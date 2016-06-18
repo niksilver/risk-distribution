@@ -80,11 +80,14 @@ view errs =
 viewOneError : Error -> Html x
 viewOneError err =
     let
-        message =
+        (i1', i2') =
             case err of
                 MoreThan100Percent i1 i2 ->
-                    "Lines " ++ (toString i1) ++ " and " ++ (toString i2)
-                    ++ " suggest a space of more than 100%"
+                    if i1 < i2 then (i1, i2) else (i2, i1)
+        message =
+                "Lines " ++ (i1' + 1 |> toString)
+                ++ " and " ++ (i2' + 1 |> toString)
+                ++ " suggest a space of more than 100%"
     in
         li [] [ text message ]
 

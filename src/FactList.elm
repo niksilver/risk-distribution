@@ -1,6 +1,6 @@
 module FactList exposing (Model, Msg, init, layers, update, view)
 
-import Html exposing (Html, div, p, button, text)
+import Html exposing (Html, p, ol, li, button, text)
 import Html.Attributes exposing (style, class, type')
 import Html.Events exposing (onClick)
 import Html.App as App
@@ -102,7 +102,7 @@ removeFact removeId model =
 
 view : Model -> Html Msg
 view model =
-    div []
+    ol []
         (List.append
             (List.map removableFactView model.iFacts)
             [ p [] [ addView ]
@@ -111,8 +111,10 @@ view model =
 
 removableFactView : IndexedFact -> Html Msg
 removableFactView iFact =
-    p
-    [ class "form-inline" ]
+    li
+    [ class "form-inline"
+    , style [ ("padding-top", "0.5em"), ("padding-bottom", "0.5em") ]
+    ]
     [ factView iFact
     , removeView iFact
     ]
