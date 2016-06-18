@@ -62,6 +62,15 @@ errorsTest =
           [ MoreThan100Percent 0 2 ]
           (errors [y1, y2, y3])
 
+    , test "Layers of low value facing away from each other with > 100% should report error" <|
+      let
+          y1 = { prob = 1.00, limit = AtLeast, value = 0.0 }
+          y2 = { prob = 1.00, limit = AtMost, value = -10.0 }
+      in
+          assertEqual
+          [ MoreThan100Percent 1 0 ]
+          (errors [y1, y2])
+
     , test "Layers at same point facing away from each other with > 100% should report error" <|
       let
           y1 = { prob = 0.20, limit = AtMost, value = 10.0 }
