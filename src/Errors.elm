@@ -1,5 +1,5 @@
 module Errors exposing
-    ( Error (MoreThan100Percent), IndexedLayer
+    ( Error (MoreThan100Percent, NoUpperLimit), IndexedLayer
     , index, errors
     , view
     )
@@ -13,6 +13,7 @@ import Html exposing (Html, ul, li, text)
 
 type Error
     = MoreThan100Percent Int Int  -- The index of the offending layers
+    | NoUpperLimit
 
 type alias Indexed a
     = { a | index : Int }
@@ -48,6 +49,7 @@ errors : List Layer -> List Error
 errors ys =
     List.concat
     [ moreThan100PercentErrors ys
+    , noUpperLimitError ys
     ]
 
 moreThan100PercentErrors : List Layer -> List Error
@@ -61,7 +63,7 @@ moreThan100PercentErrors ys =
         getError iy1 iy2 =
             if (divergent iy1.layer iy2.layer) && (over100Pc iy1.layer iy2.layer)
             then
-                Just (MoreThan100Percent iy1.index iy2.index) |> Debug.log "just"
+                Just (MoreThan100Percent iy1.index iy2.index)
             else
                 Nothing
         findErrorFor iy1 =
@@ -70,6 +72,13 @@ moreThan100PercentErrors ys =
         case (find findErrorFor iys) of
             Just err -> [ err ]
             Nothing -> []
+
+noUpperLimitError : List Layer -> List Error
+noUpperLimitError ys =
+    if (List.all (\y -> y.limit == AtLeast) ys) then
+        [ NoUpperLimit ]
+    else
+        []
 
 -- View of errors
 
@@ -80,14 +89,21 @@ view errs =
 viewOneError : Error -> Html x
 viewOneError err =
     let
-        (i1', i2') =
+        message =
             case err of
                 MoreThan100Percent i1 i2 ->
-                    if i1 < i2 then (i1, i2) else (i2, i1)
-        message =
-                "Lines " ++ (i1' + 1 |> toString)
-                ++ " and " ++ (i2' + 1 |> toString)
-                ++ " suggest a space of more than 100%"
+                    moreThan100PercentMessage i1 i2
+                NoUpperLimit ->
+                    "You've not given an upper limit on a value"
     in
         li [] [ text message ]
 
+moreThan100PercentMessage : Int -> Int -> String
+moreThan100PercentMessage i1 i2 =
+    let
+        (i1', i2') =
+            if i1 < i2 then (i1, i2) else (i2, i1)
+     in
+        "Lines " ++ (i1' + 1 |> toString)
+        ++ " and " ++ (i2' + 1 |> toString)
+        ++ " suggest a space of more than 100%"

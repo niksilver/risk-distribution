@@ -10,6 +10,7 @@ all =
     suite "ErrorsTest"
     [ errorsTestForOkay
     , errorsTestForMoreThan100Percent
+    , errorsTestForNoUpperLimit
     , indexTest
     ]
 
@@ -86,6 +87,30 @@ errorsTestForMoreThan100Percent =
           assertEqual
           [ MoreThan100Percent 0 1 ]
           (errors [y1, y2])
+
+    ]
+
+errorsTestForNoUpperLimit : Test
+errorsTestForNoUpperLimit =
+    suite "errorsTestForNoUpperLimit"
+
+    [ test "Just one AtLeast layer should yield error" <|
+      let
+          y1 = { prob = 0.60, limit = AtLeast, value = 50.0 }
+      in
+          assertEqual
+          [ NoUpperLimit ]
+          (errors [ y1 ])
+
+    , test "Just three AtLeast layers should yield error" <|
+      let
+          y1 = { prob = 0.60, limit = AtLeast, value = 50.0 }
+          y2 = { prob = 0.10, limit = AtLeast, value = 60.0 }
+          y3 = { prob = 0.05, limit = AtLeast, value = 70.0 }
+      in
+          assertEqual
+          [ NoUpperLimit ]
+          (errors [ y1, y2, y3 ])
 
     ]
 
