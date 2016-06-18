@@ -1,5 +1,6 @@
 module Errors exposing
-    ( Error (MoreThan100Percent, NoUpperLimit), IndexedLayer
+    ( Error (MoreThan100Percent, NoUpperLimit, NoLowerLimit)
+    , IndexedLayer
     , index, errors
     , view
     )
@@ -14,6 +15,7 @@ import Html exposing (Html, ul, li, text)
 type Error
     = MoreThan100Percent Int Int  -- The index of the offending layers
     | NoUpperLimit
+    | NoLowerLimit
 
 type alias Indexed a
     = { a | index : Int }
@@ -50,6 +52,7 @@ errors ys =
     List.concat
     [ moreThan100PercentErrors ys
     , noUpperLimitError ys
+    , noLowerLimitError ys
     ]
 
 moreThan100PercentErrors : List Layer -> List Error
@@ -80,6 +83,13 @@ noUpperLimitError ys =
     else
         []
 
+noLowerLimitError : List Layer -> List Error
+noLowerLimitError ys =
+    if (List.all (\y -> y.limit == AtMost) ys) then
+        [ NoLowerLimit ]
+    else
+        []
+
 -- View of errors
 
 view : List Error -> Html x
@@ -94,7 +104,9 @@ viewOneError err =
                 MoreThan100Percent i1 i2 ->
                     moreThan100PercentMessage i1 i2
                 NoUpperLimit ->
-                    "You've not given an upper limit on a value"
+                    "You've not given an upper limit for the value"
+                NoLowerLimit ->
+                    "You've not given a lower limit for the value"
     in
         li [] [ text message ]
 
