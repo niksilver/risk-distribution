@@ -1,7 +1,9 @@
 module UI exposing (Model, Msg, init, view, update)
 
+import Distribution exposing (Layer)
 import FactList
 import Chart
+import Errors
 
 import Html exposing (Html, div, p, text)
 
@@ -34,6 +36,16 @@ view model =
     in
         div []
         [ FactList.view model
-        , Chart.layersToView layers
+        , errorsOrChartView layers
         ]
+
+errorsOrChartView : List Layer -> Html Msg
+errorsOrChartView layers =
+    let
+        errs = Errors.errors layers
+    in
+        if (List.isEmpty errs) then
+            Chart.layersToView layers
+        else
+            Errors.view errs
 

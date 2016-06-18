@@ -1,9 +1,13 @@
 module Errors exposing
     ( Error (MoreThan100Percent), IndexedLayer
     , index, errors
+    , view
     )
 
 import Distribution as Dist exposing (Layer, Limit (AtLeast, AtMost))
+
+import Html exposing (Html, ul, li, text)
+
 
 -- Kinds of error
 
@@ -26,13 +30,7 @@ index ys =
     in
         List.indexedMap index' ys
 
--- List any errors found given some layers
-
-errors : List Layer -> List Error
-errors ys =
-    List.concat
-    [ moreThan100PercentErrors ys
-    ]
+-- Utility: Find the first successful test result from a list
 
 find : (a -> Maybe b) -> List a -> Maybe b
 find pred xs =
@@ -43,6 +41,14 @@ find pred xs =
             case (pred head) of
                 Just v -> Just v
                 Nothing -> find pred tail
+
+-- List any errors found given some layers
+
+errors : List Layer -> List Error
+errors ys =
+    List.concat
+    [ moreThan100PercentErrors ys
+    ]
 
 moreThan100PercentErrors : List Layer -> List Error
 moreThan100PercentErrors ys =
@@ -64,4 +70,21 @@ moreThan100PercentErrors ys =
         case (find findErrorFor iys) of
             Just err -> [ err ]
             Nothing -> []
+
+-- View of errors
+
+view : List Error -> Html x
+view errs =
+    ul [] (List.map viewOneError errs)
+
+viewOneError : Error -> Html x
+viewOneError err =
+    let
+        message =
+            case err of
+                MoreThan100Percent i1 i2 ->
+                    "Lines " ++ (toString i1) ++ " and " ++ (toString i2)
+                    ++ " suggest a space of more than 100%"
+    in
+        li [] [ text message ]
 
