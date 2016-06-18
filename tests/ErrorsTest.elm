@@ -8,12 +8,13 @@ import ElmTest exposing (..)
 all : Test
 all =
     suite "ErrorsTest"
-    [ errorsTest
+    [ errorsTestForOkay
+    , errorsTestForMoreThan100Percent
     ]
 
-errorsTest : Test
-errorsTest =
-    suite "errorsTest"
+errorsTestForOkay : Test
+errorsTestForOkay =
+    suite "errorsTestForOkay"
 
     [ test "Simple bounds should give no errors" <|
       let
@@ -33,8 +34,13 @@ errorsTest =
           assertEqual
           []
           (errors [y1, y2, y3])
+    ]
 
-    , test "Layers facing away from each other with > 100% should report error" <|
+errorsTestForMoreThan100Percent : Test
+errorsTestForMoreThan100Percent =
+    suite "errorsTestForMoreThan100Percent"
+
+    [ test "Layers facing away from each other with > 100% should report error" <|
       let
           y1 = { prob = 0.51, limit = AtMost, value = 20.0 }
           y2 = { prob = 0.60, limit = AtLeast, value = 50.0 }
