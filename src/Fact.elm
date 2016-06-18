@@ -35,10 +35,13 @@ type Msg
 
 -- Initial model
 
-init : Model
-init =
-    { text = { probPerc = "0", value = "0" }
-    , data = { prob = 0.0, limit = AtLeast, value = 0.0 }
+init : Layer -> Model
+init y =
+    { text =
+        { probPerc = y.prob * 100 |> toString
+        , value = y.value |> toString
+        }
+    , data = y
     }
 
 -- Extract the layer

@@ -55,7 +55,7 @@ moreThan100PercentErrors ys =
     let
         iys = index ys
         divergent y1 y2 =
-            (y1.limit == AtMost && y2.limit == AtLeast && y1.value < y2.value)
+            (y1.limit == AtMost && y2.limit == AtLeast && y1.value <= y2.value)
         over100Pc y1 y2 =
             (y1.value + y2.value > 1.00)
         getError iy1 iy2 =

@@ -6,7 +6,7 @@ import Html.Events exposing (onClick)
 import Html.App as App
 
 import Fact
-import Distribution as Dist
+import Distribution as Dist exposing (Limit(AtLeast, AtMost))
 
 
 type alias Model =
@@ -25,7 +25,11 @@ type Msg
 init : Model
 init =
     { next = 1
-    , iFacts = [ { id = 0, fact = Fact.init } ]
+    , iFacts =
+        [ { id = 0
+          , fact = Fact.init { prob = 0, limit = AtLeast, value = 1.0 }
+          }
+        ]
     }
 
 
@@ -63,7 +67,10 @@ updateFact factId factMsg model =
 addFact : Model -> Model
 addFact model =
     let
-        newFact = { id = model.next, fact = Fact.init }
+        newFact =
+            { id = model.next
+            , fact = Fact.init { prob = 0, limit = AtLeast, value = 1.0 }
+            }
     in
         { next = model.next + 1
         , iFacts = List.append model.iFacts [ newFact ]
