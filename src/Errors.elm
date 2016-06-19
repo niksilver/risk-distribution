@@ -125,7 +125,7 @@ viewOneError err =
                 NoLowerLimit ->
                     "You've not given a lower limit for the value"
                 Contradiction i1 i2 ->
-                    "IMPLEMENT ME!"
+                    contradictionMessage i1 i2
     in
         li [] [ text message ]
 
@@ -138,4 +138,14 @@ moreThan100PercentMessage i1 i2 =
         "Lines " ++ (i1' + 1 |> toString)
         ++ " and " ++ (i2' + 1 |> toString)
         ++ " suggest a space of more than 100%"
+
+contradictionMessage : Int -> Int -> String
+contradictionMessage i1 i2 =
+    let
+        (i1', i2') =
+            if i1 < i2 then (i1, i2) else (i2, i1)
+     in
+        "Lines " ++ (i1' + 1 |> toString)
+        ++ " and " ++ (i2' + 1 |> toString)
+        ++ " contradict each other"
 
