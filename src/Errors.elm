@@ -1,5 +1,5 @@
 module Errors exposing
-    ( Error (MoreThan100Percent, NoUpperLimit, NoLowerLimit)
+    ( Error (MoreThan100Percent, NoUpperLimit, NoLowerLimit, Contradiction)
     , IndexedLayer
     , index, errors
     , view
@@ -17,6 +17,7 @@ type Error
     = MoreThan100Percent Int Int  -- The index of the offending layers
     | NoUpperLimit
     | NoLowerLimit
+    | Contradiction Int Int  -- Index of the contradicting layers
 
 type alias Indexed a
     = { a | index : Int }
@@ -39,13 +40,14 @@ index ys =
 errors : List Layer -> List Error
 errors ys =
     List.concat
-    [ moreThan100PercentErrors ys
+    [ moreThan100PercentError ys
     , noUpperLimitError ys
     , noLowerLimitError ys
+    , contradictionError ys
     ]
 
-moreThan100PercentErrors : List Layer -> List Error
-moreThan100PercentErrors ys =
+moreThan100PercentError : List Layer -> List Error
+moreThan100PercentError ys =
     let
         iys = index ys
         divergent y1 y2 =
@@ -77,6 +79,29 @@ noLowerLimitError ys =
     else
         []
 
+contradictionError : List Layer -> List Error
+contradictionError ys =
+    let
+        iys = index ys
+        ordered y1 y2 = (y1.value < y2.value)
+        bothAtLeast y1 y2 = (y1.limit == AtLeast && y2.limit == AtLeast)
+        bothAtMost y1 y2 = (y1.limit == AtMost && y2.limit == AtMost)
+        wrongAtLeast y1 y2 = (y1.prob < y2.prob)
+        wrongAtMost y1 y2 = (y1.prob > y2.prob)
+        contradiction iy1 iy2 =
+            if (ordered iy1.layer iy2.layer
+                && ((bothAtLeast iy1.layer iy2.layer && wrongAtLeast iy1.layer iy2.layer)
+                || (bothAtMost iy1.layer iy2.layer && wrongAtMost iy1.layer iy2.layer))
+               )
+            then
+                Just (iy1.index, iy2.index)
+            else
+                Nothing
+    in
+        case (findPair contradiction iys) of
+            Just (i1, i2) -> [ Contradiction i1 i2 ]
+            Nothing -> []
+
 -- View of errors
 
 view : List Error -> Html x
@@ -94,6 +119,8 @@ viewOneError err =
                     "You've not given an upper limit for the value"
                 NoLowerLimit ->
                     "You've not given a lower limit for the value"
+                Contradiction i1 i2 ->
+                    "IMPLEMENT ME!"
     in
         li [] [ text message ]
 
@@ -106,3 +133,4 @@ moreThan100PercentMessage i1 i2 =
         "Lines " ++ (i1' + 1 |> toString)
         ++ " and " ++ (i2' + 1 |> toString)
         ++ " suggest a space of more than 100%"
+
