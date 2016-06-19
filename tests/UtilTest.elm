@@ -7,7 +7,40 @@ import ElmTest exposing (..)
 all : Test
 all =
     suite "UtilTest"
-    [ findPairTest
+    [ findTest
+    , findPairTest
+    ]
+
+findTest : Test
+findTest =
+    suite "findTest"
+
+    [ test "Success on an empty list should yield Nothing" <|
+      assertEqual
+      Nothing
+      (find (always (Just 1)) [])
+
+    , test "Success on a populated list should yield something" <|
+      assertEqual
+      (Just 1)
+      (find (always (Just 1)) [99, 98, 97])
+
+    , test "Finding an even number among odds and evens should yield even" <|
+      let
+          isEven a = if (a % 2) == 0 then Just a else Nothing
+      in
+          assertEqual
+          (Just 4)
+          (find isEven [5, 9, 4, 2, 7, 10])
+
+    , test "Finding an even number among odds should yield nothing" <|
+      let
+          isEven a = if (a % 2) == 0 then Just a else Nothing
+      in
+          assertEqual
+          Nothing
+          (find isEven [5, 9, 1, 5, 7])
+
     ]
 
 findPairTest : Test

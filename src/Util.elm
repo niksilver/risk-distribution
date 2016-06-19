@@ -1,6 +1,6 @@
-module Util exposing (findPair)
+module Util exposing (find, findPair)
 
--- Utility: Find the first successful test result from a list
+-- See if a list element matches a given criterion
 
 find : (a -> Maybe b) -> List a -> Maybe b
 find pred xs =
@@ -12,11 +12,13 @@ find pred xs =
                 Just v -> Just v
                 Nothing -> find pred tail
 
+-- See if a pair of elements in a list match a given criterion
+
 findPair : (a -> a -> Maybe b) -> List a -> Maybe b
-findPair fn iys =
+findPair fn xs =
     let
-        findErrorFor iy1 =
-            find (fn iy1) iys
+        findErrorFor x =
+            find (fn x) xs
     in
-        find findErrorFor iys
+        find findErrorFor xs
 
