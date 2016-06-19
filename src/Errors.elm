@@ -6,6 +6,7 @@ module Errors exposing
     )
 
 import Distribution as Dist exposing (Layer, Limit (AtLeast, AtMost))
+import Util exposing (findPair)
 
 import Html exposing (Html, ul, li, text)
 
@@ -43,16 +44,6 @@ errors ys =
     , noLowerLimitError ys
     ]
 
-find : (a -> Maybe b) -> List a -> Maybe b
-find pred xs =
-    case xs of
-        [] ->
-            Nothing
-        head :: tail ->
-            case (pred head) of
-                Just v -> Just v
-                Nothing -> find pred tail
-
 moreThan100PercentErrors : List Layer -> List Error
 moreThan100PercentErrors ys =
     let
@@ -67,10 +58,8 @@ moreThan100PercentErrors ys =
                 Just (MoreThan100Percent iy1.index iy2.index)
             else
                 Nothing
-        findErrorFor iy1 =
-            find (getError iy1) iys
     in
-        case (find findErrorFor iys) of
+        case (findPair getError iys) of
             Just err -> [ err ]
             Nothing -> []
 
