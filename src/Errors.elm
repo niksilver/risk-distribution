@@ -33,7 +33,15 @@ index ys =
     in
         List.indexedMap index' ys
 
--- Utility: Find the first successful test result from a list
+-- List any errors found given some layers
+
+errors : List Layer -> List Error
+errors ys =
+    List.concat
+    [ moreThan100PercentErrors ys
+    , noUpperLimitError ys
+    , noLowerLimitError ys
+    ]
 
 find : (a -> Maybe b) -> List a -> Maybe b
 find pred xs =
@@ -44,16 +52,6 @@ find pred xs =
             case (pred head) of
                 Just v -> Just v
                 Nothing -> find pred tail
-
--- List any errors found given some layers
-
-errors : List Layer -> List Error
-errors ys =
-    List.concat
-    [ moreThan100PercentErrors ys
-    , noUpperLimitError ys
-    , noLowerLimitError ys
-    ]
 
 moreThan100PercentErrors : List Layer -> List Error
 moreThan100PercentErrors ys =

@@ -2,6 +2,7 @@ import DistributionTest exposing (all)
 import FactTest exposing (all)
 import ChartTest exposing (all)
 import ErrorsTest exposing (all)
+import UtilTest exposing (all)
 
 import ElmTest exposing (runSuiteHtml, suite)
 
@@ -13,4 +14,5 @@ main =
         , FactTest.all
         , ChartTest.all
         , ErrorsTest.all
+        , UtilTest.all
         ]
