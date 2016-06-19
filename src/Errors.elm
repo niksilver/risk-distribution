@@ -89,14 +89,19 @@ contradictionError ys =
         wrongAtLeast y1 y2 = (y1.prob < y2.prob)
         wrongAtMost y1 y2 = (y1.prob > y2.prob)
         contradiction iy1 iy2 =
-            if (ordered iy1.layer iy2.layer
-                && ((bothAtLeast iy1.layer iy2.layer && wrongAtLeast iy1.layer iy2.layer)
-                || (bothAtMost iy1.layer iy2.layer && wrongAtMost iy1.layer iy2.layer))
-               )
-            then
-                Just (iy1.index, iy2.index)
-            else
-                Nothing
+            let
+                y1 = iy1.layer
+                y2 = iy2.layer
+            in
+                if (ordered y1 y2
+                    && (  (bothAtLeast y1 y2 && wrongAtLeast y1 y2)
+                       || (bothAtMost y1 y2 && wrongAtMost y1 y2)
+                       )
+                   )
+                then
+                    Just (iy1.index, iy2.index)
+                else
+                    Nothing
     in
         case (findPair contradiction iys) of
             Just (i1, i2) -> [ Contradiction i1 i2 ]
