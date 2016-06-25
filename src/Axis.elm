@@ -8,7 +8,7 @@ type alias Scale =
 scale : Float -> Float -> Int -> Scale
 scale lower upper maxTicks =
     let
-        -- Also http://stackoverflow.com/questions/8506881/nice-label-algorithm-for-charts-with-minimum-ticks/16363437#16363437
+        -- From http://stackoverflow.com/questions/8506881/nice-label-algorithm-for-charts-with-minimum-ticks/16363437#16363437
 
         maxTicks' = toFloat maxTicks
         range = niceNum (upper - lower) False
@@ -28,18 +28,17 @@ niceNum range round =
         exponent = (floor >> toFloat) (logBase 10 range)
         fraction = range / (10 ^ exponent)
         niceFraction =
-            if (round) then
-                ( if (fraction < 1.5) then 1
-                else if (fraction < 3) then 2
-                else if (fraction < 7) then 5
-                else 10
-                )
-            else
-                ( if (fraction <= 1) then 1
-                else if (fraction <= 2) then 2
-                else if (fraction <= 5) then 5
-                else 10
-                )
+            case round of
+                True ->
+                    if (fraction < 1.5) then 1
+                    else if (fraction < 3) then 2
+                    else if (fraction < 7) then 5
+                    else 10
+                False ->
+                    if (fraction <= 1) then 1
+                    else if (fraction <= 2) then 2
+                    else if (fraction <= 5) then 5
+                    else 10
     in
         niceFraction * (10 ^ exponent)
 
