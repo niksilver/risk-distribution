@@ -8,13 +8,14 @@ module Chart exposing
 
 import FactList
 import Distribution as Dist
+import Axis exposing (Scale)
 
 import Html exposing (Html)
 import Svg exposing
     ( Svg
     , svg, text
     )
-import Svg.Attributes exposing (width, height, x, y, viewBox)
+import Svg.Attributes as SvgA
 
 
 -- Specification for a chart
@@ -25,6 +26,9 @@ type alias Spec =
     , maxY : Float
     , rects : List { left : Float, right : Float, height : Float }
     }
+
+maxTicks : Int
+maxTicks = 8
 
 -- Dimensions for a viewBox
 
@@ -90,6 +94,10 @@ transformY dims spec y =
 
 -- View
 
+-- Shortcut
+
+type alias FloatFn = Float -> Float
+
 layersToView : List Dist.Layer -> Html x
 layersToView layers =
     case (rawSpec layers) of
@@ -99,35 +107,61 @@ layersToView layers =
 view : Spec -> Html x
 view spec =
     let
+        scale = Axis.scale spec.minX spec.maxX maxTicks
+        scaledSpec =
+            { spec
+            | minX = scale.min
+            , maxX = scale.max
+            }
+        trX = transformX viewDim scaledSpec
+        trY = transformY viewDim scaledSpec
+        scX = scaleX viewDim scaledSpec
+        scY = scaleY viewDim scaledSpec
         viewBoxDim =
             "0 0 "
             ++ (2 * viewDim.left + viewDim.width |> toString) ++ " "
             ++ (2 * viewDim.top + viewDim.height |> toString)
     in
         svg
-        [ width "100%"
-        , height "400px"
-        , viewBox viewBoxDim
+        [ SvgA.width "100%"
+        , SvgA.height "400px"
+        , SvgA.viewBox viewBoxDim
         ]
-        (viewArea spec)
+        [ viewDist trX trY scX scY scaledSpec
+        , viewXAxis trX trY scX scY scale
+        ]
 
--- Render just the distribution area
+-- Render just the distribution area given functions to transform and
+-- scale a given spec
 
-viewArea : Spec -> List (Svg x)
-viewArea spec =
+viewDist : FloatFn -> FloatFn -> FloatFn -> FloatFn -> Spec -> Svg x
+viewDist trX trY scX scY spec =
     let
-        trX = transformX viewDim spec
-        trY = transformY viewDim spec
-        scX = scaleX viewDim spec
-        scY = scaleY viewDim spec
         draw rect =
             Svg.rect
-            [ x (rect.left |> trX |> toString)
-            , y (rect.height |> trY |> toString)
-            , width (rect.right - rect.left |> scX |> toString)
-            , height (rect.height |> scY |> toString)
+            [ SvgA.x (rect.left |> trX |> toString)
+            , SvgA.y (rect.height |> trY |> toString)
+            , SvgA.width (rect.right - rect.left |> scX |> toString)
+            , SvgA.height (rect.height |> scY |> toString)
+            , SvgA.fill "blue"
             ]
             []
     in
-        List.map draw spec.rects
+        Svg.g []
+        (List.map draw spec.rects)
+
+-- Render the x-axis given functions to transform and scale the scale
+
+viewXAxis : FloatFn -> FloatFn -> FloatFn -> FloatFn -> Scale -> Svg x
+viewXAxis trX trY scX scY scale =
+    let
+        y = trY 0
+        trScale =
+            { scale
+            | min = trX scale.min
+            , max = trX scale.max
+            , step = scX scale.step
+            }
+    in
+        Axis.viewXAxis y trScale
 

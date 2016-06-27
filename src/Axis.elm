@@ -1,4 +1,8 @@
-module Axis exposing (Scale, scale)
+module Axis exposing (Scale, scale, viewXAxis)
+
+import Svg exposing (Svg)
+import Svg.Attributes as SvgA
+
 
 -- Module for working out a nice scale for an x- or y-axis
 
@@ -41,4 +45,20 @@ niceNum range round =
                     else 10
     in
         niceFraction * (10 ^ exponent)
+
+
+-- View
+
+
+viewXAxis : Float -> Scale -> Svg x
+viewXAxis y scale =
+    Svg.line
+    [ SvgA.x1 (toString scale.min)
+    , SvgA.y1 (toString y)
+    , SvgA.x2 (toString scale.max)
+    , SvgA.y2 (toString y)
+    , SvgA.stroke "black"
+    , SvgA.strokeWidth "2"
+    ]
+    []
 
