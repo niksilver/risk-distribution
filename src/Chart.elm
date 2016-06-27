@@ -71,10 +71,7 @@ view spec =
             | minX = scale.min
             , maxX = scale.max
             }
-        trX = Util.transformX viewDim scaledSpec
-        trY = Util.transformY viewDim scaledSpec
-        scX = Util.scaleX viewDim scaledSpec
-        scY = Util.scaleY viewDim scaledSpec
+        transformer = Util.transformer viewDim scaledSpec
         viewBoxDim =
             "0 0 "
             ++ (2 * viewDim.left + viewDim.width |> toString) ++ " "
@@ -85,22 +82,22 @@ view spec =
         , SvgA.height "400px"
         , SvgA.viewBox viewBoxDim
         ]
-        [ viewDist trX trY scX scY scaledSpec
-        , viewXAxis trX trY scX scY scale
+        [ viewDist transformer scaledSpec
+        , viewXAxis transformer scale
         ]
 
 -- Render just the distribution area given functions to transform and
 -- scale a given spec
 
-viewDist : FloatFn -> FloatFn -> FloatFn -> FloatFn -> Spec -> Svg x
-viewDist trX trY scX scY spec =
+viewDist : Transformer -> Spec -> Svg x
+viewDist transformer spec =
     let
         draw rect =
             Svg.rect
-            [ SvgA.x (rect.left |> trX |> toString)
-            , SvgA.y (rect.height |> trY |> toString)
-            , SvgA.width (rect.right - rect.left |> scX |> toString)
-            , SvgA.height (rect.height |> scY |> toString)
+            [ SvgA.x (rect.left |> transformer.trX |> toString)
+            , SvgA.y (rect.height |> transformer.trY |> toString)
+            , SvgA.width (rect.right - rect.left |> transformer.scX |> toString)
+            , SvgA.height (rect.height |> transformer.scY |> toString)
             , SvgA.fill "blue"
             ]
             []
@@ -110,15 +107,15 @@ viewDist trX trY scX scY spec =
 
 -- Render the x-axis given functions to transform and scale the scale
 
-viewXAxis : FloatFn -> FloatFn -> FloatFn -> FloatFn -> Scale -> Svg x
-viewXAxis trX trY scX scY scale =
+viewXAxis : Transformer -> Scale -> Svg x
+viewXAxis transformer scale =
     let
-        y = trY 0
+        y = transformer.trY 0
         trScale =
             { scale
-            | min = trX scale.min
-            , max = trX scale.max
-            , step = scX scale.step
+            | min = transformer.trX scale.min
+            , max = transformer.trX scale.max
+            , step = transformer.scX scale.step
             }
     in
         Axis.viewXAxis y trScale
