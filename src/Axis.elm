@@ -19,6 +19,9 @@ strokeColour = "black"
 strokeWidth : String
 strokeWidth = "2"
 
+tickMarkLength : Float
+tickMarkLength = 10
+
 -- Calculating a scale
 
 scale : Float -> Float -> Int -> Scale
@@ -65,18 +68,22 @@ niceNum range round =
 viewXAxis : Float -> Scale -> Svg x
 viewXAxis y scale =
     Svg.g []
-    [ Svg.line
-        [ SvgA.x1 (toString scale.min)
-        , SvgA.y1 (toString y)
-        , SvgA.x2 (toString scale.max)
-        , SvgA.y2 (toString y)
-        , SvgA.stroke strokeColour
-        , SvgA.strokeWidth strokeWidth
-        , SvgA.strokeLinecap "square"
-        ]
-        []
+    [ viewXAxisLine y scale
     , viewXAxisTicks y scale
     ]
+
+viewXAxisLine : Float -> Scale -> Svg x
+viewXAxisLine y scale =
+    Svg.line
+    [ SvgA.x1 (toString scale.min)
+    , SvgA.y1 (toString y)
+    , SvgA.x2 (toString scale.max)
+    , SvgA.y2 (toString y)
+    , SvgA.stroke strokeColour
+    , SvgA.strokeWidth strokeWidth
+    , SvgA.strokeLinecap "square"
+    ]
+    []
 
 viewXAxisTicks : Float -> Scale -> Svg x
 viewXAxisTicks y scale =
@@ -103,7 +110,7 @@ viewXAxisOneTick x y scale =
     [ SvgA.x1 (toString x)
     , SvgA.y1 (toString y)
     , SvgA.x2 (toString x)
-    , SvgA.y2 (toString (y + 20))
+    , SvgA.y2 (toString (y + tickMarkLength))
     , SvgA.stroke strokeColour
     , SvgA.strokeWidth strokeWidth
     ]
