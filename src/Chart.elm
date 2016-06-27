@@ -1,44 +1,24 @@
 module Chart exposing
-    ( Spec, ViewDims
-    , rawSpec
-    , scaleX, scaleY
-    , transformX, transformY
+    ( rawSpec
     , layersToView, view
     )
 
 import FactList
 import Distribution as Dist
 import Axis exposing (Scale)
+import Util exposing (Spec, ViewDims, Transformer)
 
 import Html exposing (Html)
-import Svg exposing
-    ( Svg
-    , svg, text
-    )
+import Svg exposing (Svg)
 import Svg.Attributes as SvgA
 
-
--- Specification for a chart
-
-type alias Spec =
-    { minX : Float
-    , maxX : Float
-    , maxY : Float
-    , rects : List { left : Float, right : Float, height : Float }
-    }
 
 maxTicks : Int
 maxTicks = 8
 
--- Dimensions for a viewBox
+-- Dimensions for the viewBox
 
-type alias ViewDims =
-    { left : Float
-    , top : Float
-    , width : Float
-    , height : Float
-    }
-
+viewDim : ViewDims
 viewDim =
     { left = 50
     , top = 20
@@ -70,28 +50,6 @@ rawSpec layers =
             (Dist.range intervals)
             maxHeight
 
--- Scale a length on the x- or y-axis from a spec to a view box.
-
-scaleX : ViewDims -> Spec -> Float -> Float
-scaleX dims spec length =
-    length / (spec.maxX - spec.minX) * dims.width
-
-scaleY : ViewDims -> Spec -> Float -> Float
-scaleY dims spec height =
-    height / spec.maxY * dims.height
-
--- Transform a point on the x-axis or y-axis from its place in a spec
--- to a place in the chart view box.
-
-transformX : ViewDims -> Spec -> Float -> Float
-transformX dims spec x =
-    dims.left + (x - spec.minX) / (spec.maxX - spec.minX) * dims.width
-
-transformY : ViewDims -> Spec -> Float -> Float
-transformY dims spec y =
-    dims.top + (spec.maxY - y) / spec.maxY * dims.height
-
-
 -- View
 
 -- Shortcut
@@ -102,7 +60,7 @@ layersToView : List Dist.Layer -> Html x
 layersToView layers =
     case (rawSpec layers) of
         Just spec -> view spec
-        Nothing -> text ""
+        Nothing -> Svg.text ""
  
 view : Spec -> Html x
 view spec =
@@ -113,16 +71,16 @@ view spec =
             | minX = scale.min
             , maxX = scale.max
             }
-        trX = transformX viewDim scaledSpec
-        trY = transformY viewDim scaledSpec
-        scX = scaleX viewDim scaledSpec
-        scY = scaleY viewDim scaledSpec
+        trX = Util.transformX viewDim scaledSpec
+        trY = Util.transformY viewDim scaledSpec
+        scX = Util.scaleX viewDim scaledSpec
+        scY = Util.scaleY viewDim scaledSpec
         viewBoxDim =
             "0 0 "
             ++ (2 * viewDim.left + viewDim.width |> toString) ++ " "
             ++ (2 * viewDim.top + viewDim.height |> toString)
     in
-        svg
+        Svg.svg
         [ SvgA.width "100%"
         , SvgA.height "400px"
         , SvgA.viewBox viewBoxDim
