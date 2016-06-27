@@ -25,7 +25,7 @@ tickMarkLength : Float
 tickMarkLength = 10
 
 fontSize : Float    -- In pixels, as it's used for positioning
-fontSize = 10
+fontSize = 24
 
 -- Calculating a scale
 
@@ -128,7 +128,7 @@ viewXAxisOneTick transformer scale x =
           , SvgA.y (toString y2')
           , SvgA.textAnchor "middle"
           , SvgA.style ("font-size: " ++ toString fontSize ++ "px")
-          , SvgA.transform ("translate(0 " ++ (fontSize * 1.5 |> toString) ++ ")")
+          , SvgA.transform ("translate(0 " ++ (fontSize * 1.1 |> toString) ++ ")")
           ]
           [ Svg.text (toString x)
           ]

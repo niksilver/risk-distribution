@@ -14,7 +14,7 @@ import Svg.Attributes as SvgA
 
 
 maxTicks : Int
-maxTicks = 8
+maxTicks = 6
 
 -- Dimensions for the viewBox
 
@@ -23,7 +23,7 @@ viewDim =
     { left = 50
     , right = 50
     , top = 20
-    , bottom = 50
+    , bottom = 80
     , width = 800
     , height = 350
     }
