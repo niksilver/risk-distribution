@@ -21,7 +21,9 @@ maxTicks = 8
 viewDim : ViewDims
 viewDim =
     { left = 50
+    , right = 50
     , top = 20
+    , bottom = 50
     , width = 800
     , height = 350
     }
@@ -75,8 +77,8 @@ view spec =
         transformer = Util.transformer viewDim scaledSpec
         viewBoxDim =
             "0 0 "
-            ++ (2 * viewDim.left + viewDim.width |> toString) ++ " "
-            ++ (2 * viewDim.top + viewDim.height |> toString)
+            ++ (viewDim.left + viewDim.right + viewDim.width |> toString) ++ " "
+            ++ (viewDim.top + viewDim.bottom + viewDim.height |> toString)
     in
         Svg.svg
         [ SvgA.width "100%"

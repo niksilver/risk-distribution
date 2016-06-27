@@ -18,7 +18,9 @@ type alias Spec =
 
 type alias ViewDims =
     { left : Float
+    , right : Float
     , top : Float
+    , bottom : Float
     , width : Float
     , height : Float
     }
