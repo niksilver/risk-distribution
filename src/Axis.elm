@@ -9,6 +9,18 @@ import Svg.Attributes as SvgA
 type alias Scale =
     { min : Float, max : Float, step : Float }
 
+
+-- Some constants
+
+
+strokeColour : String
+strokeColour = "black"
+
+strokeWidth : String
+strokeWidth = "2"
+
+-- Calculating a scale
+
 scale : Float -> Float -> Int -> Scale
 scale lower upper maxTicks =
     let
@@ -52,13 +64,48 @@ niceNum range round =
 
 viewXAxis : Float -> Scale -> Svg x
 viewXAxis y scale =
+    Svg.g []
+    [ Svg.line
+        [ SvgA.x1 (toString scale.min)
+        , SvgA.y1 (toString y)
+        , SvgA.x2 (toString scale.max)
+        , SvgA.y2 (toString y)
+        , SvgA.stroke strokeColour
+        , SvgA.strokeWidth strokeWidth
+        , SvgA.strokeLinecap "square"
+        ]
+        []
+    , viewXAxisTicks y scale
+    ]
+
+viewXAxisTicks : Float -> Scale -> Svg x
+viewXAxisTicks y scale =
+    Svg.g []
+    (viewXAxisTicks' y scale 0 [])
+
+viewXAxisTicks' : Float -> Scale -> Int -> List (Svg x) -> List (Svg x)
+viewXAxisTicks' y scale idx accum =
+    let
+        x = (toFloat idx) * scale.step + scale.min
+    in
+        if (x > scale.max) then
+            accum
+        else
+            viewXAxisTicks'
+                y
+                scale
+                (idx + 1) 
+                (viewXAxisOneTick x y scale :: accum)
+
+viewXAxisOneTick : Float -> Float -> Scale -> Svg x
+viewXAxisOneTick x y scale =
     Svg.line
-    [ SvgA.x1 (toString scale.min)
+    [ SvgA.x1 (toString x)
     , SvgA.y1 (toString y)
-    , SvgA.x2 (toString scale.max)
-    , SvgA.y2 (toString y)
-    , SvgA.stroke "black"
-    , SvgA.strokeWidth "2"
+    , SvgA.x2 (toString x)
+    , SvgA.y2 (toString (y + 20))
+    , SvgA.stroke strokeColour
+    , SvgA.strokeWidth strokeWidth
     ]
     []
 
