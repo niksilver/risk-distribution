@@ -24,6 +24,9 @@ strokeWidth = "2"
 tickMarkLength : Float
 tickMarkLength = 10
 
+fontSize : Float    -- In pixels, as it's used for positioning
+fontSize = 10
+
 -- Calculating a scale
 
 scale : Float -> Float -> Int -> Scale
@@ -107,15 +110,27 @@ viewXAxisOneTick : Transformer -> Scale -> Float -> Svg x
 viewXAxisOneTick transformer scale x =
     let
         x' = transformer.trX x
-        y' = transformer.trY 0
+        y1' = transformer.trY 0
+        y2' = y1' + tickMarkLength
     in
-        Svg.line
-        [ SvgA.x1 (toString x')
-        , SvgA.y1 (toString y')
-        , SvgA.x2 (toString x')
-        , SvgA.y2 (toString (y' + tickMarkLength))
-        , SvgA.stroke strokeColour
-        , SvgA.strokeWidth strokeWidth
+        Svg.g []
+        [ Svg.line
+          [ SvgA.x1 (toString x')
+          , SvgA.y1 (toString y1')
+          , SvgA.x2 (toString x')
+          , SvgA.y2 (toString y2')
+          , SvgA.stroke strokeColour
+          , SvgA.strokeWidth strokeWidth
+          ]
+          []
+        , Svg.text'
+          [ SvgA.x (toString x')
+          , SvgA.y (toString y2')
+          , SvgA.textAnchor "middle"
+          , SvgA.style ("font-size: " ++ toString fontSize ++ "px")
+          , SvgA.transform ("translate(0 " ++ (fontSize * 1.5 |> toString) ++ ")")
+          ]
+          [ Svg.text (toString x)
+          ]
         ]
-        []
 
