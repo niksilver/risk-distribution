@@ -65,6 +65,7 @@ layersToView layers =
 view : Spec -> Html x
 view spec =
     let
+        -- Rescale the chart spec to include an x-axis with nice max and min
         scale = Axis.scale spec.minX spec.maxX maxTicks
         scaledSpec =
             { spec
@@ -83,7 +84,7 @@ view spec =
         , SvgA.viewBox viewBoxDim
         ]
         [ viewDist transformer scaledSpec
-        , viewXAxis transformer scale
+        , Axis.viewXAxis transformer scale
         ]
 
 -- Render just the distribution area given functions to transform and
@@ -105,12 +106,11 @@ viewDist transformer spec =
         Svg.g []
         (List.map draw spec.rects)
 
--- Render the x-axis given functions to transform and scale the scale
+-- Render the x-axis given functions to transform and scale it for the view box
 
 viewXAxis : Transformer -> Scale -> Svg x
 viewXAxis transformer scale =
     let
-        y = transformer.trY 0
         trScale =
             { scale
             | min = transformer.trX scale.min
@@ -118,5 +118,5 @@ viewXAxis transformer scale =
             , step = transformer.scX scale.step
             }
     in
-        Axis.viewXAxis y trScale
+        Axis.viewXAxis transformer trScale
 

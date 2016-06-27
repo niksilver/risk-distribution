@@ -1,5 +1,7 @@
 module Axis exposing (Scale, scale, viewXAxis)
 
+import Util exposing (Transformer)
+
 import Svg exposing (Svg)
 import Svg.Attributes as SvgA
 
@@ -65,54 +67,55 @@ niceNum range round =
 -- View
 
 
-viewXAxis : Float -> Scale -> Svg x
-viewXAxis y scale =
+viewXAxis : Transformer -> Scale -> Svg x
+viewXAxis transformer scale =
     Svg.g []
-    [ viewXAxisLine y scale
-    , viewXAxisTicks y scale
+    [ viewXAxisLine transformer scale
+    , viewXAxisTicks transformer scale
     ]
 
-viewXAxisLine : Float -> Scale -> Svg x
-viewXAxisLine y scale =
+viewXAxisLine : Transformer -> Scale -> Svg x
+viewXAxisLine transformer scale =
     Svg.line
-    [ SvgA.x1 (toString scale.min)
-    , SvgA.y1 (toString y)
-    , SvgA.x2 (toString scale.max)
-    , SvgA.y2 (toString y)
+    [ SvgA.x1 (toString (transformer.trX scale.min))
+    , SvgA.y1 (toString (transformer.trY 0))
+    , SvgA.x2 (toString (transformer.trX scale.max))
+    , SvgA.y2 (toString (transformer.trY 0))
     , SvgA.stroke strokeColour
     , SvgA.strokeWidth strokeWidth
     , SvgA.strokeLinecap "square"
     ]
     []
 
-viewXAxisTicks : Float -> Scale -> Svg x
-viewXAxisTicks y scale =
+viewXAxisTicks : Transformer -> Scale -> Svg x
+viewXAxisTicks transformer scale =
     Svg.g []
-    (viewXAxisTicks' y scale 0 [])
+    (viewXAxisTicks' transformer scale scale.min [])
 
-viewXAxisTicks' : Float -> Scale -> Int -> List (Svg x) -> List (Svg x)
-viewXAxisTicks' y scale idx accum =
+viewXAxisTicks' : Transformer -> Scale -> Float -> List (Svg x) -> List (Svg x)
+viewXAxisTicks' transformer scale x accum =
+    if (x > scale.max) then
+        accum
+    else
+        viewXAxisTicks'
+            transformer
+            scale
+            (x + scale.step) 
+            (viewXAxisOneTick transformer scale x :: accum)
+
+viewXAxisOneTick : Transformer -> Scale -> Float -> Svg x
+viewXAxisOneTick transformer scale x =
     let
-        x = (toFloat idx) * scale.step + scale.min
+        x' = transformer.trX x
+        y' = transformer.trY 0
     in
-        if (x > scale.max) then
-            accum
-        else
-            viewXAxisTicks'
-                y
-                scale
-                (idx + 1) 
-                (viewXAxisOneTick x y scale :: accum)
-
-viewXAxisOneTick : Float -> Float -> Scale -> Svg x
-viewXAxisOneTick x y scale =
-    Svg.line
-    [ SvgA.x1 (toString x)
-    , SvgA.y1 (toString y)
-    , SvgA.x2 (toString x)
-    , SvgA.y2 (toString (y + tickMarkLength))
-    , SvgA.stroke strokeColour
-    , SvgA.strokeWidth strokeWidth
-    ]
-    []
+        Svg.line
+        [ SvgA.x1 (toString x')
+        , SvgA.y1 (toString y')
+        , SvgA.x2 (toString x')
+        , SvgA.y2 (toString (y' + tickMarkLength))
+        , SvgA.stroke strokeColour
+        , SvgA.strokeWidth strokeWidth
+        ]
+        []
 
