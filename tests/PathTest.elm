@@ -39,5 +39,10 @@ dTest =
       "M 5,6 L 20,21"
       (Path [M 5 6, L 20 21] |> d)
 
+    , test "d for Path with lower case l should be right" <|
+      assertEqual
+      "l 20,21"
+      (Path [L' 20 21] |> d)
+
     ]
 

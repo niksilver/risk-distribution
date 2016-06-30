@@ -1,4 +1,8 @@
-module Path exposing (Path(Path), Instruction(M, L), d)
+module Path exposing
+    ( Path (Path)
+    , Instruction (M, L, L')
+    , d
+    )
 
 
 -- Module for managing SVG path descriptions
@@ -7,6 +11,7 @@ module Path exposing (Path(Path), Instruction(M, L), d)
 type Instruction
     = M Float Float
     | L Float Float
+    | L' Float Float
 
 type Path = Path (List Instruction)
 
@@ -26,6 +31,8 @@ dInstr instr =
             "M " ++ (toString x) ++ "," ++ (toString y)
         L x y ->
             "L " ++ (toString x) ++ "," ++ (toString y)
+        L' x y ->
+            "l " ++ (toString x) ++ "," ++ (toString y)
 
 maybeSpace : List Instruction -> String
 maybeSpace instrs =
