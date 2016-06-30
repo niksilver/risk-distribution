@@ -29,5 +29,10 @@ dTest =
       "M 12,13"
       (Path [M 12 13] |> d)
 
+    , test "d for Path with single L should be right (1)" <|
+      assertEqual
+      "L 20,21"
+      (Path [L 20 21] |> d)
+
     ]
 

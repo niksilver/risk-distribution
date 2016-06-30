@@ -1,10 +1,15 @@
-module Path exposing (Path(Path), M(M), d)
+module Path exposing (Path(Path), Instruction(M, L), d)
+
 
 -- Module for managing SVG path descriptions
 
-type M = M Float Float
 
-type Path = Path (List M)
+type Instruction
+    = M Float Float
+    | L Float Float
+
+type Path = Path (List Instruction)
+
 
 d : Path -> String
 d (Path instrs) =
@@ -12,6 +17,11 @@ d (Path instrs) =
         [] -> ""
         head :: tail -> dInstr head ++ d (Path tail)
 
-dInstr : M -> String
-dInstr (M x y) =
-    "M " ++ (toString x) ++ "," ++ (toString y)
+dInstr : Instruction -> String
+dInstr instr =
+    case instr of
+        M x y ->
+            "M " ++ (toString x) ++ "," ++ (toString y)
+        L x y ->
+            "L " ++ (toString x) ++ "," ++ (toString y)
+
