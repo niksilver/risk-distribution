@@ -1,6 +1,7 @@
 module Path exposing
     ( Path (Path)
     , Instruction (M, M', L, L', H, H', V, V')
+    , mapX
     , d
     )
 
@@ -52,4 +53,30 @@ dTwoPart i x y =
 dOnePart : String -> Float -> String
 dOnePart i a =
         i ++ " " ++ (toString a)
+
+-- Map the x co-ordindates of a path
+
+mapX : (Float -> Float) -> Path -> Path
+mapX fn (Path instrs) =
+    Path (mapX' fn instrs)
+
+mapX' : (Float -> Float) -> List Instruction -> List Instruction
+mapX' fn instrs =
+    case instrs of
+        [] ->
+            []
+        head :: tail ->
+            mapXInstr fn head :: mapX' fn tail
+
+mapXInstr : (Float -> Float) -> Instruction -> Instruction
+mapXInstr fn instr =
+    case instr of
+        M  x y -> M  (fn x) y
+        M' x y -> M' (fn x) y
+        L  x y -> L  (fn x) y
+        L' x y -> L' (fn x) y
+        H  x -> H  (fn x)
+        H' x -> H' (fn x)
+        V  y -> V  y
+        V' y -> V' y
 

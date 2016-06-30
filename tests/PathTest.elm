@@ -8,6 +8,7 @@ all : Test
 all =
     suite "PathTest"
     [ dTest
+    , mapXTest
     ]
 
 dTest : Test
@@ -68,6 +69,52 @@ dTest =
       assertEqual
       "v 72"
       (Path [V' 72] |> d)
+
+    ]
+
+mapXTest : Test
+mapXTest =
+    suite "mapXTest"
+
+    [ test "Simple map x for M should map only x" <|
+      assertEqual
+      (Path [M 34 44])
+      (Path [M 33 44] |> mapX (\x -> x + 1))
+
+    , test "Simple map x for m should map only x" <|
+      assertEqual
+      (Path [M' 35 44])
+      (Path [M' 33 44] |> mapX (\x -> x + 2))
+
+    , test "Simple map x for L should map only x" <|
+      assertEqual
+      (Path [L 36 44])
+      (Path [L 33 44] |> mapX (\x -> x + 3))
+
+    , test "Simple map x for l should map only x" <|
+      assertEqual
+      (Path [L' 37 44])
+      (Path [L' 33 44] |> mapX (\x -> x + 4))
+
+    , test "Simple map x for H should map x" <|
+      assertEqual
+      (Path [H 45])
+      (Path [H 44] |> mapX (\x -> x + 1))
+
+    , test "Simple map x for h should map x" <|
+      assertEqual
+      (Path [H' 46])
+      (Path [H' 44] |> mapX (\x -> x + 2))
+
+    , test "Simple map x for V should not map argument" <|
+      assertEqual
+      (Path [V 55])
+      (Path [V 55] |> mapX (\x -> x + 1))
+
+    , test "Simple map x for v should not map argument" <|
+      assertEqual
+      (Path [V' 55])
+      (Path [V' 55] |> mapX (\x -> x + 2))
 
     ]
 
