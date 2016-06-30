@@ -4,6 +4,7 @@ import ChartTest exposing (all)
 import ErrorsTest exposing (all)
 import UtilTest exposing (all)
 import AxisTest exposing (all)
+import PathTest exposing (all)
 
 import ElmTest exposing (runSuiteHtml, suite)
 
@@ -17,4 +18,5 @@ main =
         , ErrorsTest.all
         , UtilTest.all
         , AxisTest.all
+        , PathTest.all
         ]
