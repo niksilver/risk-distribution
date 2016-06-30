@@ -14,8 +14,10 @@ type Path = Path (List Instruction)
 d : Path -> String
 d (Path instrs) =
     case instrs of
-        [] -> ""
-        head :: tail -> dInstr head ++ d (Path tail)
+        [] ->
+            ""
+        head :: tail ->
+            dInstr head ++ (maybeSpace tail) ++ d (Path tail)
 
 dInstr : Instruction -> String
 dInstr instr =
@@ -24,4 +26,8 @@ dInstr instr =
             "M " ++ (toString x) ++ "," ++ (toString y)
         L x y ->
             "L " ++ (toString x) ++ "," ++ (toString y)
+
+maybeSpace : List Instruction -> String
+maybeSpace instrs =
+    if (List.isEmpty instrs) then "" else " "
 

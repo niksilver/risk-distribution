@@ -29,10 +29,15 @@ dTest =
       "M 12,13"
       (Path [M 12 13] |> d)
 
-    , test "d for Path with single L should be right (1)" <|
+    , test "d for Path with single L should be right" <|
       assertEqual
       "L 20,21"
       (Path [L 20 21] |> d)
+
+    , test "d for Path with mixed instrucions should be right" <|
+      assertEqual
+      "M 5,6 L 20,21"
+      (Path [M 5 6, L 20 21] |> d)
 
     ]
 
