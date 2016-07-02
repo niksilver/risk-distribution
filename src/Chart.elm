@@ -116,8 +116,10 @@ viewDist transformer spec =
 viewLines : Transformer -> Spec -> Svg x
 viewLines transformer spec =
     let
-        trans x y = (transformer.trX x, transformer.trY y)
-        path = distPath spec |> Path.map trans
+        trans x y =
+            (transformer.trX x, transformer.trY y)
+        path =
+            distPath spec |> Path.map trans
     in
         Svg.path
         [ SvgA.d (Path.d path)
@@ -131,7 +133,7 @@ distPath : Spec -> Path
 distPath spec =
     case spec.rects of
         [] -> Path []
-        rect :: tail ->
+        rect :: _ ->
             Path (distPath' spec.rects [M (rect.left) 0])
 
 distPath' : List Rect -> List Instruction -> List Instruction
@@ -141,11 +143,13 @@ distPath' rects accum =
             accum
         rect :: tail ->
             let
+                -- Add a line to the top of this rectangle
                 midPoint = (rect.left + rect.right) / 2
                 accum' = L midPoint rect.height :: accum
             in
+                -- If this is the last rectangle draw a line to the end
                 if (List.isEmpty tail) then
-                    L rect.right 0 :: accum'
+                    (L rect.right 0) :: accum'
                         |> List.reverse
                 else
                     distPath' tail accum'
