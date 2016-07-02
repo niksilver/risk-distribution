@@ -1,7 +1,7 @@
 module Path exposing
     ( Path (Path)
     , Instruction (M, M', L, L', H, H', V, V')
-    , mapX
+    , map
     , d
     )
 
@@ -54,29 +54,51 @@ dOnePart : String -> Float -> String
 dOnePart i a =
         i ++ " " ++ (toString a)
 
--- Map the x co-ordindates of a path
+-- Map a path.
 
-mapX : (Float -> Float) -> Path -> Path
-mapX fn (Path instrs) =
-    Path (mapX' fn instrs)
+type alias Pos = (Float, Float)
 
-mapX' : (Float -> Float) -> List Instruction -> List Instruction
-mapX' fn instrs =
+type alias PosFn = Float -> Float -> Pos
+
+map : PosFn -> Path -> Path
+map fn (Path instrs) =
+    Path (map' (0,0) fn instrs)
+
+map' : Pos -> PosFn -> List Instruction -> List Instruction
+map' pos fn instrs =
     case instrs of
         [] ->
             []
         head :: tail ->
-            mapXInstr fn head :: mapX' fn tail
+            let
+                (newPos, mappedInstr) = mapInstr pos fn head
+            in
+                mappedInstr :: map' newPos fn tail
 
-mapXInstr : (Float -> Float) -> Instruction -> Instruction
-mapXInstr fn instr =
+mapInstr : Pos -> PosFn -> Instruction -> (Pos, Instruction)
+mapInstr pos fn instr =
     case instr of
-        M  x y -> M  (fn x) y
-        M' x y -> M' (fn x) y
-        L  x y -> L  (fn x) y
-        L' x y -> L' (fn x) y
-        H  x -> H  (fn x)
-        H' x -> H' (fn x)
-        V  y -> V  y
-        V' y -> V' y
+        M x y ->
+            let
+                (x', y') = fn x y
+                pos = (x', y')
+            in
+                (pos, M x' y')
+        L x y ->
+            let
+                (x', y') = fn x y
+            in
+                (pos, L x' y')
+        H x ->
+            let
+                (x', y') = fn x (snd pos)
+            in
+                (pos, H x')
+        V y ->
+            let
+                (x', y') = fn (fst pos) y
+            in
+                (pos, V y')
+        ins ->
+            (pos, ins)
 

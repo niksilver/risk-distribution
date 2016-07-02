@@ -8,7 +8,7 @@ all : Test
 all =
     suite "PathTest"
     [ dTest
-    , mapXTest
+    , mapTestForAbsoluteInstructions
     ]
 
 dTest : Test
@@ -72,49 +72,37 @@ dTest =
 
     ]
 
-mapXTest : Test
-mapXTest =
-    suite "mapXTest"
+simpleXYFn1 : Float -> Float -> (Float, Float)
+simpleXYFn1 x y =
+    (x*2 + 1, y*3 + 2)
 
-    [ test "Simple map x for M should map only x" <|
-      assertEqual
-      (Path [M 34 44])
-      (Path [M 33 44] |> mapX (\x -> x + 1))
+simpleXYFn2 : Float -> Float -> (Float, Float)
+simpleXYFn2 x y =
+    (x*3 + 2, y*2 + 1)
 
-    , test "Simple map x for m should map only x" <|
-      assertEqual
-      (Path [M' 35 44])
-      (Path [M' 33 44] |> mapX (\x -> x + 2))
+mapTestForAbsoluteInstructions : Test
+mapTestForAbsoluteInstructions =
+    suite "mapTestForAbsoluteInstructions"
 
-    , test "Simple map x for L should map only x" <|
+    [ test "Simple map on M should map values" <|
       assertEqual
-      (Path [L 36 44])
-      (Path [L 33 44] |> mapX (\x -> x + 3))
+      (Path [M 17 29])
+      (Path [M 8 9] |> map simpleXYFn1)
 
-    , test "Simple map x for l should map only x" <|
+    , test "Simple map on L should map values" <|
       assertEqual
-      (Path [L' 37 44])
-      (Path [L' 33 44] |> mapX (\x -> x + 4))
+      (Path [L 11 9])
+      (Path [L 3 4] |> map simpleXYFn2)
 
-    , test "Simple map x for H should map x" <|
+    , test "Simple map on H should change the horizontal" <|
       assertEqual
-      (Path [H 45])
-      (Path [H 44] |> mapX (\x -> x + 1))
+      (Path [M 3 8, H 11])
+      (Path [M 1 2, H 5] |> map simpleXYFn1)
 
-    , test "Simple map x for h should map x" <|
+    , test "Simple map on V should change the vertical" <|
       assertEqual
-      (Path [H' 46])
-      (Path [H' 44] |> mapX (\x -> x + 2))
-
-    , test "Simple map x for V should not map argument" <|
-      assertEqual
-      (Path [V 55])
-      (Path [V 55] |> mapX (\x -> x + 1))
-
-    , test "Simple map x for v should not map argument" <|
-      assertEqual
-      (Path [V' 55])
-      (Path [V' 55] |> mapX (\x -> x + 2))
+      (Path [M 11 7, V 9])
+      (Path [M 3 3, V 4] |> map simpleXYFn2)
 
     ]
 
