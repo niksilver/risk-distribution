@@ -64,6 +64,9 @@ map : PosFn -> Path -> Path
 map fn (Path instrs) =
     Path (map' (0,0) fn instrs)
 
+-- Map the list of instructions, keeping track of the original
+-- cursor position at each step
+
 map' : Pos -> PosFn -> List Instruction -> List Instruction
 map' pos fn instrs =
     case instrs of
@@ -80,25 +83,26 @@ mapInstr pos fn instr =
     case instr of
         M x y ->
             let
+                pos = (x, y)
                 (x', y') = fn x y
-                pos = (x', y')
             in
                 (pos, M x' y')
         L x y ->
             let
+                pos = (x, y)
                 (x', y') = fn x y
             in
                 (pos, L x' y')
         H x ->
-            let
-                (x', y') = fn x (snd pos)
-            in
-                (pos, H x')
+            mapInstr pos fn (L x (snd pos))
         V y ->
-            let
-                (x', y') = fn (fst pos) y
-            in
-                (pos, V y')
-        ins ->
-            (pos, ins)
+            mapInstr pos fn (L (fst pos) y)
+        M' dx dy ->
+            mapInstr pos fn (M (fst pos + dx) (snd pos + dy))
+        L' dx dy ->
+            mapInstr pos fn (L (fst pos + dx) (snd pos + dy))
+        H' dx ->
+            mapInstr pos fn (L (fst pos + dx) (snd pos))
+        V' dy ->
+            mapInstr pos fn (L (fst pos) (snd pos + dy))
 
