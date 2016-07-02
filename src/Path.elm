@@ -6,8 +6,12 @@ module Path exposing
     )
 
 
--- Module for managing SVG path descriptions
+-- Module for managing SVG path descriptions.
 
+
+-- Each instruction is from the d element of <path d="...">
+-- Relative intructions such as m, l, v and h are represented
+-- by M', L', V, H', etc.
 
 type Instruction
     = M  Float Float
@@ -55,6 +59,12 @@ dOnePart i a =
         i ++ " " ++ (toString a)
 
 -- Map a path.
+-- Because the mapping may not be linear the instructions are all changed
+-- to be absolute.
+-- For example, Path [M 1 2, H' 3] draws a line from (1, 2) to (4, 2)
+-- but if we map it with a function (\x y -> (x+y, x)) then we get
+-- a line from (3, 1) to (6, 4). As a result the mapped path becomes
+-- Path [M 3 1, L 6 4].
 
 type alias Pos = (Float, Float)
 
