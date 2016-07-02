@@ -108,17 +108,3 @@ viewDist transformer spec =
         Svg.g []
         (List.map draw spec.rects)
 
--- Render the x-axis given functions to transform and scale it for the view box
-
-viewXAxis : Transformer -> Scale -> Svg x
-viewXAxis transformer scale =
-    let
-        trScale =
-            { scale
-            | min = transformer.trX scale.min
-            , max = transformer.trX scale.max
-            , step = transformer.scX scale.step
-            }
-    in
-        Axis.viewXAxis transformer trScale
-
