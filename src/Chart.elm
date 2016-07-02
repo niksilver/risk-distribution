@@ -6,7 +6,8 @@ module Chart exposing
 import FactList
 import Distribution as Dist
 import Axis exposing (Scale)
-import Util exposing (Spec, ViewDims, Transformer)
+import Util exposing (Rect, Spec, ViewDims, Transformer)
+import Path exposing (Path (Path), Instruction (M, L))
 
 import Html exposing (Html)
 import Svg exposing (Svg)
@@ -86,6 +87,7 @@ view spec =
         , SvgA.viewBox viewBoxDim
         ]
         [ viewDist transformer scaledSpec
+        , viewLines transformer scaledSpec
         , Axis.viewXAxis transformer scale
         ]
 
@@ -107,4 +109,44 @@ viewDist transformer spec =
     in
         Svg.g []
         (List.map draw spec.rects)
+
+-- Render the distribution as lines.
+-- We also have a function to transform and scale the chart's spec
+
+viewLines : Transformer -> Spec -> Svg x
+viewLines transformer spec =
+    let
+        trans x y = (transformer.trX x, transformer.trY y)
+        path = distPath spec |> Path.map trans
+    in
+        Svg.path
+        [ SvgA.d (Path.d path)
+        , SvgA.stroke "red"
+        , SvgA.strokeWidth "2"
+        , SvgA.fill "none"
+        ]
+        []
+
+distPath : Spec -> Path
+distPath spec =
+    case spec.rects of
+        [] -> Path []
+        rect :: tail ->
+            Path (distPath' spec.rects [M (rect.left) 0])
+
+distPath' : List Rect -> List Instruction -> List Instruction
+distPath' rects accum =
+    case rects of
+        [] ->
+            accum
+        rect :: tail ->
+            let
+                midPoint = (rect.left + rect.right) / 2
+                accum' = L midPoint rect.height :: accum
+            in
+                if (List.isEmpty tail) then
+                    L rect.right 0 :: accum'
+                        |> List.reverse
+                else
+                    distPath' tail accum'
 

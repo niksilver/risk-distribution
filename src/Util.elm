@@ -1,5 +1,5 @@
 module Util exposing
-    ( Spec, ViewDims, Transformer
+    ( Rect, Spec, ViewDims, Transformer
     , find, findPair
     , transformX, transformY, scaleX, scaleY, transformer
     )
@@ -7,11 +7,17 @@ module Util exposing
 
 -- Specification for a chart
 
+type alias Rect =
+    { left : Float
+    , right : Float
+    , height : Float
+    }
+
 type alias Spec =
     { minX : Float
     , maxX : Float
     , maxY : Float
-    , rects : List { left : Float, right : Float, height : Float }
+    , rects : List Rect
     }
 
 -- Dimensions for a viewBox
