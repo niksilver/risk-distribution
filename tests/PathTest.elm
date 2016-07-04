@@ -1,6 +1,7 @@
 module PathTest exposing (all)
 
 import Path exposing (..)
+import Spline exposing (Pos)
 
 import ElmTest exposing (..)
 
@@ -10,6 +11,7 @@ all =
     [ dTest
     , mapTestForAbsoluteInstructions
     , mapTestForRelativeInstructions
+    , fromPosListTest
     ]
 
 dTest : Test
@@ -76,13 +78,13 @@ dTest =
 mapTestForAbsoluteInstructions : Test
 mapTestForAbsoluteInstructions =
     let
-        simpleXYFn1 : Float -> Float -> (Float, Float)
+        simpleXYFn1 : Float -> Float -> Pos
         simpleXYFn1 x y =
-            (x*x + 1, y + x)
+            Pos (x*x + 1) (y + x)
 
-        simpleXYFn2 : Float -> Float -> (Float, Float)
+        simpleXYFn2 : Float -> Float -> Pos
         simpleXYFn2 x y =
-            (y, x)
+            Pos y x
     in
         suite "mapTestForAbsoluteInstructions"
 
@@ -111,13 +113,13 @@ mapTestForAbsoluteInstructions =
 mapTestForRelativeInstructions : Test
 mapTestForRelativeInstructions =
     let
-        simpleXYFn1 : Float -> Float -> (Float, Float)
+        simpleXYFn1 : Float -> Float -> Pos
         simpleXYFn1 x y =
-            (x*x + 1, y + x)
+            Pos (x*x + 1) (y + x)
 
-        simpleXYFn2 : Float -> Float -> (Float, Float)
+        simpleXYFn2 : Float -> Float -> Pos
         simpleXYFn2 x y =
-            (y, x)
+            Pos y x
     in
         suite "mapTestForRelativeInstructions"
 
@@ -146,4 +148,30 @@ mapTestForRelativeInstructions =
           (Path [M 3 2, V' 4] |> map simpleXYFn2)
 
         ]
+
+fromPosListTest : Test
+fromPosListTest =
+    suite "fromPosListTest"
+
+    [ test "Should work with empty Pos list" <|
+      assertEqual
+      (Path [])
+      (fromPosList [])
+
+    , test "Should work with one Pos" <|
+      assertEqual
+      (Path [M 5 6])
+      (fromPosList [Pos 5 6])
+
+    , test "Should work with Pos list length two" <|
+      assertEqual
+      (Path [M 5 6, L 11 12])
+      (fromPosList [Pos 5 6, Pos 11 12])
+
+    , test "Should work with Pos list length three" <|
+      assertEqual
+      (Path [M 5 6, L 11 12, L 99 100])
+      (fromPosList [Pos 5 6, Pos 11 12, Pos 99 100])
+
+    ]
 

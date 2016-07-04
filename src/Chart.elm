@@ -8,6 +8,7 @@ import Distribution as Dist
 import Axis exposing (Scale)
 import Util exposing (Rect, Spec, ViewDims, Transformer)
 import Path exposing (Path (Path), Instruction (M, L))
+import Spline exposing (Pos)
 
 import Html exposing (Html)
 import Svg exposing (Svg)
@@ -117,7 +118,7 @@ viewLines : Transformer -> Spec -> Svg x
 viewLines transformer spec =
     let
         trans x y =
-            (transformer.trX x, transformer.trY y)
+            Pos (transformer.trX x) (transformer.trY y)
         path =
             distPath spec |> Path.map trans
     in
@@ -154,3 +155,17 @@ distPath' rects accum =
                 else
                     distPath' tail accum'
 
+-- Render the distribution as a spline.
+
+--viewSpline : Transformer -> Spec -> Svg x
+--viewSpline transformer spec =
+--    let
+--        trans x y =
+--            (transformer.trX x, transformer.trY y)
+--        linearPath =
+--            distPath spec |> Path.map trans
+--        pairs =
+--            pathPairs linearPath
+--        toSpline (a, b) =
+--            points 5 a b
+--    in

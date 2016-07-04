@@ -3,8 +3,10 @@ module Path exposing
     , Instruction (M, M', L, L', H, H', V, V')
     , map
     , d
+    , fromPosList
     )
 
+import Spline exposing (Pos)
 
 -- Module for managing SVG path descriptions.
 
@@ -66,13 +68,11 @@ dOnePart i a =
 -- a line from (3, 1) to (6, 4). As a result the mapped path becomes
 -- Path [M 3 1, L 6 4].
 
-type alias Pos = (Float, Float)
-
 type alias PosFn = Float -> Float -> Pos
 
 map : PosFn -> Path -> Path
 map fn (Path instrs) =
-    Path (map' (0,0) fn instrs)
+    Path (map' (Pos 0 0) fn instrs)
 
 -- Map the list of instructions, keeping track of the original
 -- cursor position at each step
@@ -93,26 +93,42 @@ mapInstr pos fn instr =
     case instr of
         M x y ->
             let
-                pos = (x, y)
-                (x', y') = fn x y
+                pos = Pos x y
+                pos' = fn x y
             in
-                (pos, M x' y')
+                (pos, M pos'.x pos'.y)
         L x y ->
             let
-                pos = (x, y)
-                (x', y') = fn x y
+                pos = Pos x y
+                pos' = fn x y
             in
-                (pos, L x' y')
+                (pos, L pos'.x pos'.y)
         H x ->
-            mapInstr pos fn (L x (snd pos))
+            mapInstr pos fn (L x pos.y)
         V y ->
-            mapInstr pos fn (L (fst pos) y)
+            mapInstr pos fn (L pos.x y)
         M' dx dy ->
-            mapInstr pos fn (M (fst pos + dx) (snd pos + dy))
+            mapInstr pos fn (M (pos.x + dx) (pos.y + dy))
         L' dx dy ->
-            mapInstr pos fn (L (fst pos + dx) (snd pos + dy))
+            mapInstr pos fn (L (pos.x + dx) (pos.y + dy))
         H' dx ->
-            mapInstr pos fn (L (fst pos + dx) (snd pos))
+            mapInstr pos fn (L (pos.x + dx) pos.y)
         V' dy ->
-            mapInstr pos fn (L (fst pos) (snd pos + dy))
+            mapInstr pos fn (L pos.x (pos.y + dy))
+
+-- Map [Pos 1 2, Pos 3 4, Pos 5 6, ...]
+-- to [ M 1 2, L 3 4, L 5 6, ...]
+
+fromPosList : List Pos -> Path
+fromPosList ps =
+    let
+        -- Map [Pos a b, Pos c d,...] to [L a b, L c d,...]
+        toLs tail =
+            List.map (\pos -> L pos.x pos.y) tail
+    in
+        case ps of
+            [] ->
+                Path []
+            head :: tail ->
+                Path (M head.x head.y :: toLs tail)
 
