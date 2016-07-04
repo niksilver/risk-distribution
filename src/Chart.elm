@@ -120,7 +120,7 @@ viewLines transformer spec =
         trans x y =
             Pos (transformer.trX x) (transformer.trY y)
         path =
-            distPath spec |> Path.map trans
+            distLines spec |> Path.fromPosList |> Path.map trans
     in
         Svg.path
         [ SvgA.d (Path.d path)
@@ -130,15 +130,16 @@ viewLines transformer spec =
         ]
         []
 
-distPath : Spec -> Path
-distPath spec =
+distLines : Spec -> List Pos
+distLines spec =
     case spec.rects of
-        [] -> Path []
+        [] ->
+            []
         rect :: _ ->
-            Path (distPath' spec.rects [M (rect.left) 0])
+            distLines' spec.rects [Pos (rect.left) 0]
 
-distPath' : List Rect -> List Instruction -> List Instruction
-distPath' rects accum =
+distLines' : List Rect -> List Pos -> List Pos
+distLines' rects accum =
     case rects of
         [] ->
             accum
@@ -146,14 +147,14 @@ distPath' rects accum =
             let
                 -- Add a line to the top of this rectangle
                 midPoint = (rect.left + rect.right) / 2
-                accum' = L midPoint rect.height :: accum
+                accum' = Pos midPoint rect.height :: accum
             in
                 -- If this is the last rectangle draw a line to the end
                 if (List.isEmpty tail) then
-                    (L rect.right 0) :: accum'
+                    (Pos rect.right 0) :: accum'
                         |> List.reverse
                 else
-                    distPath' tail accum'
+                    distLines' tail accum'
 
 -- Render the distribution as a spline.
 
@@ -169,3 +170,4 @@ distPath' rects accum =
 --        toSpline (a, b) =
 --            points 5 a b
 --    in
+
