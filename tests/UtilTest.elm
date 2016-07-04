@@ -9,6 +9,7 @@ all =
     suite "UtilTest"
     [ findTest
     , findPairTest
+    , slidingTest
     , scaleXTest
     , scaleYTest
     , transformXTest
@@ -81,10 +82,97 @@ findPairTest =
  
     ]
 
+slidingTest : Test
+slidingTest =
+    suite "slidingTest"
+
+    [ test "Sliding size 1 over empty list should give empty list" <|
+      assertEqual
+      []
+      (sliding 1 [])
+
+    , test "Sliding size 1 over singleton list should that in a list" <|
+      assertEqual
+      [[4]]
+      (sliding 1 [4])
+
+    , test "Sliding size 1 over list length two should yield singleton lists" <|
+      assertEqual
+      [[8], [9]]
+      (sliding 1 [8, 9])
+
+    , test "Sliding size 1 over list length three should yield singleton lists" <|
+      assertEqual
+      [[7], [8], [9]]
+      (sliding 1 [7, 8, 9])
+
+    -- Sliding size 3...
+
+    , test "Sliding size 2 over empty list should yield empty list" <|
+      assertEqual
+      []
+      (sliding 2 [])
+
+    , test "Sliding size 2 over list length one should yield empty list" <|
+      assertEqual
+      []
+      (sliding 2 [4])
+
+    , test "Sliding size 2 over list length two should those in a list" <|
+      assertEqual
+      [[8, 9]]
+      (sliding 2 [8, 9])
+
+    , test "Sliding size 2 over list length three should yield two pairs" <|
+      assertEqual
+      [[7, 8], [8, 9]]
+      (sliding 2 [7, 8, 9])
+
+    , test "Sliding size 2 over list length four should yield three pairs" <|
+      assertEqual
+      [[6, 7], [7, 8], [8, 9]]
+      (sliding 2 [6, 7, 8, 9])
+
+    -- Sliding size 3...
+
+    , test "Sliding size 3 over empty list should yield empty list" <|
+      assertEqual
+      []
+      (sliding 3 [])
+
+    , test "Sliding size 3 over list length one should yield empty list" <|
+      assertEqual
+      []
+      (sliding 3 [4])
+
+    , test "Sliding size 3 over list length two should yield empty list" <|
+      assertEqual
+      []
+      (sliding 3 [8, 9])
+
+    , test "Sliding size 3 over list length three should those in a list" <|
+      assertEqual
+      [[7, 8, 9]]
+      (sliding 3 [7, 8, 9])
+
+    , test "Sliding size 3 over list length 4 should yield list of two" <|
+      assertEqual
+      [[6, 7, 8], [7, 8, 9]]
+      (sliding 2 [6, 7, 8, 9])
+
+    ]
+
 scaleXTest : Test
 scaleXTest =
     let
-        viewDims = { left = 3, top = 8, width = 1000, height = 50 }
+        viewDims =
+            { left = 3
+            , right = 3
+            , top = 8
+            , bottom = 8
+            , width = 1000
+            , height = 50
+            }
         spec =
             { minX = 1
             , maxX = 5
@@ -117,7 +205,14 @@ scaleXTest =
 scaleYTest : Test
 scaleYTest =
     let
-        viewDims = { left = 3, top = 8, width = 1000, height = 50 }
+        viewDims =
+            { left = 3
+            , right = 3
+            , top = 8
+            , bottom = 8
+            , width = 1000
+            , height = 50
+            }
         spec =
             { minX = 1
             , maxX = 5
@@ -151,7 +246,14 @@ scaleYTest =
 transformXTest : Test
 transformXTest =
     let
-        viewDims = { left = 3, top = 8, width = 1000, height = 50 }
+        viewDims =
+            { left = 3
+            , right = 3
+            , top = 8
+            , bottom = 8
+            , width = 1000
+            , height = 50
+            }
         spec =
             { minX = 1
             , maxX = 5
@@ -184,7 +286,14 @@ transformXTest =
 transformYTest : Test
 transformYTest =
     let
-        viewDims = { left = 3, top = 8, width = 1000, height = 50 }
+        viewDims =
+            { left = 3
+            , right = 3
+            , top = 8
+            , bottom = 8
+            , width = 1000
+            , height = 50
+            }
         spec =
             { minX = 1
             , maxX = 5

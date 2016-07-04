@@ -1,6 +1,7 @@
 module Util exposing
     ( Rect, Spec, ViewDims, Transformer
     , find, findPair
+    , sliding
     , transformX, transformY, scaleX, scaleY, transformer
     )
 
@@ -61,6 +62,12 @@ findPair fn xs =
             find (fn x) xs
     in
         find findErrorFor xs
+
+-- Groups elements in fixed size blocks by passing a "sliding window" over them.
+
+sliding : Int -> List a -> List (List a)
+sliding size elts =
+    []
 
 
 -- Scale a length on the x- or y-axis from a spec to a view box.
