@@ -2,6 +2,7 @@ module Util exposing
     ( Rect, Spec, ViewDims, Transformer
     , find, findPair
     , sliding
+    , bracket
     , transformX, transformY, scaleX, scaleY, transformer
     )
 
@@ -81,6 +82,19 @@ sliding' size elts accum =
             sliding' size (sureTail elts) (List.take size elts :: accum)
         else
             List.reverse accum
+
+-- Bracket a list by repeating the first element at the start and
+-- the last element at the end. An empty list remains empty.
+
+bracket : List a -> List a
+bracket xs =
+    let
+        doubleHead ys =
+            case ys of
+                [] -> []
+                head :: tail -> head :: head :: tail
+    in
+        xs |> List.reverse |> doubleHead |> List.reverse |> doubleHead
 
 -- Scale a length on the x- or y-axis from a spec to a view box.
 

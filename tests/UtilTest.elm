@@ -10,6 +10,7 @@ all =
     [ findTest
     , findPairTest
     , slidingTest
+    , bracketTest
     , scaleXTest
     , scaleYTest
     , transformXTest
@@ -159,6 +160,32 @@ slidingTest =
       assertEqual
       [[6, 7, 8], [7, 8, 9]]
       (sliding 3 [6, 7, 8, 9])
+
+    ]
+
+bracketTest : Test
+bracketTest =
+    suite "bracketTest"
+
+    [ test "Bracketing the empty list should give the empty list" <|
+      assertEqual
+      []
+      (bracket [])
+
+    , test "Bracketing a singleton should give that element three times" <|
+      assertEqual
+      [8, 8, 8]
+      (bracket [8])
+
+    , test "Bracketing [a,b] should give [a,a,b,b]" <|
+      assertEqual
+      [3, 3, 4, 4]
+      (bracket [3, 4])
+
+    , test "Bracketing [a,b,c] should give [a,a,b,c,c]" <|
+      assertEqual
+      [5,5,6,7,7]
+      (bracket [5,6,7])
 
     ]
 

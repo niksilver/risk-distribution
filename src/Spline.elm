@@ -36,26 +36,44 @@ intervalValue : Float -> Float -> Float -> Float -> Float -> Float
 intervalValue m1 m2 y1 y2 t =
     m1 * (h3 t) + y1 * (h1 t) + y2 * (h2 t) + m2 * (h4 t)
 
--- Calculate the points on a curve between two points a and b,
--- and given that we want the curve to consist of a given number of lines.
+-- Calculate the tangents m1 and m2.
+-- c is the tension parameter
 
-spline : Int -> Pos -> Pos -> List Pos
-spline lines a b =
-    spline' 0 lines a b [a]
-
-spline' : Int -> Int -> Pos -> Pos -> List Pos -> List Pos
-spline' idx lines a b accum =
+tangents : Float -> Pos -> Pos -> Pos -> Pos -> (Float, Float)
+tangents c p0 p1 p2 p3 =
     let
+        dx = p2.x - p1.x
+        dx1 = p1.x - p0.x
+        dx2 = p3.x - p2.x
+        s1 = 2 * (dx / (dx1 + dx))
+        s2 = 2 * (dx / (dx + dx2))
+        m1 = s1 * c * (p2.y - p0.y)
+        m2 = s2 * c * (p3.y - p1.y)
+    in
+        (m1, m2)
+
+-- Calculate the points on a curve between two points p1 and p2
+-- with outer control points p0 and p3.
+-- The curve should consist of a given number of lines.
+
+spline : Int -> Pos -> Pos -> Pos -> Pos -> List Pos
+spline lines p0 p1 p2 p3 =
+    spline' 0 lines p0 p1 p2 p3 [p1]
+
+spline' : Int -> Int -> Pos -> Pos -> Pos -> Pos -> List Pos -> List Pos
+spline' idx lines p0 p1 p2 p3 accum =
+    let
+        (m1, m2) = tangents 1 p0 p1 p2 p3
         t = toFloat idx / toFloat lines
-        x = a.x + t * (b.x - a.x)
-        y = intervalValue 1 1 a.y b.y t
+        x = p1.x + t * (p2.x - p1.x)
+        y = intervalValue m1 m2 p1.y p2.y t
         accum' = Pos x y :: accum
         idx' = idx + 1
     in
         if (idx' > lines) then
             List.reverse accum'
         else
-            spline' idx' lines a b accum'
+            spline' idx' lines p0 p1 p2 p3 accum'
 
 -- Turn a series of points into a series of splines.
 -- lines is the number of lines between each two points.
@@ -63,15 +81,16 @@ spline' idx lines a b accum =
 splines : Int -> List Pos -> List Pos
 splines lines points =
     let
-        pairs =
-            Util.sliding 2 points
+        points' = Util.bracket points
+        quads =
+            Util.sliding 4 points'
         toSpline : List Pos -> List Pos
-        toSpline pair =
-            case pair of
-                [a, b] -> spline lines a b
+        toSpline quad =
+            case quad of
+                [p0, p1, p2, p3] -> spline lines p0 p1 p2 p3
                 _ -> []
     in
-        pairs
+        quads
             |> List.map toSpline
             |> List.concat
 
