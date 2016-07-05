@@ -87,17 +87,16 @@ view spec =
         , SvgA.height "400px"
         , SvgA.viewBox viewBoxDim
         ]
-        [ viewDist transformer scaledSpec
-        , viewLines transformer scaledSpec
+        [ viewBlocks transformer scaledSpec
         , viewSpline transformer scaledSpec
         , Axis.viewXAxis transformer scale
         ]
 
--- Render just the distribution area given functions to transform and
--- scale a given spec
+-- Render just the distribution area as blocks,
+-- given functions to transform and scale a given spec
 
-viewDist : Transformer -> Spec -> Svg x
-viewDist transformer spec =
+viewBlocks : Transformer -> Spec -> Svg x
+viewBlocks transformer spec =
     let
         draw rect =
             Svg.rect
@@ -105,29 +104,33 @@ viewDist transformer spec =
             , SvgA.y (rect.height |> transformer.trY |> toString)
             , SvgA.width (rect.right - rect.left |> transformer.scX |> toString)
             , SvgA.height (rect.height |> transformer.scY |> toString)
-            , SvgA.fill "blue"
+            , SvgA.fill "rgb(82, 92, 227)"
             ]
             []
     in
         Svg.g []
         (List.map draw spec.rects)
 
--- Render the distribution as lines.
--- We also have a function to transform and scale the chart's spec
 
-viewLines : Transformer -> Spec -> Svg x
-viewLines transformer spec =
+-- Render the distribution as a spline,
+-- given functions to transform and scale a given spec
+
+viewSpline : Transformer -> Spec -> Svg x
+viewSpline transformer spec =
     let
         trans x y =
             Pos (transformer.trX x) (transformer.trY y)
         path =
-            distLines spec |> Path.fromPosList |> Path.map trans
+            distLines spec
+                |> Spline.splines 20
+                |> Path.fromPosList
+                |> Path.map trans
     in
         Svg.path
         [ SvgA.d (Path.d path)
-        , SvgA.stroke "red"
+        , SvgA.stroke "purple"
         , SvgA.strokeWidth "2"
-        , SvgA.fill "none"
+        , SvgA.fill "rgba(124, 60, 155, 0.6)"
         ]
         []
 
@@ -156,26 +159,5 @@ distLines' rects accum =
                         |> List.reverse
                 else
                     distLines' tail accum'
-
--- Render the distribution as a spline.
-
-viewSpline : Transformer -> Spec -> Svg x
-viewSpline transformer spec =
-    let
-        trans x y =
-            Pos (transformer.trX x) (transformer.trY y)
-        path =
-            distLines spec
-                |> Spline.splines 20
-                |> Path.fromPosList
-                |> Path.map trans
-    in
-        Svg.path
-        [ SvgA.d (Path.d path)
-        , SvgA.stroke "orange"
-        , SvgA.strokeWidth "2"
-        , SvgA.fill "none"
-        ]
-        []
 
 
