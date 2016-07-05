@@ -67,8 +67,20 @@ findPair fn xs =
 
 sliding : Int -> List a -> List (List a)
 sliding size elts =
-    []
+    sliding' size elts []
 
+sliding' : Int -> List a -> List (List a) -> List (List a)
+sliding' size elts accum =
+    let
+        sureTail xs =
+            case (List.tail xs) of
+                Nothing -> []
+                Just tail -> tail
+    in
+    if (List.length elts >= size) then
+        sliding' size (sureTail elts) (List.take size elts :: accum)
+    else
+        List.reverse accum
 
 -- Scale a length on the x- or y-axis from a spec to a view box.
 

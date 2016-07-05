@@ -158,7 +158,7 @@ slidingTest =
     , test "Sliding size 3 over list length 4 should yield list of two" <|
       assertEqual
       [[6, 7, 8], [7, 8, 9]]
-      (sliding 2 [6, 7, 8, 9])
+      (sliding 3 [6, 7, 8, 9])
 
     ]
 
