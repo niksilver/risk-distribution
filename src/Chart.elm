@@ -164,31 +164,18 @@ viewSpline transformer spec =
     let
         trans x y =
             Pos (transformer.trX x) (transformer.trY y)
-        linearPath =
+        path =
             distLines spec
-        pairs =
-            Util.sliding 2 linearPath
-        toSpline : List Pos -> List Pos
-        toSpline pair =
-            case pair of
-                [a, b] -> Spline.spline 5 a b
-                _ -> []
-        splines =
-            List.map toSpline pairs
-        paths =
-            splines
-                |> List.map Path.fromPosList
-                |> List.map (Path.map trans)
-        svgPath p =
-            Svg.path
-            [ SvgA.d (Path.d p)
-            , SvgA.stroke "orange"
-            , SvgA.strokeWidth "2"
-            , SvgA.fill "none"
-            ]
-            []
-        svgPaths = List.map svgPath paths
+                |> Spline.splines 20
+                |> Path.fromPosList
+                |> Path.map trans
     in
-        Svg.g [] svgPaths
+        Svg.path
+        [ SvgA.d (Path.d path)
+        , SvgA.stroke "orange"
+        , SvgA.strokeWidth "2"
+        , SvgA.fill "none"
+        ]
+        []
 
 

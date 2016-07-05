@@ -1,4 +1,6 @@
-module Spline exposing (Pos, spline)
+module Spline exposing (Pos, spline, splines)
+
+import Util
 
 -- Generating Cardinal splines.
 -- See http://codeplea.com/introduction-to-splines
@@ -54,4 +56,22 @@ spline' idx lines a b accum =
             List.reverse accum'
         else
             spline' idx' lines a b accum'
+
+-- Turn a series of points into a series of splines.
+-- lines is the number of lines between each two points.
+
+splines : Int -> List Pos -> List Pos
+splines lines points =
+    let
+        pairs =
+            Util.sliding 2 points
+        toSpline : List Pos -> List Pos
+        toSpline pair =
+            case pair of
+                [a, b] -> spline lines a b
+                _ -> []
+    in
+        pairs
+            |> List.map toSpline
+            |> List.concat
 
