@@ -89,6 +89,7 @@ view spec =
         ]
         [ viewDist transformer scaledSpec
         , viewLines transformer scaledSpec
+        , viewSpline transformer scaledSpec
         , Axis.viewXAxis transformer scale
         ]
 
@@ -158,16 +159,36 @@ distLines' rects accum =
 
 -- Render the distribution as a spline.
 
---viewSpline : Transformer -> Spec -> Svg x
---viewSpline transformer spec =
---    let
---        trans x y =
---            (transformer.trX x, transformer.trY y)
---        linearPath =
---            distPath spec |> Path.map trans
---        pairs =
---            pathPairs linearPath
---        toSpline (a, b) =
---            points 5 a b
---    in
+viewSpline : Transformer -> Spec -> Svg x
+viewSpline transformer spec =
+    let
+        trans x y =
+            Pos (transformer.trX x) (transformer.trY y)
+        linearPath =
+            distLines spec
+        pairs =
+            Util.sliding 2 linearPath
+        toSpline : List Pos -> List Pos
+        toSpline pair =
+            case pair of
+                [a, b] -> Spline.spline 5 a b
+                _ -> []
+        splines =
+            List.map toSpline pairs
+        paths =
+            splines
+                |> List.map Path.fromPosList
+                |> List.map (Path.map trans)
+        svgPath p =
+            Svg.path
+            [ SvgA.d (Path.d p)
+            , SvgA.stroke "orange"
+            , SvgA.strokeWidth "2"
+            , SvgA.fill "none"
+            ]
+            []
+        svgPaths = List.map svgPath paths
+    in
+        Svg.g [] svgPaths
+
 

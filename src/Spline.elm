@@ -39,17 +39,18 @@ intervalValue m1 m2 y1 y2 t =
 
 spline : Int -> Pos -> Pos -> List Pos
 spline lines a b =
-    spline' 1 lines a b [a]
+    spline' 0 lines a b [a]
 
 spline' : Int -> Int -> Pos -> Pos -> List Pos -> List Pos
 spline' idx lines a b accum =
     let
-        x = a.x + (toFloat idx / toFloat lines) * (b.x - a.x)
-        y = intervalValue 1 1 a.y b.y x
+        t = toFloat idx / toFloat lines
+        x = a.x + t * (b.x - a.x)
+        y = intervalValue 1 1 a.y b.y t
         accum' = Pos x y :: accum
         idx' = idx + 1
     in
-        if (idx' == lines) then
+        if (idx' > lines) then
             List.reverse accum'
         else
             spline' idx' lines a b accum'

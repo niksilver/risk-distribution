@@ -77,10 +77,10 @@ sliding' size elts accum =
                 Nothing -> []
                 Just tail -> tail
     in
-    if (List.length elts >= size) then
-        sliding' size (sureTail elts) (List.take size elts :: accum)
-    else
-        List.reverse accum
+        if (List.length elts >= size) then
+            sliding' size (sureTail elts) (List.take size elts :: accum)
+        else
+            List.reverse accum
 
 -- Scale a length on the x- or y-axis from a spec to a view box.
 
