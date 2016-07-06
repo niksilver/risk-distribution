@@ -121,7 +121,9 @@ viewSpline transformer spec =
         trans x y =
             Pos (transformer.trX x) (transformer.trY y)
         path =
-            distLines spec
+            spec
+                |> ChartUtil.mergeSimilar 0.1
+                |> distLines
                 |> Spline.splines 20
                 |> Path.fromPosList
                 |> Path.map trans
