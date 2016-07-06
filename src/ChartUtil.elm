@@ -1,6 +1,7 @@
 module ChartUtil exposing
     ( Rect, Spec, ViewDims, Transformer
     , transformX, transformY, scaleX, scaleY, transformer
+    , mergeSimilar
     )
 
 
@@ -70,4 +71,46 @@ transformer viewDim spec =
     , scX = scaleX viewDim spec
     , scY = scaleY viewDim spec
     }
+
+-- Merge rectangles in a spec that are similar in height
+-- (i.e. within a certain proportion of the max height).
+-- This might be useful when we're trying to draw a curve
+-- as the distribution, and we don't want to confuse two
+-- rectangles next to each other that are essentially two
+-- parts of the same rectangle.
+
+mergeSimilar : Float -> Spec -> Spec
+mergeSimilar tolerance spec =
+    mergeSimilar' (tolerance * spec.maxY) spec []
+
+mergeSimilar' : Float -> Spec -> List Rect -> Spec
+mergeSimilar' delta spec accum =
+    case spec.rects of
+        [] ->
+            { spec | rects = List.reverse accum }
+        head :: tail ->
+            let
+                spec' = { spec | rects = tail }
+                accum' = mergeOrPutRect delta head accum
+            in
+                mergeSimilar' delta spec' accum'
+
+mergeOrPutRect : Float -> Rect -> List Rect -> List Rect
+mergeOrPutRect delta nextRect rects =
+    case rects of
+        [] -> [ nextRect ]
+        prevRect :: tail ->
+            let
+                lowerHeight = min nextRect.height prevRect.height
+                upperHeight = max nextRect.height prevRect.height
+                diff = upperHeight - lowerHeight
+            in
+                if (diff <= delta) then
+                    { left = prevRect.left
+                    , right = nextRect.right
+                    , height = (lowerHeight + upperHeight) / 2
+                    }
+                    :: tail
+                else
+                    nextRect :: rects
 
