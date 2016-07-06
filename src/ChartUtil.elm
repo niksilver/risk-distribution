@@ -101,14 +101,23 @@ mergeOrPutRect delta nextRect rects =
         [] -> [ nextRect ]
         prevRect :: tail ->
             let
-                lowerHeight = min nextRect.height prevRect.height
-                upperHeight = max nextRect.height prevRect.height
+                (lowerRect, upperRect) =
+                    if (prevRect.height < nextRect.height) then
+                        (prevRect, nextRect)
+                    else
+                        (nextRect, prevRect)
+                lowerHeight = lowerRect.height
+                upperHeight = upperRect.height
                 diff = upperHeight - lowerHeight
+                left = prevRect.left
+                right = nextRect.right
+                width = right - left
+                upperWidth = upperRect.right - upperRect.left
             in
                 if (diff <= delta) then
-                    { left = prevRect.left
-                    , right = nextRect.right
-                    , height = (lowerHeight + upperHeight) / 2
+                    { left = left
+                    , right = right
+                    , height = lowerHeight + (diff * upperWidth/width)
                     }
                     :: tail
                 else
