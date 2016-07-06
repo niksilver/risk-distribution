@@ -6,7 +6,7 @@ module Chart exposing
 import FactList
 import Distribution as Dist
 import Axis exposing (Scale)
-import Util exposing (Rect, Spec, ViewDims, Transformer)
+import ChartUtil exposing (Rect, Spec, ViewDims, Transformer)
 import Path exposing (Path (Path), Instruction (M, L))
 import Spline exposing (Pos)
 
@@ -76,7 +76,7 @@ view spec =
             | minX = scale.min
             , maxX = scale.max
             }
-        transformer = Util.transformer viewDim scaledSpec
+        transformer = ChartUtil.transformer viewDim scaledSpec
         viewBoxDim =
             "0 0 "
             ++ (viewDim.left + viewDim.right + viewDim.width |> toString) ++ " "
@@ -133,6 +133,9 @@ viewSpline transformer spec =
         , SvgA.fill "rgba(124, 60, 155, 0.6)"
         ]
         []
+
+-- Express the distribution as a series of points which we could
+-- join up with lines showing the shape of the distribution.
 
 distLines : Spec -> List Pos
 distLines spec =

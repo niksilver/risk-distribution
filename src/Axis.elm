@@ -1,6 +1,6 @@
 module Axis exposing (Scale, scale, viewXAxis)
 
-import Util exposing (Transformer)
+import ChartUtil exposing (Transformer)
 
 import Svg exposing (Svg)
 import Svg.Attributes as SvgA
