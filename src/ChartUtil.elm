@@ -2,7 +2,10 @@ module ChartUtil exposing
     ( Rect, Spec, ViewDims, Transformer
     , transformX, transformY, scaleX, scaleY, transformer
     , mergeSimilar
+    , curvePointsForRect
     )
+
+import Spline exposing (Pos)
 
 
 -- Specification for a chart
@@ -39,6 +42,7 @@ type alias Transformer =
     , scX : Float -> Float    -- Scale an x co-ordinate
     , scY : Float -> Float    -- Scale a y co-ordinate
     }
+
 
 -- Scale a length on the x- or y-axis from a spec to a view box.
 
@@ -122,4 +126,26 @@ mergeOrPutRect delta nextRect rects =
                     :: tail
                 else
                     nextRect :: rects
+
+-- Given a rectangle (and the rectangles before and after it)
+-- return a list of points where a distribution curve should run through.
+
+curvePointsForRect : Rect -> Rect -> Rect -> List Pos
+curvePointsForRect prev rect next =
+    let
+        height = rect.height
+        mid = (rect.left + rect.right) / 2
+        midLeft  = (2 * rect.left / 3) + (rect.right / 3)
+        midRight = (rect.left / 3) + (2 * rect.right / 3)
+    in
+        case (compare height prev.height, compare next.height height) of
+            (GT, GT) -> [Pos mid height]
+            (LT, LT) -> [Pos mid height]
+            (LT, GT) -> [Pos midLeft height, Pos midRight height]
+            (GT, LT) -> [Pos midLeft height, Pos midRight height]
+            (EQ, EQ) -> [Pos rect.left height]
+            (GT, EQ) -> [Pos midLeft height]
+            (EQ, LT) -> [Pos rect.left height, Pos midRight height]
+            (EQ, GT) -> [Pos rect.left height, Pos midRight height]
+            (LT, EQ) -> [Pos midLeft height]
 
