@@ -367,5 +367,20 @@ bracketRectsTest =
           |> List.head
       )
 
+    , test "Front-bracketing rect should have width equal to the original front rect" <|
+      assertEqual
+      (Just (Rect -1 0 3.0))
+      ( bracketRects 0.5 [Rect 0 1 6, Rect 1 4 7, Rect 4 5 8]
+          |> List.head
+      )
+
+    , test "End-bracketing rect should have width equal to the original end rect" <|
+      assertEqual
+      (Just (Rect 6 8 4.0))
+      ( bracketRects 0.5 [Rect 0 1 6, Rect 1 4 7, Rect 4 6 8]
+          |> List.reverse
+          |> List.head
+      )
+
     ]
 

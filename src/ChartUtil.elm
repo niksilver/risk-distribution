@@ -130,6 +130,8 @@ mergeOrPutRect delta nextRect rects =
 
 -- Given a rectangle (and the rectangles before and after it)
 -- return a list of points where a distribution curve should run through.
+-- If a point needs to go on the border between two neighbouring rectangles
+-- then it's assumed to be set by the right hand one.
 
 curvePointsForRect : Rect -> Rect -> Rect -> List Pos
 curvePointsForRect prev rect next =
@@ -155,23 +157,29 @@ curvePointsForRect prev rect next =
 -- of its neighbour. E.g. A proportion of 0.5 means the new first Rect
 -- will be half the height of the (original) first Rect and the new last
 -- Rect will be half the height of the (original) last Rect.
--- The width of each new Rect is unspecified.
+
+type End = Front | Back
 
 bracketRects : Float -> List Rect -> List Rect
 bracketRects proportion rects =
-    frontBracketRects proportion rects
+    frontBracketRects Front proportion rects
         |> List.reverse
-        |> frontBracketRects proportion
+        |> frontBracketRects Back proportion
         |> List.reverse
 
-frontBracketRects : Float -> List Rect -> List Rect
-frontBracketRects proportion rects =
+frontBracketRects : End -> Float -> List Rect -> List Rect
+frontBracketRects end proportion rects =
     case rects of
         [] ->
             []
         head :: tail ->
             let
-                head' = Rect 0 0 (head.height * proportion)
+                height = head.height * proportion
+                width = head.right - head.left
+                head' =
+                    case end of
+                        Front -> Rect (head.left - width) head.left height
+                        Back -> Rect head.right (head.right + width) height
             in
                 head' :: rects
 
