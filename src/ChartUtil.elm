@@ -3,6 +3,7 @@ module ChartUtil exposing
     , transformX, transformY, scaleX, scaleY, transformer
     , mergeSimilar
     , curvePointsForRect
+    , bracketRects
     )
 
 import Spline exposing (Pos)
@@ -148,4 +149,29 @@ curvePointsForRect prev rect next =
             (EQ, LT) -> [Pos rect.left height, Pos midRight height]
             (EQ, GT) -> [Pos rect.left height, Pos midRight height]
             (LT, EQ) -> [Pos midLeft height]
+
+-- Take a list of rectangles and bracket it (one rect on the start and end).
+-- Each new Rect should have a height which is the specified proportion
+-- of its neighbour. E.g. A proportion of 0.5 means the new first Rect
+-- will be half the height of the (original) first Rect and the new last
+-- Rect will be half the height of the (original) last Rect.
+-- The width of each new Rect is unspecified.
+
+bracketRects : Float -> List Rect -> List Rect
+bracketRects proportion rects =
+    frontBracketRects proportion rects
+        |> List.reverse
+        |> frontBracketRects proportion
+        |> List.reverse
+
+frontBracketRects : Float -> List Rect -> List Rect
+frontBracketRects proportion rects =
+    case rects of
+        [] ->
+            []
+        head :: tail ->
+            let
+                head' = Rect 0 0 (head.height * proportion)
+            in
+                head' :: rects
 

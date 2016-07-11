@@ -16,6 +16,7 @@ all =
     , transformYTest
     , mergeSimilarTest
     , curvePointsForRectTest
+    , bracketRectsTest
     ]
 
 
@@ -330,6 +331,41 @@ curvePointsForRectTest =
       assertEqual
       [Pos 3.5 3]
       (curvePointsForRect (Rect 1 3 5) (Rect 3 4.5 3) (Rect 4.5 5 3))
+
+    ]
+
+bracketRectsTest : Test
+bracketRectsTest =
+    suite "bracketRectsTest"
+
+    [ test "Bracketing no rects should give no rects again" <|
+      assertEqual
+      []
+      (bracketRects 1.0 [])
+
+    , test "Bracketing three rects should give five rects total" <|
+      assertEqual
+      (5)
+      ( bracketRects 0.5 [Rect 0 1 6, Rect 1 4 7, Rect 4 5 8]
+          |> List.length
+      )
+
+    , test "Bracketing three rects should give a proportional one at the front" <|
+      assertEqual
+      (Just 3.0)
+      ( bracketRects 0.5 [Rect 0 1 6, Rect 1 4 7, Rect 4 5 8]
+          |> List.map .height
+          |> List.head
+      )
+
+    , test "Bracketing three rects should give a proportional one at the end" <|
+      assertEqual
+      (Just 4.0)
+      ( bracketRects 0.5 [Rect 0 1 6, Rect 1 4 7, Rect 4 5 8]
+          |> List.map .height
+          |> List.reverse
+          |> List.head
+      )
 
     ]
 
