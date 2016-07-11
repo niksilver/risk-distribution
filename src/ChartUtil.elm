@@ -7,6 +7,7 @@ module ChartUtil exposing
     )
 
 import Spline exposing (Pos)
+import Util
 
 
 -- Specification for a chart
@@ -162,24 +163,20 @@ type End = Front | Back
 
 bracketRects : Float -> List Rect -> List Rect
 bracketRects proportion rects =
-    frontBracketRects Front proportion rects
-        |> List.reverse
-        |> frontBracketRects Back proportion
-        |> List.reverse
+    Util.bracketMap
+        (bracketRects1 Front proportion)
+        (bracketRects1 Back proportion)
+        rects
 
-frontBracketRects : End -> Float -> List Rect -> List Rect
-frontBracketRects end proportion rects =
-    case rects of
-        [] ->
-            []
-        head :: tail ->
-            let
-                height = head.height * proportion
-                width = head.right - head.left
-                head' =
-                    case end of
-                        Front -> Rect (head.left - width) head.left height
-                        Back -> Rect head.right (head.right + width) height
-            in
-                head' :: rects
+bracketRects1 : End -> Float -> Rect -> Rect
+bracketRects1 end proportion rect =
+    let
+        height = rect.height * proportion
+        width = rect.right - rect.left
+    in
+        case end of
+            Front ->
+                Rect (rect.left - width) rect.left height
+            Back ->
+                Rect rect.right (rect.right + width) height
 

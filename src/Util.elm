@@ -51,13 +51,7 @@ sliding' size elts accum =
 
 bracket : List a -> List a
 bracket xs =
-    let
-        doubleHead ys =
-            case ys of
-                [] -> []
-                head :: tail -> head :: head :: tail
-    in
-        xs |> List.reverse |> doubleHead |> List.reverse |> doubleHead
+    bracketMap identity identity xs
 
 -- Bracket a list by prepending the first element with a function applied
 -- and appending the last element with a function applied.
