@@ -2,6 +2,8 @@ module UtilTest exposing (all)
 
 import Util exposing (..)
 
+import String
+
 import ElmTest exposing (..)
 
 all : Test
@@ -11,6 +13,7 @@ all =
     , findPairTest
     , slidingTest
     , bracketTest
+    , bracketMapTest
     ]
 
 findTest : Test
@@ -182,6 +185,27 @@ bracketTest =
       assertEqual
       [5,5,6,7,7]
       (bracket [5,6,7])
+
+    ]
+
+bracketMapTest : Test
+bracketMapTest =
+    suite "bracketMapTest"
+
+    [ test "With empty list should yield empty list" <|
+      assertEqual
+      []
+      (bracketMap identity identity [])
+
+    , test "Simple test should work (1)" <|
+      assertEqual
+      ["ya", "ay", "bee", "sea", "seasea"]
+      (bracketMap String.reverse (String.repeat 2) ["ay", "bee", "sea"])
+
+    , test "Simple test should work (2)" <|
+      assertEqual
+      ["Xay", "ay", "bee", "sea", "aes"]
+      (bracketMap (String.cons 'X') String.reverse ["ay", "bee", "sea"])
 
     ]
 

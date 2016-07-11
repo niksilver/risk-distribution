@@ -1,7 +1,7 @@
 module Util exposing
     ( find, findPair
     , sliding
-    , bracket
+    , bracket, bracketMap
     )
 
 
@@ -58,4 +58,22 @@ bracket xs =
                 head :: tail -> head :: head :: tail
     in
         xs |> List.reverse |> doubleHead |> List.reverse |> doubleHead
+
+-- Bracket a list by prepending the first element with a function applied
+-- and appending the last element with a function applied.
+
+bracketMap : (a -> a) -> (a -> a) -> List a -> List a
+bracketMap fnFront fnBack xs =
+    bracketMap' fnFront xs
+        |> List.reverse
+        |> bracketMap' fnBack
+        |> List.reverse
+
+bracketMap' : (a -> a) -> List a -> List a
+bracketMap' fn xs =
+    case xs of
+        [] ->
+            []
+        head :: tail ->
+            (fn head) :: xs
 
