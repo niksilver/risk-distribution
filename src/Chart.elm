@@ -128,7 +128,9 @@ viewSpline transformer spec =
                 |> Util.sliding 3
                 |> List.map curvePoints
                 |> List.concat
+                |> addEndsOfSpline yProportion spec.rects
                 |> Spline.splines 20
+                |> addEndsOfDist yProportion
                 |> Path.fromPosList
                 |> Path.map trans
     in
@@ -150,6 +152,39 @@ curvePoints rects =
             ChartUtil.curvePointsForRect prev rect next
         _ ->
             []
+
+-- Add end points to the distribution curve
+
+addEndsOfSpline : Float -> List Rect -> List Pos -> List Pos
+addEndsOfSpline proportion rects points =
+    let
+        posFront =
+            case List.head rects of
+                Nothing ->
+                    Pos 0 0
+                Just rect ->
+                    Pos rect.left (rect.height * proportion)
+        posBack =
+            case (List.reverse rects |> List.head) of
+                Nothing ->
+                    Pos 0 0
+                Just rect ->
+                    Pos rect.right (rect.height * proportion)
+    in
+        Util.bracketMap (always posFront) (always posBack) points
+
+-- Add the front and back lines to a distribution spline
+-- to ensure it starts and finishes on the x-axis
+
+addEndsOfDist : Float -> List Pos -> List Pos
+addEndsOfDist proportion points =
+    if (proportion == 0) then
+        points
+    else
+        let
+            ground point = Pos point.x 0
+        in
+            Util.bracketMap ground ground points
 
 -- Express the distribution as a series of points which we could
 -- join up with lines showing the shape of the distribution.
