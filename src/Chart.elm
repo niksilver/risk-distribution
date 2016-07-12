@@ -9,6 +9,7 @@ import Axis exposing (Scale)
 import ChartUtil exposing (Rect, Spec, ViewDims, Transformer)
 import Path exposing (Path (Path), Instruction (M, L))
 import Spline exposing (Pos)
+import Util
 
 import Html exposing (Html)
 import Svg exposing (Svg)
@@ -118,12 +119,15 @@ viewBlocks transformer spec =
 viewSpline : Transformer -> Spec -> Svg x
 viewSpline transformer spec =
     let
+        yProportion = 0.5
         trans x y =
             Pos (transformer.trX x) (transformer.trY y)
         path =
-            spec
-                |> ChartUtil.mergeSimilar 0.1
-                |> distLines
+            spec.rects
+                |> ChartUtil.bracketRects yProportion
+                |> Util.sliding 3
+                |> List.map curvePoints
+                |> List.concat
                 |> Spline.splines 20
                 |> Path.fromPosList
                 |> Path.map trans
@@ -135,6 +139,17 @@ viewSpline transformer spec =
         , SvgA.fill "rgba(124, 60, 155, 0.6)"
         ]
         []
+
+-- Translate to ChartUtil.curvePointsForRect, but taking a list
+-- of three rectangles instead of three separate Rect arguments
+
+curvePoints : List Rect -> List Pos
+curvePoints rects =
+    case rects of
+        prev :: rect :: next :: [] ->
+            ChartUtil.curvePointsForRect prev rect next
+        _ ->
+            []
 
 -- Express the distribution as a series of points which we could
 -- join up with lines showing the shape of the distribution.
