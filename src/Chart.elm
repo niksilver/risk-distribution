@@ -186,33 +186,3 @@ addEndsOfDist proportion points =
         in
             Util.bracketMap ground ground points
 
--- Express the distribution as a series of points which we could
--- join up with lines showing the shape of the distribution.
-
-distLines : Spec -> List Pos
-distLines spec =
-    case spec.rects of
-        [] ->
-            []
-        rect :: _ ->
-            distLines' spec.rects [Pos (rect.left) 0]
-
-distLines' : List Rect -> List Pos -> List Pos
-distLines' rects accum =
-    case rects of
-        [] ->
-            accum
-        rect :: tail ->
-            let
-                -- Add a line to the top of this rectangle
-                midPoint = (rect.left + rect.right) / 2
-                accum' = Pos midPoint rect.height :: accum
-            in
-                -- If this is the last rectangle draw a line to the end
-                if (List.isEmpty tail) then
-                    (Pos rect.right 0) :: accum'
-                        |> List.reverse
-                else
-                    distLines' tail accum'
-
-

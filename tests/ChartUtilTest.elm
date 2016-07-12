@@ -14,7 +14,6 @@ all =
     , scaleYTest
     , transformXTest
     , transformYTest
-    , mergeSimilarTest
     , curvePointsForRectTest
     , bracketRectsTest
     ]
@@ -178,108 +177,6 @@ transformYTest =
       assertEqual
       (8 + 40)
       (transformY viewDims spec 2)
-
-    ]
-
-mergeSimilarTest : Test
-mergeSimilarTest =
-    let
-        spec =
-            { minX = 1
-            , maxX = 5
-            , maxY = 10
-            , rects =
-                [ { left = 1, right = 4, height = 8 }
-                , { left = 4, right = 5, height = 10 }
-                ]
-            }
-    in
-    suite "mergeSimilarTest"
-
-    [ test "Very different rects should remain unmerged" <|
-      let
-          spec =
-              { minX = 1
-              , maxX = 7
-              , maxY = 10
-              , rects =
-                  [ { left = 1, right = 4, height = 8 }
-                  , { left = 4, right = 5, height = 10 }
-                  , { left = 5, right = 7, height = 3 }
-                  ]
-              }
-       in
-           assertEqual
-           spec
-           (mergeSimilar 0.1 spec)
-
-    , test "Two similar rects in the middle should merge" <|
-      let
-          spec =
-              { minX = 1
-              , maxX = 8
-              , maxY = 10
-              , rects =
-                  [ { left = 1, right = 3, height = 2 }
-                  , { left = 3, right = 5, height = 10 }
-                  , { left = 5, right = 7, height = 9 }
-                  , { left = 7, right = 8, height = 6 }
-                  ]
-              }
-       in
-           assertEqual
-           { spec
-           | rects =
-               [ { left = 1, right = 3, height = 2 }
-               , { left = 3, right = 7, height = 9.5 }
-               , { left = 7, right = 8, height = 6 }
-               ]
-           }
-           (mergeSimilar 0.1 spec)
-
-    , test "Height of merged rects should be biased by rects' widths" <|
-      let
-          spec =
-              { minX = 1
-              , maxX = 12
-              , maxY = 30
-              , rects =
-                  [ { left = 1, right = 8, height = 2 }
-                  , { left = 8, right = 9, height = 29 }  -- Lower rect width 1
-                  , { left = 9, right = 12, height = 30 } -- Higher rect width 3
-                  ]
-              }
-       in
-           assertEqual
-           { spec
-           | rects =
-               [ { left = 1, right = 8, height = 2 }
-               , { left = 8, right = 12, height = 29 + (3/(1+3)) }
-               ]
-           }
-           (mergeSimilar 0.4 spec)
-
-    , test "Height of merged rects (reversed) should be biased by rects' widths" <|
-      let
-          spec =
-              { minX = 1
-              , maxX = 12
-              , maxY = 30
-              , rects =
-                  [ { left = 1, right = 8, height = 2 }
-                  , { left = 8, right = 9, height = 30 }  -- Higher rect width 1
-                  , { left = 9, right = 12, height = 29 } -- Lower rect width 3
-                  ]
-              }
-       in
-           assertEqual
-           { spec
-           | rects =
-               [ { left = 1, right = 8, height = 2 }
-               , { left = 8, right = 12, height = 29 + (1/(1+3)) }
-               ]
-           }
-           (mergeSimilar 0.4 spec)
 
     ]
 
