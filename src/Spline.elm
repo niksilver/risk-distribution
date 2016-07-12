@@ -63,7 +63,7 @@ spline lines p0 p1 p2 p3 =
 spline' : Int -> Int -> Pos -> Pos -> Pos -> Pos -> List Pos -> List Pos
 spline' idx lines p0 p1 p2 p3 accum =
     let
-        tension = 1
+        tension = 0.5
         (m1, m2) = tangents tension p0 p1 p2 p3
         t = toFloat idx / toFloat lines
         x = p1.x + t * (p2.x - p1.x)
