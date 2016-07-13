@@ -100,6 +100,22 @@ view spec =
         , Axis.viewXAxis transformer scale
         ]
 
+-- Squash the curve up if it's below the x-axis
+
+squash : Float -> Float -> List Pos -> List Pos
+squash minY maxY ps =
+    if minY >= 0 then
+        ps
+    else
+        let
+            above = maxY
+            below = -minY
+            total = above + below
+            trans p =
+                Pos p.x ((p.y + below) * (above/total))
+        in
+            List.map trans ps
+
 -- Render just the distribution area as blocks,
 -- given functions to transform and scale a given spec
 
@@ -148,7 +164,7 @@ distCurve spec =
     let
         -- How far up the left/right rect the curve should start from
         yProportion = 0.5
-    in
+
         -- To create the path for distribution curve we take
         -- the initial set of rectangles in the chart spec and...
         -- Put pretend rectangles at the start and end to
@@ -156,18 +172,30 @@ distCurve spec =
         -- Take the rectangles in sliding groups of three and see
         -- If the middle one is at a peak, in a dip, etc and add
         -- curve points accordingly;
-        -- Join up the points with a spline;
-        -- put vertical lines on the start and end of the spline so
-        -- that it starts and ends on the x-axis;
-        -- Transform the spline from chart co-ordinates to page co-ordinates.
+        -- Join up the points with a spline.
 
-        spec.rects
-            |> ChartUtil.bracketRects yProportion
-            |> Util.sliding 3
-            |> List.map curvePoints
-            |> List.concat
-            |> addEndsOfSpline yProportion spec.rects
-            |> Spline.splines 20
+        curve =
+            spec.rects
+                |> ChartUtil.bracketRects yProportion
+                |> Util.sliding 3
+                |> List.map curvePoints
+                |> List.concat
+                |> addEndsOfSpline yProportion spec.rects
+                |> Spline.splines 20
+
+        -- Squash the curve up if it falls below the x-axis
+
+        curve' =
+            case Spline.yMinMax curve of
+                Nothing ->
+                    curve
+                Just (minY, maxY) ->
+                    squash minY maxY curve
+    in
+        -- Put vertical lines on the start and end of the spline so
+        -- that it starts and ends on the x-axis;
+
+        curve'
             |> addEndsOfDist yProportion
  
 -- Translate to ChartUtil.curvePointsForRect, but taking a list
