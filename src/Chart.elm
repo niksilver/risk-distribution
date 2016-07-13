@@ -92,7 +92,7 @@ view spec =
         , SvgA.viewBox viewBoxDim
         ]
         [ viewBlocks transformer scaledSpec
-        , viewSpline transformer curve
+        , viewCurve transformer curve
         , Axis.viewXAxis transformer scale
         ]
 
@@ -116,11 +116,11 @@ viewBlocks transformer spec =
         (List.map draw spec.rects)
 
 
--- Render the distribution as a spline,
+-- Render the distribution as a curve,
 -- given functions to transform and the curve itself
 
-viewSpline : Transformer -> List Pos -> Svg x
-viewSpline transformer curve =
+viewCurve : Transformer -> List Pos -> Svg x
+viewCurve transformer curve =
     let
         trans x y =
             Pos (transformer.trX x) (transformer.trY y)
