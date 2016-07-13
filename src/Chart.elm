@@ -100,22 +100,6 @@ view spec =
         , Axis.viewXAxis transformer scale
         ]
 
--- Squash the curve up if it's below the x-axis
-
-squash : Float -> Float -> List Pos -> List Pos
-squash minY maxY ps =
-    if minY >= 0 then
-        ps
-    else
-        let
-            above = maxY
-            below = -minY
-            total = above + below
-            trans p =
-                Pos p.x ((p.y + below) * (above/total))
-        in
-            List.map trans ps
-
 -- Render just the distribution area as blocks,
 -- given functions to transform and scale a given spec
 
@@ -208,6 +192,22 @@ curvePoints rects =
             ChartUtil.curvePointsForRect prev rect next
         _ ->
             []
+
+-- Squash the curve up if it's below the x-axis
+
+squash : Float -> Float -> List Pos -> List Pos
+squash minY maxY ps =
+    if minY >= 0 then
+        ps
+    else
+        let
+            above = maxY
+            below = -minY
+            total = above + below
+            trans p =
+                Pos p.x ((p.y + below) * (above/total))
+        in
+            List.map trans ps
 
 -- Add end points to the distribution curve
 
