@@ -57,10 +57,6 @@ rawSpec layers =
 
 -- View
 
--- Shortcut
-
-type alias FloatFn = Float -> Float
-
 layersToView : List Dist.Layer -> Html x
 layersToView layers =
     case (rawSpec layers) of
@@ -70,6 +66,7 @@ layersToView layers =
 view : Spec -> Html x
 view spec =
     let
+        curve = distCurve spec
         -- Rescale the chart spec to include an x-axis with nice max and min
         scale = Axis.scale spec.minX spec.maxX maxTicks
         scaledSpec =
@@ -89,7 +86,7 @@ view spec =
         , SvgA.viewBox viewBoxDim
         ]
         [ viewBlocks transformer scaledSpec
-        , viewSpline transformer scaledSpec
+        , viewSpline transformer curve
         , Axis.viewXAxis transformer scale
         ]
 
@@ -114,34 +111,15 @@ viewBlocks transformer spec =
 
 
 -- Render the distribution as a spline,
--- given functions to transform and scale a given spec
+-- given functions to transform and the curve itself
 
-viewSpline : Transformer -> Spec -> Svg x
-viewSpline transformer spec =
+viewSpline : Transformer -> List Pos -> Svg x
+viewSpline transformer curve =
     let
-        yProportion = 0.5
         trans x y =
             Pos (transformer.trX x) (transformer.trY y)
-        -- To create the path for distribution curve we take
-        -- the initial set of rectangles in the chart spec and...
-        -- Put pretend rectangles at the start and end to
-        -- get a sense of where the curve should start and end from;
-        -- Take the rectangles in sliding groups of three and see
-        -- If the middle one is at a peak, in a dip, etc and add
-        -- curve points accordingly;
-        -- Join up the points with a spline;
-        -- put vertical lines on the start and end of the spline so
-        -- that it starts and ends on the x-axis;
-        -- Transform the spline from chart co-ordinates to page co-ordinates.
         path =
-            spec.rects
-                |> ChartUtil.bracketRects yProportion
-                |> Util.sliding 3
-                |> List.map curvePoints
-                |> List.concat
-                |> addEndsOfSpline yProportion spec.rects
-                |> Spline.splines 20
-                |> addEndsOfDist yProportion
+            curve
                 |> Path.fromPosList
                 |> Path.map trans
     in
@@ -153,6 +131,35 @@ viewSpline transformer spec =
         ]
         []
 
+-- Create a distribution curve
+
+distCurve : Spec -> List Pos
+distCurve spec =
+    let
+        -- How far up the left/right rect the curve should start from
+        yProportion = 0.5
+    in
+        -- To create the path for distribution curve we take
+        -- the initial set of rectangles in the chart spec and...
+        -- Put pretend rectangles at the start and end to
+        -- get a sense of where the curve should start and end from;
+        -- Take the rectangles in sliding groups of three and see
+        -- If the middle one is at a peak, in a dip, etc and add
+        -- curve points accordingly;
+        -- Join up the points with a spline;
+        -- put vertical lines on the start and end of the spline so
+        -- that it starts and ends on the x-axis;
+        -- Transform the spline from chart co-ordinates to page co-ordinates.
+
+        spec.rects
+            |> ChartUtil.bracketRects yProportion
+            |> Util.sliding 3
+            |> List.map curvePoints
+            |> List.concat
+            |> addEndsOfSpline yProportion spec.rects
+            |> Spline.splines 20
+            |> addEndsOfDist yProportion
+ 
 -- Translate to ChartUtil.curvePointsForRect, but taking a list
 -- of three rectangles instead of three separate Rect arguments
 
