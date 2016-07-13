@@ -66,13 +66,19 @@ layersToView layers =
 view : Spec -> Html x
 view spec =
     let
+        -- Get the distribution curve and its min and max points
         curve = distCurve spec
+        (curveMin, curveMax) =
+            Spline.yMinMax curve
+                |> Maybe.withDefault (0, spec.maxY)
+
         -- Rescale the chart spec to include an x-axis with nice max and min
         scale = Axis.scale spec.minX spec.maxX maxTicks
         scaledSpec =
             { spec
             | minX = scale.min
             , maxX = scale.max
+            , maxY = max spec.maxY curveMax
             }
         transformer = ChartUtil.transformer viewDim scaledSpec
         viewBoxDim =
