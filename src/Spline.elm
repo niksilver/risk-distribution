@@ -1,4 +1,4 @@
-module Spline exposing (Pos, spline, splines)
+module Spline exposing (Pos, spline, splines, yMinMax)
 
 import Util
 
@@ -94,4 +94,27 @@ splines lines points =
         quads
             |> List.map toSpline
             |> List.concat
+
+-- Get the min and max y values
+
+yMinMax : List Pos -> Maybe (Float, Float)
+yMinMax ps =
+    yMinMax' ps Nothing
+
+yMinMax' : List Pos -> Maybe (Float, Float) -> Maybe (Float, Float)
+yMinMax' ps accum =
+    case ps of
+        [] ->
+            accum
+        p :: tail ->
+            let
+                accum' =
+                    case accum of
+                        Nothing ->
+                            Just (p.y, p.y)
+                        Just (min', max') ->
+                            Just (min min' p.y, max max' p.y)
+            in
+                yMinMax' tail accum'
+
 

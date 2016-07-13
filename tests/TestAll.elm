@@ -6,6 +6,7 @@ import ErrorsTest exposing (all)
 import UtilTest exposing (all)
 import AxisTest exposing (all)
 import PathTest exposing (all)
+import SplineTest exposing (all)
 
 import ElmTest exposing (runSuiteHtml, suite)
 
@@ -21,4 +22,5 @@ main =
         , UtilTest.all
         , AxisTest.all
         , PathTest.all
+        , SplineTest.all
         ]
