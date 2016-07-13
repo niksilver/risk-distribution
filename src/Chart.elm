@@ -122,6 +122,17 @@ viewSpline transformer spec =
         yProportion = 0.5
         trans x y =
             Pos (transformer.trX x) (transformer.trY y)
+        -- To create the path for distribution curve we take
+        -- the initial set of rectangles in the chart spec and...
+        -- Put pretend rectangles at the start and end to
+        -- get a sense of where the curve should start and end from;
+        -- Take the rectangles in sliding groups of three and see
+        -- If the middle one is at a peak, in a dip, etc and add
+        -- curve points accordingly;
+        -- Join up the points with a spline;
+        -- put vertical lines on the start and end of the spline so
+        -- that it starts and ends on the x-axis;
+        -- Transform the spline from chart co-ordinates to page co-ordinates.
         path =
             spec.rects
                 |> ChartUtil.bracketRects yProportion
