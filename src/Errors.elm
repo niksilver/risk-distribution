@@ -159,7 +159,7 @@ viewOneError err =
                 Contradiction i1 i2 ->
                     contradictionMessage i1 i2
                 CantMake100Percent i1 i2 ->
-                    "Not implemented!"
+                    cantMake100PercentMessage i1 i2
     in
         li [] [ text message ]
 
@@ -182,4 +182,14 @@ contradictionMessage i1 i2 =
         "Lines " ++ (i1' + 1 |> toString)
         ++ " and " ++ (i2' + 1 |> toString)
         ++ " contradict each other"
+
+cantMake100PercentMessage : Int -> Int -> String
+cantMake100PercentMessage i1 i2 =
+    let
+        (i1', i2') =
+            if i1 < i2 then (i1, i2) else (i2, i1)
+     in
+        "Lines " ++ (i1' + 1 |> toString)
+        ++ " and " ++ (i2' + 1 |> toString)
+        ++ " together mean the whole space is less than 100%"
 
