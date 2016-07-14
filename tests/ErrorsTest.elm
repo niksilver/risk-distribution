@@ -13,6 +13,7 @@ all =
     , errorsTestForNoUpperLimit
     , errorsTestForNoLowerLimit
     , errorsTestForContradiction
+    , errorsTestForCantMake100Percent
     , indexTest
     ]
 
@@ -192,6 +193,60 @@ errorsTestForContradiction =
       in
           assertEqual
           [ Contradiction 3 1 ]
+          (errors [ y1, y2, y3, y4, y5 ])
+
+    ]
+
+errorsTestForCantMake100Percent : Test
+errorsTestForCantMake100Percent =
+    suite "errorsTestForCantMake100Percent"
+
+    [ test "Two touching layers of less than 100% should be exposed" <|
+      let
+          y1 = { prob = 0.25, limit = AtLeast, value = 60.0 }
+          y2 = { prob = 1.00, limit = AtLeast, value = 0.0 }
+          y3 = { prob = 0.65, limit = AtMost, value = 60.0 }
+          y4 = { prob = 0.20, limit = AtLeast, value = 80.0 }
+          y5 = { prob = 1.00, limit = AtMost, value = 100.0 }
+      in
+          assertEqual
+          [ CantMake100Percent 0 2 ]
+          (errors [ y1, y2, y3, y4, y5 ])
+
+    , test "Two touching layers reversed of less than 100% should be exposed" <|
+      let
+          y1 = { prob = 0.65, limit = AtMost, value = 60.0 }
+          y2 = { prob = 1.00, limit = AtLeast, value = 0.0 }
+          y3 = { prob = 0.25, limit = AtLeast, value = 60.0 }
+          y4 = { prob = 0.20, limit = AtLeast, value = 80.0 }
+          y5 = { prob = 1.00, limit = AtMost, value = 100.0 }
+      in
+          assertEqual
+          [ CantMake100Percent 2 0 ]
+          (errors [ y1, y2, y3, y4, y5 ])
+
+    , test "Two overlapping layers of less than 100% should be exposed" <|
+      let
+          y1 = { prob = 0.25, limit = AtLeast, value = 60.0 }
+          y2 = { prob = 1.00, limit = AtLeast, value = 0.0 }
+          y3 = { prob = 0.65, limit = AtMost, value = 65.0 }
+          y4 = { prob = 0.20, limit = AtLeast, value = 80.0 }
+          y5 = { prob = 1.00, limit = AtMost, value = 100.0 }
+      in
+          assertEqual
+          [ CantMake100Percent 0 2 ]
+          (errors [ y1, y2, y3, y4, y5 ])
+
+    , test "Two overlapping reversed layers of less than 100% should be exposed" <|
+      let
+          y1 = { prob = 0.65, limit = AtMost, value = 65.0 }
+          y2 = { prob = 1.00, limit = AtLeast, value = 0.0 }
+          y3 = { prob = 0.25, limit = AtLeast, value = 60.0 }
+          y4 = { prob = 0.20, limit = AtLeast, value = 80.0 }
+          y5 = { prob = 1.00, limit = AtMost, value = 100.0 }
+      in
+          assertEqual
+          [ CantMake100Percent 2 0 ]
           (errors [ y1, y2, y3, y4, y5 ])
 
     ]

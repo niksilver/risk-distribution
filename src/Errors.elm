@@ -1,5 +1,11 @@
 module Errors exposing
-    ( Error (MoreThan100Percent, NoUpperLimit, NoLowerLimit, Contradiction)
+    ( Error
+        ( MoreThan100Percent
+        , NoUpperLimit
+        , NoLowerLimit
+        , Contradiction
+        , CantMake100Percent
+        )
     , IndexedLayer
     , index, errors
     , view
@@ -18,6 +24,7 @@ type Error
     | NoUpperLimit
     | NoLowerLimit
     | Contradiction Int Int  -- Index of the contradicting layers
+    | CantMake100Percent Int Int  -- The index of the offending layers
 
 type alias Indexed a
     = { a | index : Int }
@@ -44,6 +51,7 @@ errors ys =
     , noUpperLimitError ys
     , noLowerLimitError ys
     , contradictionError ys
+    , cantMake100PercentError ys
     ]
 
 moreThan100PercentError : List Layer -> List Error
@@ -107,6 +115,30 @@ contradictionError ys =
             Just (i1, i2) -> [ Contradiction i1 i2 ]
             Nothing -> []
 
+cantMake100PercentError : List Layer -> List Error
+cantMake100PercentError ys =
+    let
+        iys = index ys
+        orderedOrEq y1 y2 = (y1.value <= y2.value)
+        overlapping y1 y2 = (y1.limit == AtLeast && y2.limit == AtMost)
+        tooSmall y1 y2 = (y1.prob + y2.prob < 1.00)
+        getError iy1 iy2 =
+            let
+                y1 = iy1.layer
+                y2 = iy2.layer
+            in
+                if (orderedOrEq y1 y2
+                    && overlapping y1 y2
+                    && tooSmall y1 y2)
+                then
+                    Just (iy1.index, iy2.index)
+                else
+                    Nothing
+    in
+        case (findPair getError iys) of
+            Just (i1, i2) -> [ CantMake100Percent i1 i2 ]
+            Nothing -> []
+
 -- View of errors
 
 view : List Error -> Html x
@@ -126,6 +158,8 @@ viewOneError err =
                     "You've not given a lower limit for the value"
                 Contradiction i1 i2 ->
                     contradictionMessage i1 i2
+                CantMake100Percent i1 i2 ->
+                    "Not implemented!"
     in
         li [] [ text message ]
 
