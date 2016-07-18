@@ -171,6 +171,30 @@ errorsTestForContradiction =
           [ Contradiction 3 1 ]
           (errors [ y1, y2, y3, y4, y5 ])
 
+    , test "Two 'AtLeast' layers of same value and different probs should be a contradition" <|
+      let
+          y1 = { prob = 1.00, limit = AtLeast, value = 0.0 }
+          y2 = { prob = 0.40, limit = AtLeast, value = 65.0 }
+          y3 = { prob = 0.50, limit = AtMost, value = 30.0 }
+          y4 = { prob = 0.25, limit = AtLeast, value = 65.0 }
+          y5 = { prob = 1.00, limit = AtMost, value = 100.0 }
+      in
+          assertEqual
+          [ Contradiction 3 1 ]
+          (errors [ y1, y2, y3, y4, y5 ])
+
+    , test "Two 'AtLeast' layers of same value and different probs (reversed) should be a contradition" <|
+      let
+          y1 = { prob = 1.00, limit = AtLeast, value = 0.0 }
+          y2 = { prob = 0.25, limit = AtLeast, value = 65.0 }
+          y3 = { prob = 0.50, limit = AtMost, value = 30.0 }
+          y4 = { prob = 0.40, limit = AtLeast, value = 65.0 }
+          y5 = { prob = 1.00, limit = AtMost, value = 100.0 }
+      in
+          assertEqual
+          [ Contradiction 1 3 ]
+          (errors [ y1, y2, y3, y4, y5 ])
+
     , test "Two embedded contradicting 'AtMost' layers should be exposed" <|
       let
           y1 = { prob = 1.00, limit = AtLeast, value = 0.0 }
@@ -189,6 +213,30 @@ errorsTestForContradiction =
           y2 = { prob = 0.25, limit = AtMost, value = 35.0 }
           y3 = { prob = 0.50, limit = AtLeast, value = 70.0 }
           y4 = { prob = 0.40, limit = AtMost, value = 30.0 }
+          y5 = { prob = 1.00, limit = AtMost, value = 100.0 }
+      in
+          assertEqual
+          [ Contradiction 3 1 ]
+          (errors [ y1, y2, y3, y4, y5 ])
+
+    , test "Two 'AtMost' layers of same value but different probs should be a contradiction" <|
+      let
+          y1 = { prob = 1.00, limit = AtLeast, value = 0.0 }
+          y2 = { prob = 0.40, limit = AtMost, value = 35.0 }
+          y3 = { prob = 0.50, limit = AtLeast, value = 70.0 }
+          y4 = { prob = 0.25, limit = AtMost, value = 35.0 }
+          y5 = { prob = 1.00, limit = AtMost, value = 100.0 }
+      in
+          assertEqual
+          [ Contradiction 1 3 ]
+          (errors [ y1, y2, y3, y4, y5 ])
+
+    , test "Two 'AtMost' layers of same value but different probs (reversed) should be a contradiction" <|
+      let
+          y1 = { prob = 1.00, limit = AtLeast, value = 0.0 }
+          y2 = { prob = 0.25, limit = AtMost, value = 35.0 }
+          y3 = { prob = 0.50, limit = AtLeast, value = 70.0 }
+          y4 = { prob = 0.40, limit = AtMost, value = 35.0 }
           y5 = { prob = 1.00, limit = AtMost, value = 100.0 }
       in
           assertEqual

@@ -91,7 +91,7 @@ contradictionError : List Layer -> List Error
 contradictionError ys =
     let
         iys = index ys
-        ordered y1 y2 = (y1.value < y2.value)
+        ordered y1 y2 = (y1.value <= y2.value)
         bothAtLeast y1 y2 = (y1.limit == AtLeast && y2.limit == AtLeast)
         bothAtMost y1 y2 = (y1.limit == AtMost && y2.limit == AtMost)
         wrongAtLeast y1 y2 = (y1.prob < y2.prob)
