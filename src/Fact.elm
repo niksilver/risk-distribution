@@ -1,4 +1,7 @@
-module Fact exposing (Model, Msg, init, layer, update, view)
+module Fact exposing
+    ( Model, Msg (ConfirmText)
+    , init, layer, update, view
+    )
 
 -- A statement describing the probability of some value range
 
@@ -32,6 +35,7 @@ type Msg
     = Prob String
     | Value String
     | ChangeLimit
+    | ConfirmText
 
 -- Initial model
 
@@ -62,6 +66,8 @@ update msg model =
             updateValue valueStr model
         ChangeLimit ->
             toggleLimit model
+        ConfirmText ->
+            updateText model
 
 updateProb : String -> Model -> Model
 updateProb str model =
@@ -103,6 +109,25 @@ toggleLimit model =
         data = model.data
     in
         { model | data = { data | limit = limit' } }
+
+updateText : Model -> Model
+updateText model =
+    let
+        probPerc' = String.toFloat model.text.probPerc
+        value' = String.toFloat model.text.value
+        limit' = model.text.limit
+    in
+        case (probPerc', value') of
+            (Ok prob, Ok val) ->
+                { model
+                | data =
+                    { prob = prob / 100
+                    , limit = limit'
+                    , value = val
+                    }
+                }
+            _ ->
+                model
 
 -- Rendering a fact
 
