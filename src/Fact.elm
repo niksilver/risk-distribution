@@ -22,7 +22,7 @@ import Distribution exposing (Layer, Limit(AtMost, AtLeast))
 -- Our model of a fact
 
 type alias Model =
-    { text : { probPerc : String, value : String }
+    { text : { probPerc : String, limit : Limit, value : String }
     , data : Layer
     }
 
@@ -39,6 +39,7 @@ init : Layer -> Model
 init y =
     { text =
         { probPerc = y.prob * 100 |> toString
+        , limit = y.limit
         , value = y.value |> toString
         }
     , data = y
