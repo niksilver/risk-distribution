@@ -10,14 +10,14 @@ import Html exposing
     ( Html, Attribute
     , text, div, span
     , a
-    , form, input, label, select, option
+    , form, input, label, select, option, button
     )
 import Html.Attributes exposing
     ( href
     , class, style, id
     , type', value, placeholder, for, selected
     )
-import Html.Events exposing (onInput, on)
+import Html.Events exposing (onInput, onClick, on)
 import Json.Decode exposing (Decoder)
 
 import Distribution exposing (Layer, Limit(AtMost, AtLeast))
@@ -120,6 +120,7 @@ view model =
         , limitControl model
         , " " |> text
         , valueBox model
+        , okayView
         ]
 
 type alias TextBoxSpec =
@@ -194,4 +195,14 @@ limitControl model =
         [ selected (model.data.limit == AtLeast) ]
         [ text "at least" ]
     ]
+
+okayView : Html Msg
+okayView =
+    button
+    [ class "btn btn-default"
+    , type' "button"
+    , style [ ("margin-left", "3em") ]
+    , onClick ConfirmText
+    ]
+    [ text "Okay" ]
 
