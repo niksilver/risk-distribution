@@ -1,5 +1,5 @@
 module Fact exposing
-    ( Model, Msg (ConfirmText)
+    ( Model, Msg (ProbPerc, Value, ChangeLimit, ConfirmText)
     , init, layer, update, view
     )
 
@@ -18,7 +18,7 @@ import Html.Attributes exposing
     , type', value, placeholder, for, selected
     )
 import Html.Events exposing (onInput, on)
-import Json.Decode
+import Json.Decode exposing (Decoder)
 
 import Distribution exposing (Layer, Limit(AtMost, AtLeast))
 
@@ -32,9 +32,9 @@ type alias Model =
 -- Things that can change
 
 type Msg
-    = Prob String
+    = ProbPerc String
     | Value String
-    | ChangeLimit
+    | ChangeLimit Limit
     | ConfirmText
 
 -- Initial model
@@ -60,55 +60,35 @@ layer =
 update : Msg -> Model -> Model
 update msg model =
     case msg of
-        Prob probStr ->
-            updateProb probStr model
+        ProbPerc probStr ->
+            updateProbPerc probStr model
         Value valueStr ->
             updateValue valueStr model
-        ChangeLimit ->
-            toggleLimit model
+        ChangeLimit limit ->
+            updateLimit limit model
         ConfirmText ->
             updateText model
 
-updateProb : String -> Model -> Model
-updateProb str model =
+updateProbPerc : String -> Model -> Model
+updateProbPerc str model =
     let
         text = model.text
-        data = model.data
-        model' = { model | text = { text | probPerc = str } }
     in
-        case (String.toFloat str) of
-            Ok prob ->
-                { model'
-                | data = { data | prob = prob / 100 }
-                }
-            Err _ ->
-                model'
+        { model | text = { text | probPerc = str } }
 
 updateValue : String -> Model -> Model
 updateValue str model =
     let
         text = model.text
-        data = model.data
-        model' = { model | text = { text | value = str } }
     in
-        case (String.toFloat str) of
-            Ok value ->
-                { model'
-                | data = { data | value = value }
-                }
-            Err _ ->
-                model'
+        { model | text = { text | value = str } }
 
-toggleLimit : Model -> Model
-toggleLimit model =
+updateLimit : Limit -> Model -> Model
+updateLimit limit model =
     let
-        limit' =
-            case (model.data.limit) of
-                AtMost -> AtLeast
-                AtLeast -> AtMost
-        data = model.data
+        text = model.text
     in
-        { model | data = { data | limit = limit' } }
+        { model | text = { text | limit = limit } }
 
 updateText : Model -> Model
 updateText model =
@@ -176,7 +156,7 @@ probBox model =
         , label = "Percentage"
         , width = "5em"
         , value = model.text.probPerc
-        , mapping = Prob
+        , mapping = ProbPerc
         }
 
 valueBox : Model -> Html Msg
@@ -189,15 +169,23 @@ valueBox model =
         , mapping = Value
         }
 
-onChange : msg -> Attribute msg
-onChange message =
-    on "change" (Json.Decode.succeed message)
+onChange : Attribute Msg
+onChange =
+    let
+        strDecoder = Json.Decode.at ["target", "value"] Json.Decode.string
+        toLimit str =
+            if str == "at most" then
+                ChangeLimit AtMost
+            else
+                ChangeLimit AtLeast
+    in
+        on "change" (Json.Decode.map toLimit strDecoder)
 
 limitControl : Model -> Html Msg
 limitControl model =
     select
     [ class "form-control"
-    , onChange ChangeLimit
+    , onChange
     ]
     [ option
         [ selected (model.data.limit == AtMost) ]

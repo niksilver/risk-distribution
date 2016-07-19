@@ -9,7 +9,10 @@ all : Test
 all =
     suite "FactTest"
     [ initTest
-    , updateTest
+    , updateTestForProbPerc
+    , updateTestForValue
+    , updateTestForChangeLimit
+    , updateTestForConfirmText
     ]
 
 initTest : Test
@@ -39,9 +42,81 @@ initTest =
 
     ]
 
-updateTest : Test
-updateTest =
-    suite "updateTest"
+updateTestForProbPerc : Test
+updateTestForProbPerc =
+    suite "updateTestForProbPerc"
+
+    [ test "Updating prob perc with non-number should register in text only" <|
+      assertEqual
+      { text = { probPerc = "hello", limit = AtLeast, value = "0" }
+      , data = { prob = 0, limit = AtLeast, value = 0 }
+      }
+      ( { text = { probPerc = "50", limit = AtLeast, value = "0" }
+        , data = { prob = 0, limit = AtLeast, value = 0 }
+        }
+            |> update (ProbPerc "hello")
+      )
+
+    , test "Updating prob perc with number should register in text only" <|
+      assertEqual
+      { text = { probPerc = "33", limit = AtLeast, value = "0" }
+      , data = { prob = 0, limit = AtLeast, value = 0 }
+      }
+      ( { text = { probPerc = "50", limit = AtLeast, value = "0" }
+        , data = { prob = 0, limit = AtLeast, value = 0 }
+        }
+            |> update (ProbPerc "33")
+      )
+
+    ]
+
+updateTestForValue : Test
+updateTestForValue =
+    suite "updateTestForValue"
+
+    [ test "Updating value with non-number should register in text only" <|
+      assertEqual
+      { text = { probPerc = "50", limit = AtLeast, value = "hello" }
+      , data = { prob = 0, limit = AtLeast, value = 0 }
+      }
+      ( { text = { probPerc = "50", limit = AtLeast, value = "0" }
+        , data = { prob = 0, limit = AtLeast, value = 0 }
+        }
+            |> update (Value "hello")
+      )
+
+    , test "Updating value with number should register in text only" <|
+      assertEqual
+      { text = { probPerc = "50", limit = AtLeast, value = "99" }
+      , data = { prob = 0, limit = AtLeast, value = 0 }
+      }
+      ( { text = { probPerc = "50", limit = AtLeast, value = "0" }
+        , data = { prob = 0, limit = AtLeast, value = 0 }
+        }
+            |> update (Value "99")
+      )
+
+    ]
+
+updateTestForChangeLimit : Test
+updateTestForChangeLimit =
+    suite "updateTestForChangeLimit"
+
+    [ test "Updating limit should register in text only" <|
+      assertEqual
+      { text = { probPerc = "50", limit = AtMost, value = "0" }
+      , data = { prob = 0, limit = AtLeast, value = 0 }
+      }
+      ( { text = { probPerc = "50", limit = AtLeast, value = "0" }
+        , data = { prob = 0, limit = AtLeast, value = 0 }
+        }
+            |> update (ChangeLimit AtMost)
+      )
+    ]
+
+updateTestForConfirmText : Test
+updateTestForConfirmText =
+    suite "updateTestForConfirmText"
 
     [ test "Updating a Fact with okay prob text should register" <|
       assertEqual
