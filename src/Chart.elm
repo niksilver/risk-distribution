@@ -147,7 +147,7 @@ distCurve : Spec -> List Pos
 distCurve spec =
     let
         -- How far up the left/right rect the curve should start from
-        yProportion = 0.5
+        yProportion = 0.0
 
         -- To create the path for distribution curve we take
         -- the initial set of rectangles in the chart spec and...
