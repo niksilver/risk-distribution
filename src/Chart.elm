@@ -201,21 +201,43 @@ squash ps =
 
 addEndsOfSpline : Float -> List Rect -> List Pos -> List Pos
 addEndsOfSpline proportion rects points =
+    points
+        |> addFrontOfSpline proportion rects
+        |> addBackOfSpline proportion rects
+
+addPosIfDifferent : Pos -> List Pos -> List Pos
+addPosIfDifferent p ps =
+    if (List.head ps == Just p) then
+        ps
+    else
+        p :: ps
+
+addFrontOfSpline : Float -> List Rect -> List Pos -> List Pos
+addFrontOfSpline proportion rects points =
     let
-        posFront =
+        pos =
             case List.head rects of
                 Nothing ->
                     Pos 0 0
                 Just rect ->
                     Pos rect.left (rect.height * proportion)
-        posBack =
+    in
+        addPosIfDifferent pos points
+
+addBackOfSpline : Float -> List Rect -> List Pos -> List Pos
+addBackOfSpline proportion rects points =
+    let
+        pos =
             case (List.reverse rects |> List.head) of
                 Nothing ->
                     Pos 0 0
                 Just rect ->
                     Pos rect.right (rect.height * proportion)
     in
-        Util.bracketMap (always posFront) (always posBack) points
+        points
+            |> List.reverse
+            |> addPosIfDifferent pos
+            |> List.reverse
 
 -- Add the front and back lines to a distribution spline
 -- to ensure it starts and finishes on the x-axis
