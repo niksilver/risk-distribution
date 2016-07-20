@@ -157,6 +157,7 @@ distCurve spec =
         -- If the middle one is at a peak, in a dip, etc and add
         -- curve points accordingly;
         -- Join up the points with a spline.
+        -- Squash the curve up if it falls below the x-axis
 
         curve =
             spec.rects
@@ -166,20 +167,13 @@ distCurve spec =
                 |> List.concat
                 |> addEndsOfSpline yProportion spec.rects
                 |> Spline.splines 20
+                |> squash
 
-        -- Squash the curve up if it falls below the x-axis
-
-        curve' =
-            case Spline.yMinMax curve of
-                Nothing ->
-                    curve
-                Just (minY, maxY) ->
-                    squash minY maxY curve
     in
         -- Put vertical lines on the start and end of the spline so
         -- that it starts and ends on the x-axis;
 
-        curve'
+        curve
             |> addEndsOfDist yProportion
  
 -- Translate to ChartUtil.curvePointsForRect, but taking a list
@@ -195,19 +189,13 @@ curvePoints rects =
 
 -- Squash the curve up if it's below the x-axis
 
-squash : Float -> Float -> List Pos -> List Pos
-squash minY maxY ps =
-    if minY >= 0 then
-        ps
-    else
-        let
-            above = maxY
-            below = -minY
-            total = above + below
-            trans p =
-                Pos p.x ((p.y + below) * (above/total))
-        in
-            List.map trans ps
+squash : List Pos -> List Pos
+squash ps =
+    let
+        trans p =
+            Pos p.x (max p.y 0)
+    in
+        List.map trans ps
 
 -- Add end points to the distribution curve
 
