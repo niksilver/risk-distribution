@@ -1,5 +1,6 @@
 module Constraints exposing
     ( inf, Zone, baseZone
+    , Relation (Outside, Inside, Edge), relativeTo
     )
 
 {- How to construct and deduce a distribution.
@@ -39,6 +40,31 @@ module Constraints exposing
 inf : Float
 inf = 1/0
 
+-- A Zone is a range along the -inf/+inf line which will have some
+-- part of the distribution curve.
+
 type alias Zone = { from : Float, to : Float}
 
 baseZone = Zone -inf inf
+
+-- How a value is positioned relative to a zone.
+
+type Relation
+    = Inside
+    | Outside
+    | Edge
+
+-- See where a float is relative to a given zone
+
+relativeTo : Float -> Zone -> Relation
+relativeTo x zone =
+    if (x < zone.from) then
+        Outside
+    else if (x > zone.to) then
+        Outside
+    else if (x == zone.from) then
+        Edge
+    else if (x == zone.to) then
+        Edge
+    else
+        Inside
