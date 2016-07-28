@@ -11,6 +11,7 @@ all =
     , baseZoneTest
     , relativeToTest
     , splitOneTest
+    , constraintToStringTest
     ]
 
 infinityTest : Test
@@ -115,5 +116,63 @@ splitOneTest =
       assertEqual
       ([Zone -5 1])
       (Zone -5 1 |> splitOne 1)
+
+    ]
+
+constraintToStringTest : Test
+constraintToStringTest =
+    suite "constraintToStringTest"
+
+    [ test "Should work for 'a = 40' (with just a known)" <|
+      assertEqual
+      "a = 40"
+      (Constraint [1] 40 |> constraintToString)
+
+    , test "Should work for 'a = 40' (with a and b known)" <|
+      assertEqual
+--     a + b = ..
+      "a     = 40"
+      (Constraint [1, 0] 40 |> constraintToString)
+
+    , test "Should work for 'a = 40' (with a, b and c known)" <|
+      assertEqual
+--     a + b + c = ..
+      "a         = 40"
+      (Constraint [1, 0, 0] 40 |> constraintToString)
+
+    , test "Should work for 'a + b = 60'" <|
+      assertEqual
+--     a + b + c = ..
+      "a + b     = 60"
+      (Constraint [1, 1, 0] 60 |> constraintToString)
+
+    , test "Should work for 'a + c = 33'" <|
+      assertEqual
+--     a + b + c = ..
+      "a     + c = 33"
+      (Constraint [1, 0, 1] 33 |> constraintToString)
+
+    , test "Should work for 'a + b + c = 65'" <|
+      assertEqual
+      "a + b + c = 65"
+      (Constraint [1, 1, 1] 65 |> constraintToString)
+
+    , test "Should work for 'b = 10'" <|
+      assertEqual
+--     a + b + c = ..
+      "    b     = 10"
+      (Constraint [0, 1, 0] 10 |> constraintToString)
+
+    , test "Should work for 'b + c = 15'" <|
+      assertEqual
+--     a + b + c = ..
+      "    b + c = 15"
+      (Constraint [0, 1, 1] 15 |> constraintToString)
+
+    , test "Should work for 'c = 4'" <|
+      assertEqual
+--     a + b + c = ..
+      "        c = 4"
+      (Constraint [0, 0, 1] 4 |> constraintToString)
 
     ]
