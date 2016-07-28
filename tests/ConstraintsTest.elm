@@ -8,6 +8,7 @@ all : Test
 all =
     suite "ConstraintsTest"
     [ infinityTest
+    , baseZoneTest
     ]
 
 infinityTest : Test
@@ -24,4 +25,19 @@ infinityTest =
     , test "-inf is less than inf" <|
       assert
       (-inf < inf)
+    ]
+
+baseZoneTest : Test
+baseZoneTest =
+    suite "baseZoneTest"
+    [ test "Baze zone runs from -inf" <|
+      assertEqual
+      -inf
+      baseZone.from
+
+    , test "Baze zone runs to +inf" <|
+      assertEqual
+      inf
+      baseZone.to
+
     ]

@@ -1,4 +1,6 @@
-module Constraints exposing (inf)
+module Constraints exposing
+    ( inf, Zone, baseZone
+    )
 
 {- How to construct and deduce a distribution.
 
@@ -36,3 +38,7 @@ module Constraints exposing (inf)
 
 inf : Float
 inf = 1/0
+
+type alias Zone = { from : Float, to : Float}
+
+baseZone = Zone -inf inf
