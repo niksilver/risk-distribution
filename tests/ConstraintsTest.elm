@@ -10,6 +10,7 @@ all =
     [ infinityTest
     , baseZoneTest
     , relativeToTest
+    , splitOneTest
     ]
 
 infinityTest : Test
@@ -70,5 +71,41 @@ relativeToTest =
       assertEqual
       (Edge)
       (Zone -1.5 2.5 |> relativeTo 2.5)
+
+    ]
+
+splitOneTest : Test
+splitOneTest =
+    suite "splitOneTest"
+
+    [ test "10 should split the base zone (-inf / +inf) correctly" <|
+      assertEqual
+      ([Zone -inf 10, Zone 10 inf])
+      (baseZone |> splitOne 10)
+
+    , test "10 should split (0, 11) correctly" <|
+      assertEqual
+      ([Zone 0 10, Zone 10 11])
+      (Zone 0 11 |> splitOne 10)
+
+    , test "2 should not split (-5, 0) because it's beyond it" <|
+      assertEqual
+      ([Zone -5 0])
+      (Zone -5 0 |> splitOne 2)
+
+    , test "-2 should not split (0, 5) because it's below it" <|
+      assertEqual
+      ([Zone 0 5])
+      (Zone 0 5 |> splitOne -2)
+
+    , test "-1 should not split (-1, 5) because it's on the 'from' edge" <|
+      assertEqual
+      ([Zone -1 5])
+      (Zone -1 5 |> splitOne -1)
+
+    , test "1 should not split (-5, 1) because it's on the 'to' edge" <|
+      assertEqual
+      ([Zone -5 1])
+      (Zone -5 1 |> splitOne 1)
 
     ]

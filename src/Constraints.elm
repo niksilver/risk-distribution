@@ -1,6 +1,7 @@
 module Constraints exposing
     ( inf, Zone, baseZone
     , Relation (Outside, Inside, Edge), relativeTo
+    , splitOne
     )
 
 {- How to construct and deduce a distribution.
@@ -68,3 +69,13 @@ relativeTo x zone =
         Edge
     else
         Inside
+
+-- Take a zone and split it if a given value is inside it (otherwise leave it)
+
+splitOne : Float -> Zone -> List Zone
+splitOne x zone =
+    case (relativeTo x zone) of
+        Inside ->
+            [ Zone zone.from x, Zone x zone.to ]
+        _ ->
+            [ zone ]
