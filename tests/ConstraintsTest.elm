@@ -27,6 +27,14 @@ infinityTest =
     , test "-inf is less than inf" <|
       assert
       (-inf < inf)
+
+    , test "-inf <= -inf" <|
+      assert
+      (-inf <= -inf)
+
+    , test "inf <= inf" <|
+      assert
+      (inf <= inf)
     ]
 
 baseZoneTest : Test
