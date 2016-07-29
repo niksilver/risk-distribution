@@ -1,8 +1,8 @@
 module Constraints exposing
     ( inf, Zone, baseZone
-    , Slice
+    , Segment
     , Relation (Outside, Inside, Edge), relativeTo
-    , splitOne
+    , Subst, splitOne, split
     , Constraint, constraintToString
     )
 
@@ -17,6 +17,7 @@ import String
 
 * Introduce a new judgement of an interval being at a certain %age.
   E.g. "It's 40% likely it's <= 0"
+  This is a "segment".
 
 * Use this to split existing zones.
   E.g. Zone A from -inf to +inf is split into
@@ -54,10 +55,10 @@ type alias Zone = { from : Float, to : Float}
 
 baseZone = Zone -inf inf
 
--- A slice of our distribution representing the idea that, say,
+-- A segemnt of our distribution representing the idea that, say,
 -- '40% of the distribution lies between -10 and +10'
 
-type alias Slice =
+type alias Segment =
     { pc : Int
     , zone : Zone
     }
@@ -84,6 +85,14 @@ relativeTo x zone =
     else
         Inside
 
+-- When we split a list of zones we want to know which one (its index)
+-- we substitute with which new zones
+
+type alias Subst =
+    { index : Int
+    , new : List Zone
+    }
+
 -- Take a zone and split it if a given value is inside it (otherwise leave it)
 
 splitOne : Float -> Zone -> List Zone
@@ -93,6 +102,24 @@ splitOne x zone =
             [ Zone zone.from x, Zone x zone.to ]
         _ ->
             [ zone ]
+
+-- Find a split, if there is one, in a list of zones
+
+split : Float -> List Zone -> Maybe Subst
+split x zones =
+    split' 0 x zones
+
+split' : Int -> Float -> List Zone -> Maybe Subst
+split' idx x zones =
+    case zones of
+        [] ->
+            Nothing
+        zone :: tail ->
+            case (splitOne x zone) of
+                [ _ ] ->
+                    split' (idx + 1) x tail
+                new ->
+                    Just (Subst idx new)
 
 -- A constraint is something of the form
 -- a + c + d = 40
