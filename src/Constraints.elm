@@ -1,7 +1,7 @@
 module Constraints exposing
     ( inf, Zone, baseZone
     , Segment
-    , Relation (Outside, Inside, Edge), relativeTo
+    , isInside
     , Subst, splitOne, split
     , Constraint, constraintToString
     )
@@ -63,27 +63,11 @@ type alias Segment =
     , zone : Zone
     }
 
--- How a value is positioned relative to a zone.
+-- See if a value is strictly inside a zone
 
-type Relation
-    = Inside
-    | Outside
-    | Edge
-
--- See where a float is relative to a given zone
-
-relativeTo : Float -> Zone -> Relation
-relativeTo x zone =
-    if (x < zone.from) then
-        Outside
-    else if (x > zone.to) then
-        Outside
-    else if (x == zone.from) then
-        Edge
-    else if (x == zone.to) then
-        Edge
-    else
-        Inside
+isInside : Float -> Zone -> Bool
+isInside x zone =
+    (zone.from < x && x < zone.to)
 
 -- When we split a list of zones we want to know which one (its index)
 -- we substitute with which new zones
@@ -97,11 +81,10 @@ type alias Subst =
 
 splitOne : Float -> Zone -> List Zone
 splitOne x zone =
-    case (relativeTo x zone) of
-        Inside ->
-            [ Zone zone.from x, Zone x zone.to ]
-        _ ->
-            [ zone ]
+    if (isInside x zone) then
+        [ Zone zone.from x, Zone x zone.to ]
+    else
+        [ zone ]
 
 -- Find a split, if there is one, in a list of zones
 

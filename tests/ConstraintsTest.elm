@@ -9,7 +9,7 @@ all =
     suite "ConstraintsTest"
     [ infinityTest
     , baseZoneTest
-    , relativeToTest
+    , isInsideTest
     , splitOneTest
     , splitTest
     , constraintToStringTest
@@ -54,33 +54,33 @@ baseZoneTest =
 
     ]
 
-relativeToTest : Test
-relativeToTest =
-    suite "relativeToTest"
+isInsideTest : Test
+isInsideTest =
+    suite "isInsideTest"
     [ test "-11 is outside -10 to +10" <|
       assertEqual
-      Outside
-      (Zone -10 10 |> relativeTo -11)
+      False
+      (Zone -10 10 |> isInside -11)
 
     , test "11 is outside -10 to +10" <|
       assertEqual
-      Outside
-      (Zone -10 10 |> relativeTo 11)
+      False
+      (Zone -10 10 |> isInside 11)
 
     , test "4 is inside 0 to +5" <|
       assertEqual
-      Inside
-      (Zone 0 5 |> relativeTo 4)
+      True
+      (Zone 0 5 |> isInside 4)
 
-    , test "-1.5 is on the 'from' edge of -1.5 to 0" <|
+    , test "-1.5 is on the 'from' edge of -1.5 to 0, so outside" <|
       assertEqual
-      (Edge)
-      (Zone -1.5 0 |> relativeTo -1.5)
+      False
+      (Zone -1.5 0 |> isInside -1.5)
 
-    , test "2.5 is on the 'to' edge of -1.5 to 2.5" <|
+    , test "2.5 is on the 'to' edge of -1.5 to 2.5, so outside" <|
       assertEqual
-      (Edge)
-      (Zone -1.5 2.5 |> relativeTo 2.5)
+      False
+      (Zone -1.5 2.5 |> isInside 2.5)
 
     ]
 
