@@ -3,6 +3,7 @@ module Util exposing
     , sliding
     , bracket, bracketMap
     , spliceOne
+    , nth
     )
 
 
@@ -85,3 +86,15 @@ spliceOne idx new orig =
             List.concat [ before, new, after ]
         else
             orig
+
+-- Find the nth item in a list, where 0 is for the first element
+
+nth : Int -> List a -> Maybe a
+nth i xs =
+    if (i == 0) then
+        List.head xs
+    else
+        case List.tail xs of
+            Nothing -> Nothing
+            Just tail -> nth (i-1) tail
+    

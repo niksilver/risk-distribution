@@ -15,6 +15,7 @@ all =
     , bracketTest
     , bracketMapTest
     , spliceOneTest
+    , nthTest
     ]
 
 findTest : Test
@@ -248,5 +249,36 @@ spliceOneTest =
       assertEqual
       []
       (spliceOne 0 [99, 88] [])
+
+    ]
+
+nthTest : Test
+nthTest =
+    suite "nthTest"
+
+    [ test "0th of a list is first item" <|
+      assertEqual
+      (Just 44)
+      (nth 0 [44, 55, 66])
+
+    , test "2th of a list is third item" <|
+      assertEqual
+      (Just 66)
+      (nth 2 [44, 55, 66])
+
+    , test "When n too large on non-empty list we get nothing" <|
+      assertEqual
+      (Nothing)
+      (nth 3 [44, 55, 66])
+
+    , test "When n = 0 on empty list we get nothing" <|
+      assertEqual
+      (Nothing)
+      (nth 0 [])
+
+    , test "When n < 0 on non-empty list we get nothing" <|
+      assertEqual
+      (Nothing)
+      (nth -1 [44, 55, 66])
 
     ]

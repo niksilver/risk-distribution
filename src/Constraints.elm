@@ -170,7 +170,7 @@ constraintToStringLHS coeffs =
 type alias Model =
     { segments : List Segment
     , zones : List Zone
-    , contraints : List Constraint
+    , constraints : List Constraint
     }
 
 -- Given a model, add a new segment, and adjust the zones and constraints
@@ -196,5 +196,24 @@ addSegmentJustZoneEdge x model =
             model
         Just subst ->
             { model
-            | zones = Util.spliceOne subst.index subst.new model.zones
+            | zones =
+                Util.spliceOne subst.index subst.new model.zones
+            , constraints =
+                addSegmentJustMapConstraints subst model.constraints
             }
+
+addSegmentJustMapConstraints : Subst -> List Constraint -> List Constraint
+addSegmentJustMapConstraints subst cons =
+    let
+        idx = subst.index
+        subsOneCoeffs coeffs =
+            case (Util.nth idx coeffs) of
+                Just coeff ->
+                    Util.spliceOne idx [coeff, coeff] coeffs
+                Nothing ->
+                    coeffs
+        subsOne constr =
+            { constr | coeffs = subsOneCoeffs constr.coeffs }
+    in
+        List.map subsOne cons
+        

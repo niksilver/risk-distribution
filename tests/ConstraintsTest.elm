@@ -15,7 +15,7 @@ all =
     , constraintToStringTest
     , addSegmentTestForNewSegment
     , addSegmentTestForNewZone
-    --, addSegmentTestForNewVariables
+    , addSegmentTestForNewVariables
     ]
 
 infinityTest : Test
@@ -334,7 +334,7 @@ addSegmentTestForNewZone =
           [zone1, zone2, zone3]
           (addSegment seg model |> .zones)
 
-    , test "Adding segment splits no zones should not change zones" <|
+    , test "Adding segment that splits no zones should not change zones" <|
       let
           zone1 = Zone 0 10
           zone2 = Zone 10 20
@@ -345,5 +345,65 @@ addSegmentTestForNewZone =
           assertEqual
           [zone1, zone2, zone3]
           (addSegment seg model |> .zones)
+
+    ]
+
+addSegmentTestForNewVariables : Test
+addSegmentTestForNewVariables =
+    suite "addSegmentTestForNewVariables"
+
+    [ test "Adding segment that substitutes one var should be okay" <|
+      let
+          zone1 = Zone 0 10
+          zone2 = Zone 10 20
+          zone3 = Zone 20 30
+          -- This Segment substitutes the last variable only
+          seg = Segment 40 (Zone 25 30)
+          con1 = Constraint [1, 1, 1] 100
+          con2 = Constraint [1, 1, 0] 40
+          con3 = Constraint [0, 1, 1] 50
+          model = Model [] [zone1, zone2, zone3] [con1, con2, con3]
+      in
+          assertEqual
+          [ Constraint [1, 1, 1, 1] 100
+          , Constraint [1, 1, 0, 0] 40
+          , Constraint [0, 1, 1, 1] 50
+          ]
+          (addSegment seg model |> .constraints)
+
+    , test "Adding segment that substitutes two vars should be okay" <|
+      let
+          zone1 = Zone 0 10
+          zone2 = Zone 10 20
+          zone3 = Zone 20 30
+          -- This Segment should split first and third var
+          seg = Segment 65 (Zone 9 21)
+          con1 = Constraint [1, 1, 1] 100
+          con2 = Constraint [1, 1, 0] 40
+          con3 = Constraint [0, 1, 1] 50
+          model = Model [] [zone1, zone2, zone3] [con1, con2, con3]
+      in
+          assertEqual
+          [ Constraint [1, 1, 1, 1, 1] 100
+          , Constraint [1, 1, 1, 0, 0] 40
+          , Constraint [0, 0, 1, 1, 1] 50
+          ]
+          (addSegment seg model |> .constraints)
+
+    , test "Adding segment that substitutes no vars should be okay" <|
+      let
+          zone1 = Zone 0 10
+          zone2 = Zone 10 20
+          zone3 = Zone 20 30
+          -- This Segment should split no vars
+          seg = Segment 75 (Zone 10 30)
+          con1 = Constraint [1, 1, 1] 100
+          con2 = Constraint [1, 1, 0] 40
+          con3 = Constraint [0, 1, 1] 50
+          model = Model [] [zone1, zone2, zone3] [con1, con2, con3]
+      in
+          assertEqual
+          [con1, con2, con3]
+          (addSegment seg model |> .constraints)
 
     ]
