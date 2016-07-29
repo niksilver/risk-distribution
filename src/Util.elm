@@ -2,6 +2,7 @@ module Util exposing
     ( find, findPair
     , sliding
     , bracket, bracketMap
+    , spliceOne
     )
 
 
@@ -71,3 +72,16 @@ bracketMap' fn xs =
         head :: tail ->
             (fn head) :: xs
 
+-- Take a list, and splice in another, replacing one element at
+-- the given index
+
+spliceOne : Int -> List a -> List a -> List a
+spliceOne idx new orig =
+    let
+        before = List.take idx orig
+        after = List.drop (idx + 1) orig
+    in
+        if (0 <= idx && idx < List.length orig) then
+            List.concat [ before, new, after ]
+        else
+            orig

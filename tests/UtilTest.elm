@@ -14,6 +14,7 @@ all =
     , slidingTest
     , bracketTest
     , bracketMapTest
+    , spliceOneTest
     ]
 
 findTest : Test
@@ -79,7 +80,7 @@ findPairTest =
           assertEqual
           (Just (12, 10))
           (findPair twoApart [1, 5, 12, 9, 10, 20])
- 
+
     ]
 
 slidingTest : Test
@@ -209,3 +210,43 @@ bracketMapTest =
 
     ]
 
+spliceOneTest : Test
+spliceOneTest =
+    suite "spliceOneTest"
+
+    [ test "Splicing in at index 0 should be okay" <|
+      assertEqual
+      [66, 77, 88, 4, 3, 2, 1]
+      (spliceOne 0 [66, 77, 88] [5, 4, 3, 2, 1])
+
+    , test "Splicing in at last index should be okay" <|
+      assertEqual
+      [6, 5, 4, 99, 88]
+      (spliceOne 3 [99, 88] [6, 5, 4, 7])
+
+    , test "Splicing in at the middle should be okay" <|
+      assertEqual
+      [6, 5, 99, 88, 3]
+      (spliceOne 2 [99, 88] [6, 5, 4, 3])
+
+    , test "Splicing in nothing at the middle should just drop the element" <|
+      assertEqual
+      [6, 5, 3]
+      (spliceOne 2 [] [6, 5, 4, 3])
+
+    , test "Splicing at a negative index should leave list unchanged" <|
+      assertEqual
+      [6, 5, 4, 3]
+      (spliceOne -1 [99, 88] [6, 5, 4, 3])
+
+    , test "Splicing at an index too high should leave list unchanged" <|
+      assertEqual
+      [6, 5, 4, 3]
+      (spliceOne 4 [99, 88] [6, 5, 4, 3])
+
+    , test "Splicing into an empty list should yield original empty list" <|
+      assertEqual
+      []
+      (spliceOne 0 [99, 88] [])
+
+    ]
