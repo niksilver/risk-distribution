@@ -77,14 +77,14 @@ type alias Subst =
     , new : List Zone
     }
 
--- Take a zone and split it if a given value is inside it (otherwise leave it)
+-- Take a zone and split it if a given value is inside it
 
-splitOne : Float -> Zone -> List Zone
+splitOne : Float -> Zone -> Maybe (List Zone)
 splitOne x zone =
     if (isInside x zone) then
-        [ Zone zone.from x, Zone x zone.to ]
+        Just [ Zone zone.from x, Zone x zone.to ]
     else
-        [ zone ]
+        Nothing
 
 -- Find a split, if there is one, in a list of zones
 
@@ -99,9 +99,9 @@ split' idx x zones =
             Nothing
         zone :: tail ->
             case (splitOne x zone) of
-                [ _ ] ->
+                Nothing ->
                     split' (idx + 1) x tail
-                new ->
+                Just new ->
                     Just (Subst idx new)
 
 -- A constraint is something of the form
