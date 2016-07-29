@@ -245,7 +245,7 @@ addSegmentTestForNewSegment =
           [ segment ]
           (addSegment segment model |> .segments)
 
-    , test "Adding second segment should add it to the start of segment list" <|
+    , test "Adding second segment should add it to the end of segment list" <|
       let
           segNew = Segment 40 (Zone -inf 0)
           seg1 = Segment 50 (Zone -10 10)
@@ -253,7 +253,7 @@ addSegmentTestForNewSegment =
           model = Model [seg1, seg2] [] []
       in
           assertEqual
-          [ segNew, seg1, seg2 ]
+          [ seg1, seg2, segNew ]
           (addSegment segNew model |> .segments)
 
     ]

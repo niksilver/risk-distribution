@@ -186,7 +186,7 @@ addSegment seg model =
 addSegmentJustSegment : Segment -> Model -> Model
 addSegmentJustSegment seg model =
     { model
-    | segments = seg :: model.segments
+    | segments = List.concat [model.segments, [seg]]
     }
 
 addSegmentJustZoneEdge : Float -> Model -> Model
@@ -216,4 +216,3 @@ addSegmentJustMapConstraints subst cons =
             { constr | coeffs = subsOneCoeffs constr.coeffs }
     in
         List.map subsOne cons
-        
