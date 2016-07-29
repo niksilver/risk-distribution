@@ -4,6 +4,8 @@ module Constraints exposing
     , isInside
     , Subst, splitOne, split
     , Constraint, constraintToString
+    , Model
+    , addSegment
     )
 
 import Util
@@ -159,3 +161,40 @@ constraintToStringLHS coeffs =
         idxCoeffs
             |> List.map outputIdxCoeff
             |> String.concat
+
+-- A model represents:
+-- our segments (our judgements, or claims, over the distribution),
+-- the zones, and
+-- the constraints
+
+type alias Model =
+    { segments : List Segment
+    , zones : List Zone
+    , contraints : List Constraint
+    }
+
+-- Given a model, add a new segment, and adjust the zones and constraints
+-- accordingly
+
+addSegment : Segment -> Model -> Model
+addSegment seg model =
+    model
+        |> addSegmentJustSegment seg
+        |> addSegmentJustZoneEdge seg.zone.from
+        |> addSegmentJustZoneEdge seg.zone.to
+
+addSegmentJustSegment : Segment -> Model -> Model
+addSegmentJustSegment seg model =
+    { model
+    | segments = seg :: model.segments
+    }
+
+addSegmentJustZoneEdge : Float -> Model -> Model
+addSegmentJustZoneEdge x model =
+    case (split x model.zones) of
+        Nothing ->
+            model
+        Just subst ->
+            { model
+            | zones = Util.spliceOne subst.index subst.new model.zones
+            }

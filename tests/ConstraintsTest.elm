@@ -13,6 +13,9 @@ all =
     , splitOneTest
     , splitTest
     , constraintToStringTest
+    , addSegmentTestForNewSegment
+    , addSegmentTestForNewZone
+    --, addSegmentTestForNewVariables
     ]
 
 infinityTest : Test
@@ -226,5 +229,121 @@ constraintToStringTest =
 --     a + b + c = ..
       "        c = 4"
       (Constraint [0, 0, 1] 4 |> constraintToString)
+
+    ]
+
+addSegmentTestForNewSegment : Test
+addSegmentTestForNewSegment =
+    suite "addSegmentTestForNewSegment"
+
+    [ test "Adding first segment should add it okay" <|
+      let
+          segment = Segment 40 (Zone -inf 0)
+          model = Model [] [] []
+      in
+          assertEqual
+          [ segment ]
+          (addSegment segment model |> .segments)
+
+    , test "Adding second segment should add it to the start of segment list" <|
+      let
+          segNew = Segment 40 (Zone -inf 0)
+          seg1 = Segment 50 (Zone -10 10)
+          seg2 = Segment 100 (Zone -inf inf)
+          model = Model [seg1, seg2] [] []
+      in
+          assertEqual
+          [ segNew, seg1, seg2 ]
+          (addSegment segNew model |> .segments)
+
+    ]
+
+addSegmentTestForNewZone : Test
+addSegmentTestForNewZone =
+    suite "addSegmentTestForNewZone"
+
+    [ test "Adding segment that splits one zone with its 'from' should work" <|
+      let
+          zone1 = Zone 0 10
+          zone2 = Zone 10 20
+          zone3 = Zone 20 30
+          seg = Segment 40 (Zone 25 30)
+          model = Model [] [zone1, zone2, zone3] []
+      in
+          assertEqual
+          [zone1, zone2, Zone 20 25, Zone 25 30]
+          (addSegment seg model |> .zones)
+
+    , test "Adding segment that splits one zone with its 'to' should work" <|
+      let
+          zone1 = Zone 0 10
+          zone2 = Zone 10 20
+          zone3 = Zone 20 30
+          seg = Segment 40 (Zone 10 15)
+          model = Model [] [zone1, zone2, zone3] []
+      in
+          assertEqual
+          [zone1, Zone 10 15, Zone 15 20, zone3]
+          (addSegment seg model |> .zones)
+
+    , test "Adding segment that splits one zone into three should work" <|
+      let
+          zone1 = Zone 0 10
+          zone2 = Zone 10 20
+          zone3 = Zone 20 30
+          seg = Segment 40 (Zone 5 6)
+          model = Model [] [zone1, zone2, zone3] []
+      in
+          assertEqual
+          [Zone 0 5, Zone 5 6, Zone 6 10, zone2, zone3]
+          (addSegment seg model |> .zones)
+
+    , test "Adding segment that splits two neighbouring zones should work" <|
+      let
+          zone1 = Zone 0 10
+          zone2 = Zone 10 20
+          zone3 = Zone 20 30
+          seg = Segment 50 (Zone 15 25)
+          model = Model [] [zone1, zone2, zone3] []
+      in
+          assertEqual
+          [zone1, Zone 10 15, Zone 15 20, Zone 20 25, Zone 25 30]
+          (addSegment seg model |> .zones)
+
+    , test "Adding segment that splits two distant zones should work" <|
+      let
+          zone1 = Zone 0 10
+          zone2 = Zone 10 20
+          zone3 = Zone 20 30
+          seg = Segment 65 (Zone 9 21)
+          model = Model [] [zone1, zone2, zone3] []
+      in
+          assertEqual
+          [Zone 0 9, Zone 9 10, zone2, Zone 20 21, Zone 21 30]
+          (addSegment seg model |> .zones)
+
+    , test "Adding segment that is outsize zones should not change zones" <|
+      let
+          zone1 = Zone 0 10
+          zone2 = Zone 10 20
+          zone3 = Zone 20 30
+          seg = Segment 40 (Zone 30 40)
+          model = Model [] [zone1, zone2, zone3] []
+      in
+          assertEqual
+          [zone1, zone2, zone3]
+          (addSegment seg model |> .zones)
+
+    , test "Adding segment splits no zones should not change zones" <|
+      let
+          zone1 = Zone 0 10
+          zone2 = Zone 10 20
+          zone3 = Zone 20 30
+          seg = Segment 40 (Zone 10 30)
+          model = Model [] [zone1, zone2, zone3] []
+      in
+          assertEqual
+          [zone1, zone2, zone3]
+          (addSegment seg model |> .zones)
 
     ]
