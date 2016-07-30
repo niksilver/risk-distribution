@@ -16,6 +16,7 @@ all =
     , overlayOnceTestForAdd
     , overlayOnceTestForSubst
     , overlayOnceTestForNoChange
+    , overlayOnceTestForRemainderWithAdd
     , constraintToStringTest
     , addSegmentTestForNewSegment
     , addSegmentTestForNewZone
@@ -263,6 +264,11 @@ overlayOnceTestForAdd =
       (AddChange (Add 2 (Zone 15 20)))
       (overlayOnce (Zone 15 20) [Zone 5 10, Zone 10 15, Zone 20 25] |> fst)
 
+    , test "Overlaying zone in a gap and extending beyond should add it" <|
+      assertEqual
+      (AddChange (Add 2 (Zone 16 20)))
+      (overlayOnce (Zone 16 21) [Zone 5 10, Zone 10 15, Zone 20 25] |> fst)
+
     , test "Overlaying zone just after all others should add it" <|
       assertEqual
       (AddChange (Add 3 (Zone 25 30)))
@@ -272,6 +278,62 @@ overlayOnceTestForAdd =
       assertEqual
       (AddChange (Add 3 (Zone 27 30)))
       (overlayOnce (Zone 27 30) [Zone 5 10, Zone 10 15, Zone 20 25] |> fst)
+
+    ]
+
+overlayOnceTestForRemainderWithAdd : Test
+overlayOnceTestForRemainderWithAdd =
+    suite "overlayOnceTestForRemainderWithAdd"
+
+    [ test "Overlaying zone well before all others should yield no remainder" <|
+      assertEqual
+      (Nothing)
+      (overlayOnce (Zone 0 2) [Zone 5 10, Zone 10 15] |> snd)
+
+    , test "Overlaying zone just before all others should yield no remainder" <|
+      assertEqual
+      (Nothing)
+      (overlayOnce (Zone 0 5) [Zone 5 10, Zone 10 15] |> snd)
+
+    , test "Overlaying zone starting before all others but continuing should yield correct remainder" <|
+      assertEqual
+      (Just (Zone 5 6))
+      (overlayOnce (Zone 0 6) [Zone 5 10, Zone 10 15] |> snd)
+
+    , test "Overlaying zone on the left of a gap should yield no remainder" <|
+      assertEqual
+      (Nothing)
+      (overlayOnce (Zone 15 16) [Zone 5 10, Zone 10 15, Zone 20 25] |> snd)
+
+    , test "Overlaying zone in the middle of a gap should yield no remainder" <|
+      assertEqual
+      (Nothing)
+      (overlayOnce (Zone 16 19) [Zone 5 10, Zone 10 15, Zone 20 25] |> snd)
+
+    , test "Overlaying zone on the right of a gap should yield no remainder" <|
+      assertEqual
+      (Nothing)
+      (overlayOnce (Zone 19 20) [Zone 5 10, Zone 10 15, Zone 20 25] |> snd)
+
+    , test "Overlaying zone exactly covering a gap should yield no remainder" <|
+      assertEqual
+      (Nothing)
+      (overlayOnce (Zone 15 20) [Zone 5 10, Zone 10 15, Zone 20 25] |> snd)
+
+    , test "Overlaying zone in a gap and extending beyond should yield correct remainder" <|
+      assertEqual
+      (Just (Zone 20 21))
+      (overlayOnce (Zone 16 21) [Zone 5 10, Zone 10 15, Zone 20 25] |> snd)
+
+    , test "Overlaying zone just after all others should yield no remainder" <|
+      assertEqual
+      (Nothing)
+      (overlayOnce (Zone 25 30) [Zone 5 10, Zone 10 15, Zone 20 25] |> snd)
+
+    , test "Overlaying zone some time after all others should yield no remainder" <|
+      assertEqual
+      (Nothing)
+      (overlayOnce (Zone 27 30) [Zone 5 10, Zone 10 15, Zone 20 25] |> snd)
 
     ]
 

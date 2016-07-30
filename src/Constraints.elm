@@ -178,8 +178,13 @@ overlayOnceBefore zone next zones =
         idx = Util.indexOf next zones |> Maybe.withDefault 0
         to' = min zone.to next.from
         zone' = Zone zone.from to'
+        remainder =
+            if (to' == zone.to) then
+                Nothing
+            else
+                Just (Zone to' zone.to)
     in
-        (AddChange (Add idx zone'), Nothing)
+        (AddChange (Add idx zone'), remainder)
 
 overlayOnceInside : Zone -> Zone -> List Zone -> (Change, Maybe Zone)
 overlayOnceInside zone curr zones =
