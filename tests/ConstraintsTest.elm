@@ -17,6 +17,7 @@ all =
     , overlayOnceTestForSubst
     , overlayOnceTestForNoChange
     , overlayOnceTestForRemainderWithAdd
+    , overlayOnceTestForRemainderWithSubst
     , constraintToStringTest
     , addSegmentTestForNewSegment
     , addSegmentTestForNewZone
@@ -281,6 +282,38 @@ overlayOnceTestForAdd =
 
     ]
 
+overlayOnceTestForSubst : Test
+overlayOnceTestForSubst =
+    suite "overlayOnceTestForSubst"
+
+    [ test "Overlaying zone which extends into another should be correct" <|
+      assertEqual
+      (SubstChange (Subst 1 [Zone 10 12, Zone 12 15]))
+      (overlayOnce (Zone 12 20) [Zone 0 10, Zone 10 15, Zone 15 20] |> fst)
+
+    , test "Overlaying zone which is the right part of another should be correct" <|
+      assertEqual
+      (SubstChange (Subst 2 [Zone 10 13, Zone 13 15]))
+      (overlayOnce (Zone 13 15) [Zone 0 5, Zone 5 10, Zone 10 15] |> fst)
+
+    , test "Overlaying zone which is in the middle of another should be correct" <|
+      assertEqual
+      (SubstChange (Subst 2 [Zone 10 11, Zone 11 15]))
+      (overlayOnce (Zone 11 12) [Zone 0 5, Zone 5 10, Zone 10 15] |> fst)
+
+    ]
+
+overlayOnceTestForNoChange : Test
+overlayOnceTestForNoChange =
+    suite "overlayOnceTestForNoChange"
+
+    [ test "Overlaying zone which is the left part of another should yield no change" <|
+      assertEqual
+      (NoChange)
+      (overlayOnce (Zone 0 2) [Zone 0 5, Zone 5 10, Zone 10 15] |> fst)
+
+    ]
+
 overlayOnceTestForRemainderWithAdd : Test
 overlayOnceTestForRemainderWithAdd =
     suite "overlayOnceTestForRemainderWithAdd"
@@ -337,35 +370,24 @@ overlayOnceTestForRemainderWithAdd =
 
     ]
 
-overlayOnceTestForSubst : Test
-overlayOnceTestForSubst =
-    suite "overlayOnceTestForSubst"
+overlayOnceTestForRemainderWithSubst : Test
+overlayOnceTestForRemainderWithSubst =
+    suite "overlayOnceTestForRemainderWithSubst"
 
-    [ test "Overlaying zone which extends into another should be correct" <|
+    [ test "Overlaying zone which extends into another should yield correct remainder" <|
       assertEqual
-      (SubstChange (Subst 1 [Zone 10 12, Zone 12 15]))
-      (overlayOnce (Zone 12 20) [Zone 0 10, Zone 10 15, Zone 15 20] |> fst)
+      (Just (Zone 15 20))
+      (overlayOnce (Zone 12 20) [Zone 0 10, Zone 10 15, Zone 15 20] |> snd)
 
-    , test "Overlaying zone which is the right part of another should be correct" <|
+    , test "Overlaying zone which is the right part of another should yield no remainder" <|
       assertEqual
-      (SubstChange (Subst 2 [Zone 10 13, Zone 13 15]))
-      (overlayOnce (Zone 13 15) [Zone 0 5, Zone 5 10, Zone 10 15] |> fst)
+      (Nothing)
+      (overlayOnce (Zone 13 15) [Zone 0 5, Zone 5 10, Zone 10 15] |> snd)
 
-    , test "Overlaying zone which is in the middle of another should be correct" <|
+    , test "Overlaying zone which is in the middle of another should yield no remainder" <|
       assertEqual
-      (SubstChange (Subst 2 [Zone 10 11, Zone 11 15]))
-      (overlayOnce (Zone 11 12) [Zone 0 5, Zone 5 10, Zone 10 15] |> fst)
-
-    ]
-
-overlayOnceTestForNoChange : Test
-overlayOnceTestForNoChange =
-    suite "overlayOnceTestForNoChange"
-
-    [ test "Overlaying zone which is the left part of another should yield no change" <|
-      assertEqual
-      (NoChange)
-      (overlayOnce (Zone 0 2) [Zone 0 5, Zone 5 10, Zone 10 15] |> fst)
+      (Nothing)
+      (overlayOnce (Zone 11 12) [Zone 0 5, Zone 5 10, Zone 10 15] |> snd)
 
     ]
 

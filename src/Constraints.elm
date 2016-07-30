@@ -192,8 +192,13 @@ overlayOnceInside zone curr zones =
         idx = Util.indexOf curr zones |> Maybe.withDefault 0
         zone1 = Zone curr.from zone.from
         zone2 = Zone zone.from curr.to
+        remainder =
+            if (curr.to >= zone.to) then
+                Nothing
+            else
+                Just (Zone curr.to zone.to)
     in
-        (SubstChange (Subst idx [zone1, zone2]), Nothing)
+        (SubstChange (Subst idx [zone1, zone2]), remainder)
 
 overlayOnceOnEdgeOf : Zone -> Zone -> List Zone -> (Change, Maybe Zone)
 overlayOnceOnEdgeOf zone next zones =
