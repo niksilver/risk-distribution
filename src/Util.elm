@@ -3,7 +3,7 @@ module Util exposing
     , sliding
     , bracket, bracketMap
     , spliceOne
-    , nth
+    , nth, indexOf
     )
 
 
@@ -97,4 +97,20 @@ nth i xs =
         case List.tail xs of
             Nothing -> Nothing
             Just tail -> nth (i-1) tail
-    
+
+-- Find where an element is in a list
+
+indexOf : a -> List a -> Maybe Int
+indexOf x xs =
+    indexOf' x xs 0
+
+indexOf' : a -> List a -> Int -> Maybe Int
+indexOf' x xs idx =
+    case xs of
+        [] ->
+            Nothing
+        head :: tail ->
+            if (x == head) then
+                Just idx
+            else
+                indexOf' x tail (idx + 1)

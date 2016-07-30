@@ -10,8 +10,10 @@ all =
     [ infinityTest
     , baseZoneTest
     , isInsideTest
+    , relativeToTest
     , splitOneTest
     , splitTest
+    , overlayOnceTestForAdd
     , constraintToStringTest
     , addSegmentTestForNewSegment
     , addSegmentTestForNewZone
@@ -84,6 +86,52 @@ isInsideTest =
       assertEqual
       False
       (Zone -1.5 2.5 |> isInside 2.5)
+
+    ]
+
+relativeToTest : Test
+relativeToTest =
+    suite "relativeToTest"
+
+    [ test "Any point relative to nothing is NoRelation" <|
+      assertEqual
+      NoRelation
+      (relativeTo 0 [])
+
+    , test "A point before all others is Before first" <|
+      assertEqual
+      (Before (Zone 10 11))
+      (relativeTo 2 [Zone 10 11, Zone 11 12])
+
+    , test "A point on the edge the start of one is OnEdgeOf it" <|
+      assertEqual
+      (OnEdgeOf (Zone 11 12))
+      (relativeTo 11 [Zone 10 11, Zone 11 12])
+
+    , test "A point inside one is Inside it" <|
+      assertEqual
+      (Inside (Zone 11 12))
+      (relativeTo 11.5 [Zone 10 11, Zone 11 12])
+
+    , test "A point on the LHS of a gap is before the next one" <|
+      assertEqual
+      (Before (Zone 12 13))
+      (relativeTo 11 [Zone 10 11, Zone 12 13])
+
+    , test "A point in the middle of a gap is before the next one" <|
+      assertEqual
+      (Before (Zone 12 13))
+      (relativeTo 11.5 [Zone 10 11, Zone 12 13])
+
+    , test "A point on the RHS of the last zone has NoRelation" <|
+      assertEqual
+      (NoRelation)
+      (relativeTo 13 [Zone 10 11, Zone 12 13])
+
+    , test "A point after of the last zone has NoRelation" <|
+      assertEqual
+      (NoRelation)
+      (relativeTo 14 [Zone 10 11, Zone 12 13])
 
     ]
 
@@ -171,6 +219,57 @@ splitTest =
       assertEqual
       ([Zone -20 -10, Zone -10 10, Zone 10 20] |> split 10)
       (Nothing)
+
+    ]
+
+overlayOnceTestForAdd : Test
+overlayOnceTestForAdd =
+    suite "overlayOnceTestForAdd"
+
+    [ test "Overlaying zone well before all others should add it" <|
+      assertEqual
+      (AddChange (Add 0 (Zone 0 2)))
+      (overlayOnce (Zone 0 2) [Zone 5 10, Zone 10 15] |> fst)
+
+    , test "Overlaying zone just before all others should add it" <|
+      assertEqual
+      (AddChange (Add 0 (Zone 0 5)))
+      (overlayOnce (Zone 0 5) [Zone 5 10, Zone 10 15] |> fst)
+
+    , test "Overlaying zone just before all others but continuing should add the first part of it" <|
+      assertEqual
+      (AddChange (Add 0 (Zone 0 5)))
+      (overlayOnce (Zone 0 6) [Zone 5 10, Zone 10 15] |> fst)
+
+    , test "Overlaying zone on the left of a gap should add it" <|
+      assertEqual
+      (AddChange (Add 2 (Zone 15 16)))
+      (overlayOnce (Zone 15 16) [Zone 5 10, Zone 10 15, Zone 20 25] |> fst)
+
+    , test "Overlaying zone in the middle of a gap should add it" <|
+      assertEqual
+      (AddChange (Add 2 (Zone 16 19)))
+      (overlayOnce (Zone 16 19) [Zone 5 10, Zone 10 15, Zone 20 25] |> fst)
+
+    , test "Overlaying zone on the right of a gap should add it" <|
+      assertEqual
+      (AddChange (Add 2 (Zone 19 20)))
+      (overlayOnce (Zone 19 20) [Zone 5 10, Zone 10 15, Zone 20 25] |> fst)
+
+    , test "Overlaying zone exactly covering a gap should add it" <|
+      assertEqual
+      (AddChange (Add 2 (Zone 15 20)))
+      (overlayOnce (Zone 15 20) [Zone 5 10, Zone 10 15, Zone 20 25] |> fst)
+
+    , test "Overlaying zone just after all others should add it" <|
+      assertEqual
+      (AddChange (Add 3 (Zone 25 30)))
+      (overlayOnce (Zone 25 30) [Zone 5 10, Zone 10 15, Zone 20 25] |> fst)
+
+    , test "Overlaying zone some time after all others should add it" <|
+      assertEqual
+      (AddChange (Add 3 (Zone 27 30)))
+      (overlayOnce (Zone 27 30) [Zone 5 10, Zone 10 15, Zone 20 25] |> fst)
 
     ]
 

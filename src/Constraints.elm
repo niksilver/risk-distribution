@@ -1,8 +1,11 @@
 module Constraints exposing
     ( inf, Zone, baseZone
     , Segment
-    , isInside
-    , Subst, splitOne, split
+    , Relation (NoRelation, Before, OnEdgeOf, Inside), relativeTo, isInside
+    , Subst, Add
+    , Change (SubstChange, AddChange, NoChange)
+    , splitOne, split
+    , overlayOnce
     , Constraint, constraintToString
     , Model
     , addSegment
@@ -65,6 +68,30 @@ type alias Segment =
     , zone : Zone
     }
 
+-- How a point might relate to the next zone in a sequence
+-- We assume the zones are in order.
+
+type Relation
+    = NoRelation
+    | Before Zone
+    | OnEdgeOf Zone
+    | Inside Zone
+
+relativeTo : Float -> List Zone -> Relation
+relativeTo x zones =
+    case zones of
+        [] ->
+            NoRelation
+        head :: tail ->
+            if (x < head.from) then
+                Before head
+            else if (x == head.from) then
+                OnEdgeOf head
+            else if (x < head.to) then
+                Inside head
+            else
+                relativeTo x tail
+
 -- See if a value is strictly inside a zone
 
 isInside : Float -> Zone -> Bool
@@ -78,6 +105,22 @@ type alias Subst =
     { index : Int
     , new : List Zone
     }
+
+-- When we add a zone to a list of zones we want to know where it goes
+-- (its index) and what it is
+
+type alias Add =
+    { index : Int
+    , new : Zone
+    }
+
+-- Description of a change to a list of zones:
+-- We either want to add a zone or substitute a zone
+
+type Change
+    = SubstChange Subst
+    | AddChange Add
+    | NoChange
 
 -- Take a zone and split it if a given value is inside it
 
@@ -105,6 +148,36 @@ split' idx x zones =
                     split' (idx + 1) x tail
                 Just new ->
                     Just (Subst idx new)
+
+-- Overlay a new zone onto a series of others (which are assumed to be
+-- ordered). We return the next one zone change only,
+-- and possibly any zone left over.
+
+overlayOnce : Zone -> List Zone -> (Change, Maybe Zone)
+overlayOnce zone zones =
+    case (relativeTo zone.from zones) of
+        NoRelation ->
+            overlayOnceNoRelation zone zones
+        Before next ->
+            overlayOnceBefore zone next zones
+        _ ->
+            (NoChange, Nothing)
+
+overlayOnceNoRelation : Zone -> List Zone -> (Change, Maybe Zone)
+overlayOnceNoRelation zone zones =
+    let
+        idx = List.length zones
+    in
+        (AddChange (Add idx zone), Nothing)
+
+overlayOnceBefore : Zone -> Zone -> List Zone -> (Change, Maybe Zone)
+overlayOnceBefore zone next zones =
+    let
+        idx = Util.indexOf next zones |> Maybe.withDefault 0
+        to' = min zone.to next.from
+        zone' = Zone zone.from to'
+    in
+        (AddChange (Add idx zone'), Nothing)
 
 -- A constraint is something of the form
 -- a + c + d = 40

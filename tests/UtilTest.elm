@@ -16,6 +16,7 @@ all =
     , bracketMapTest
     , spliceOneTest
     , nthTest
+    , indexOfTest
     ]
 
 findTest : Test
@@ -280,5 +281,31 @@ nthTest =
       assertEqual
       (Nothing)
       (nth -1 [44, 55, 66])
+
+    ]
+
+indexOfTest : Test
+indexOfTest =
+    suite "indexOfTest"
+
+    [ test "First element should be found" <|
+      assertEqual
+      (Just 0)
+      (indexOf 'a' ['a', 'b', 'c'])
+
+    , test "Second element should be found" <|
+      assertEqual
+      (Just 1)
+      (indexOf 'b' ['a', 'b', 'c'])
+
+    , test "Third element should be found" <|
+      assertEqual
+      (Just 2)
+      (indexOf 'c' ['a', 'b', 'c'])
+
+    , test "Unknown element should not be found" <|
+      assertEqual
+      (Nothing)
+      (indexOf 'x' ['a', 'b', 'c'])
 
     ]
