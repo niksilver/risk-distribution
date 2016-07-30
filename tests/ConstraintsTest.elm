@@ -14,6 +14,8 @@ all =
     , splitOneTest
     , splitTest
     , overlayOnceTestForAdd
+    , overlayOnceTestForSubst
+    , overlayOnceTestForNoChange
     , constraintToStringTest
     , addSegmentTestForNewSegment
     , addSegmentTestForNewZone
@@ -236,7 +238,7 @@ overlayOnceTestForAdd =
       (AddChange (Add 0 (Zone 0 5)))
       (overlayOnce (Zone 0 5) [Zone 5 10, Zone 10 15] |> fst)
 
-    , test "Overlaying zone just before all others but continuing should add the first part of it" <|
+    , test "Overlaying zone starting before all others but continuing should add the first part of it" <|
       assertEqual
       (AddChange (Add 0 (Zone 0 5)))
       (overlayOnce (Zone 0 6) [Zone 5 10, Zone 10 15] |> fst)
@@ -270,6 +272,38 @@ overlayOnceTestForAdd =
       assertEqual
       (AddChange (Add 3 (Zone 27 30)))
       (overlayOnce (Zone 27 30) [Zone 5 10, Zone 10 15, Zone 20 25] |> fst)
+
+    ]
+
+overlayOnceTestForSubst : Test
+overlayOnceTestForSubst =
+    suite "overlayOnceTestForSubst"
+
+    [ test "Overlaying zone which extends into another should be correct" <|
+      assertEqual
+      (SubstChange (Subst 1 [Zone 10 12, Zone 12 15]))
+      (overlayOnce (Zone 12 20) [Zone 0 10, Zone 10 15, Zone 15 20] |> fst)
+
+    , test "Overlaying zone which is the right part of another should be correct" <|
+      assertEqual
+      (SubstChange (Subst 2 [Zone 10 13, Zone 13 15]))
+      (overlayOnce (Zone 13 15) [Zone 0 5, Zone 5 10, Zone 10 15] |> fst)
+
+    , test "Overlaying zone which is in the middle of another should be correct" <|
+      assertEqual
+      (SubstChange (Subst 2 [Zone 10 11, Zone 11 15]))
+      (overlayOnce (Zone 11 12) [Zone 0 5, Zone 5 10, Zone 10 15] |> fst)
+
+    ]
+
+overlayOnceTestForNoChange : Test
+overlayOnceTestForNoChange =
+    suite "overlayOnceTestForNoChange"
+
+    [ test "Overlaying zone which is the left part of another should yield no change" <|
+      assertEqual
+      (NoChange)
+      (overlayOnce (Zone 0 2) [Zone 0 5, Zone 5 10, Zone 10 15] |> fst)
 
     ]
 

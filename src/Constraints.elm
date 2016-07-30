@@ -160,6 +160,8 @@ overlayOnce zone zones =
             overlayOnceNoRelation zone zones
         Before next ->
             overlayOnceBefore zone next zones
+        Inside curr ->
+            overlayOnceInside zone curr zones
         _ ->
             (NoChange, Nothing)
 
@@ -178,6 +180,15 @@ overlayOnceBefore zone next zones =
         zone' = Zone zone.from to'
     in
         (AddChange (Add idx zone'), Nothing)
+
+overlayOnceInside : Zone -> Zone -> List Zone -> (Change, Maybe Zone)
+overlayOnceInside zone curr zones =
+    let
+        idx = Util.indexOf curr zones |> Maybe.withDefault 0
+        zone1 = Zone curr.from zone.from
+        zone2 = Zone zone.from curr.to
+    in
+        (SubstChange (Subst idx [zone1, zone2]), Nothing)
 
 -- A constraint is something of the form
 -- a + c + d = 40
