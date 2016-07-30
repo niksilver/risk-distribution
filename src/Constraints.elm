@@ -162,8 +162,8 @@ overlayOnce zone zones =
             overlayOnceBefore zone next zones
         Inside curr ->
             overlayOnceInside zone curr zones
-        _ ->
-            (NoChange, Nothing)
+        OnEdgeOf next ->
+            overlayOnceOnEdgeOf zone next zones
 
 overlayOnceNoRelation : Zone -> List Zone -> (Change, Maybe Zone)
 overlayOnceNoRelation zone zones =
@@ -189,6 +189,10 @@ overlayOnceInside zone curr zones =
         zone2 = Zone zone.from curr.to
     in
         (SubstChange (Subst idx [zone1, zone2]), Nothing)
+
+overlayOnceOnEdgeOf : Zone -> Zone -> List Zone -> (Change, Maybe Zone)
+overlayOnceOnEdgeOf zone next zones =
+        (NoChange, Nothing)
 
 -- A constraint is something of the form
 -- a + c + d = 40
