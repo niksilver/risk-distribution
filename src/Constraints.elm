@@ -202,7 +202,14 @@ overlayOnceInside zone curr zones =
 
 overlayOnceOnEdgeOf : Zone -> Zone -> List Zone -> (Change, Maybe Zone)
 overlayOnceOnEdgeOf zone next zones =
-        (NoChange, Nothing)
+    let
+        remainder =
+            if (zone.to <= next.to) then
+                Nothing
+            else
+                Just (Zone next.to zone.to)
+    in
+        (NoChange, remainder)
 
 -- A constraint is something of the form
 -- a + c + d = 40

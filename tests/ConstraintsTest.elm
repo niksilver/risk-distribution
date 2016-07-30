@@ -18,6 +18,7 @@ all =
     , overlayOnceTestForNoChange
     , overlayOnceTestForRemainderWithAdd
     , overlayOnceTestForRemainderWithSubst
+    , overlayOnceTestForRemainderWithNoChange
     , constraintToStringTest
     , addSegmentTestForNewSegment
     , addSegmentTestForNewZone
@@ -312,6 +313,16 @@ overlayOnceTestForNoChange =
       (NoChange)
       (overlayOnce (Zone 0 2) [Zone 0 5, Zone 5 10, Zone 10 15] |> fst)
 
+    , test "Overlaying zone which covers another should yield no change" <|
+      assertEqual
+      (NoChange)
+      (overlayOnce (Zone 0 5) [Zone 0 5, Zone 5 10, Zone 10 15] |> fst)
+
+    , test "Overlaying zone which goes from the left of another and extends should yield no change" <|
+      assertEqual
+      (NoChange)
+      (overlayOnce (Zone 0 6) [Zone 0 5, Zone 5 10, Zone 10 15] |> fst)
+
     ]
 
 overlayOnceTestForRemainderWithAdd : Test
@@ -388,6 +399,27 @@ overlayOnceTestForRemainderWithSubst =
       assertEqual
       (Nothing)
       (overlayOnce (Zone 11 12) [Zone 0 5, Zone 5 10, Zone 10 15] |> snd)
+
+    ]
+
+overlayOnceTestForRemainderWithNoChange : Test
+overlayOnceTestForRemainderWithNoChange =
+    suite "overlayOnceTestForRemainderWithNoChange"
+
+    [ test "Overlaying zone which is the left part of another should yield no remainder" <|
+      assertEqual
+      (Nothing)
+      (overlayOnce (Zone 0 2) [Zone 0 5, Zone 5 10, Zone 10 15] |> snd)
+
+    , test "Overlaying zone which covers another should yield no remainder" <|
+      assertEqual
+      (Nothing)
+      (overlayOnce (Zone 0 5) [Zone 0 5, Zone 5 10, Zone 10 15] |> snd)
+
+    , test "Overlaying zone which goes from the left of another and extends should yield correct remainder" <|
+      assertEqual
+      (Just (Zone 5 6))
+      (overlayOnce (Zone 0 6) [Zone 0 5, Zone 5 10, Zone 10 15] |> snd)
 
     ]
 
