@@ -19,6 +19,7 @@ all =
     , overlayOnceTestForRemainderWithAdd
     , overlayOnceTestForRemainderWithSubst
     , overlayOnceTestForRemainderWithNoChange
+    --, overlayTest
     , constraintToStringTest
     , addSegmentTestForNewSegment
     , addSegmentTestForNewZone
@@ -437,6 +438,22 @@ overlayOnceTestForRemainderWithNoChange =
       (overlayOnce (Zone 0 6) [Zone 0 5, Zone 5 10, Zone 10 15] |> snd)
 
     ]
+
+-- overlayTest : Test
+-- overlayTest =
+--     suite "overlayTest"
+--
+--     [ test "Overlaying to the left of some zones should add it" <|
+--       assertEqual
+--       [AddChange (Add 0 (Zone -10 -5))]
+--       (overlay (Zone -10 -5) [Zone 0 1, Zone 1 2, Zone 2 3])
+--
+--     , test "Overlaying right across some gappy zones should add several" <|
+--       assertEqual
+--       [AddChange (Add 0 (Zone -10 0)), AddChange (Add 2 (Zone 1 4)), AddChange (Add 4 (Zone 5 10))]
+--       (overlay (Zone -10 10) [Zone 0 1, Zone 4 5])
+--
+--     ]
 
 constraintToStringTest : Test
 constraintToStringTest =

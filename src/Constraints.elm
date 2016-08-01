@@ -5,7 +5,7 @@ module Constraints exposing
     , Subst, Add
     , Change (SubstChange, AddChange, NoChange)
     , splitOne, split
-    , overlayOnce
+    , overlayOnce, overlay
     , Constraint, constraintToString
     , Model
     , addSegment
@@ -210,6 +210,17 @@ overlayOnceOnEdgeOf zone next zones =
                 Just (Zone next.to zone.to)
     in
         (NoChange, remainder)
+
+-- Overlay a zone onto a list of other zones, and return what
+-- changes need to be made to the original zones.
+-- Assumes the other zones are in order.
+-- Note that the returned changes have to be used together,
+-- because adding one zone or substituting one zone for two
+-- others will changes the indexes required of later ones.
+
+overlay : Zone -> List Zone -> List Change
+overlay zone zones =
+    []
 
 -- A constraint is something of the form
 -- a + c + d = 40
