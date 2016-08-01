@@ -297,10 +297,15 @@ overlayOnceTestForSubst : Test
 overlayOnceTestForSubst =
     suite "overlayOnceTestForSubst"
 
-    [ test "Overlaying zone which extends into another should be correct" <|
+    [ test "Overlaying zone which extends to the end of another should be correct" <|
       assertEqual
       (SubstChange (Subst 1 [Zone 10 12, Zone 12 15]))
       (overlayOnce (Zone 12 20) [Zone 0 10, Zone 10 15, Zone 15 20] |> fst)
+
+    , test "Overlaying zone which extends to the middle of another should be correct" <|
+      assertEqual
+      (SubstChange (Subst 1 [Zone 10 12, Zone 12 15]))
+      (overlayOnce (Zone 12 17) [Zone 0 10, Zone 10 15, Zone 15 20] |> fst)
 
     , test "Overlaying zone which is the right part of another should be correct" <|
       assertEqual
