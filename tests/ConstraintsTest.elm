@@ -205,10 +205,20 @@ splitTest =
       (Just (Subst 2 [Zone 10 13, Zone 13 inf]))
       ([Zone -inf -10, Zone -10 10, Zone 10 inf] |> split 13)
 
-    , test "Splitting outside our zones should yield Nothing" <|
+    , test "Splitting before our zones should yield Nothing" <|
+      assertEqual
+      (Nothing)
+      ([Zone -20 -10, Zone -10 10, Zone 10 20] |> split -25)
+
+    , test "Splitting after our zones should yield Nothing" <|
       assertEqual
       (Nothing)
       ([Zone -20 -10, Zone -10 10, Zone 10 20] |> split 25)
+
+    , test "Splitting in a middle gap should yield Nothing" <|
+      assertEqual
+      (Nothing)
+      ([Zone -20 -10, Zone -10 0, Zone 5 10, Zone 10 20] |> split 3)
 
     , test "Splitting on the lowest edge should yield Nothing" <|
       assertEqual
