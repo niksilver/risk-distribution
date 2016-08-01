@@ -183,58 +183,58 @@ splitTest =
 
     [ test "Splitting no zones should give no zones" <|
       assertEqual
-      (Nothing)
+      (NoChange)
       ([] |> split 10)
 
     , test "Splitting base zone should give two zones substituting" <|
       assertEqual
-      (Just (Subst 0 [Zone -inf 11, Zone 11 inf]))
+      (Subst 0 [Zone -inf 11, Zone 11 inf])
       ([baseZone] |> split 11)
 
     , test "Splitting a first zone should give two zones substituting" <|
       assertEqual
-      (Just(Subst 0 [Zone -inf -12, Zone -12 0]))
+      (Subst 0 [Zone -inf -12, Zone -12 0])
       ([Zone -inf 0, Zone 0 inf] |> split -12)
 
     , test "Splitting a second zone should give two zones substituting" <|
       assertEqual
-      (Just (Subst 1 [Zone -10 12, Zone 12 inf]))
+      (Subst 1 [Zone -10 12, Zone 12 inf])
       ([Zone -inf -10, Zone -10 inf] |> split 12)
 
     , test "Splitting a third zone should give two zones substituting" <|
       assertEqual
-      (Just (Subst 2 [Zone 10 13, Zone 13 inf]))
+      (Subst 2 [Zone 10 13, Zone 13 inf])
       ([Zone -inf -10, Zone -10 10, Zone 10 inf] |> split 13)
 
     , test "Splitting before our zones should yield Nothing" <|
       assertEqual
-      (Nothing)
+      (NoChange)
       ([Zone -20 -10, Zone -10 10, Zone 10 20] |> split -25)
 
     , test "Splitting after our zones should yield Nothing" <|
       assertEqual
-      (Nothing)
+      (NoChange)
       ([Zone -20 -10, Zone -10 10, Zone 10 20] |> split 25)
 
     , test "Splitting in a middle gap should yield Nothing" <|
       assertEqual
-      (Nothing)
+      (NoChange)
       ([Zone -20 -10, Zone -10 0, Zone 5 10, Zone 10 20] |> split 3)
 
     , test "Splitting on the lowest edge should yield Nothing" <|
       assertEqual
-      (Nothing)
+      (NoChange)
       ([Zone -20 -10, Zone -10 10, Zone 10 20] |> split -20)
 
     , test "Splitting on the highest edge should yield Nothing" <|
       assertEqual
-      (Nothing)
+      (NoChange)
       ([Zone -20 -10, Zone -10 10, Zone 10 20] |> split 20)
 
     , test "Splitting on a middle edge should yield Nothing" <|
       assertEqual
       ([Zone -20 -10, Zone -10 10, Zone 10 20] |> split 10)
-      (Nothing)
+      (NoChange)
 
     ]
 
@@ -244,52 +244,52 @@ overlayOnceTestForAdd =
 
     [ test "Overlaying zone well before all others should add it" <|
       assertEqual
-      (AddChange (Add 0 (Zone 0 2)))
+      (Add 0 (Zone 0 2))
       (overlayOnce (Zone 0 2) [Zone 5 10, Zone 10 15] |> fst)
 
     , test "Overlaying zone just before all others should add it" <|
       assertEqual
-      (AddChange (Add 0 (Zone 0 5)))
+      (Add 0 (Zone 0 5))
       (overlayOnce (Zone 0 5) [Zone 5 10, Zone 10 15] |> fst)
 
     , test "Overlaying zone starting before all others but continuing should add the first part of it" <|
       assertEqual
-      (AddChange (Add 0 (Zone 0 5)))
+      (Add 0 (Zone 0 5))
       (overlayOnce (Zone 0 6) [Zone 5 10, Zone 10 15] |> fst)
 
     , test "Overlaying zone on the left of a gap should add it" <|
       assertEqual
-      (AddChange (Add 2 (Zone 15 16)))
+      (Add 2 (Zone 15 16))
       (overlayOnce (Zone 15 16) [Zone 5 10, Zone 10 15, Zone 20 25] |> fst)
 
     , test "Overlaying zone in the middle of a gap should add it" <|
       assertEqual
-      (AddChange (Add 2 (Zone 16 19)))
+      (Add 2 (Zone 16 19))
       (overlayOnce (Zone 16 19) [Zone 5 10, Zone 10 15, Zone 20 25] |> fst)
 
     , test "Overlaying zone on the right of a gap should add it" <|
       assertEqual
-      (AddChange (Add 2 (Zone 19 20)))
+      (Add 2 (Zone 19 20))
       (overlayOnce (Zone 19 20) [Zone 5 10, Zone 10 15, Zone 20 25] |> fst)
 
     , test "Overlaying zone exactly covering a gap should add it" <|
       assertEqual
-      (AddChange (Add 2 (Zone 15 20)))
+      (Add 2 (Zone 15 20))
       (overlayOnce (Zone 15 20) [Zone 5 10, Zone 10 15, Zone 20 25] |> fst)
 
     , test "Overlaying zone in a gap and extending beyond should add it" <|
       assertEqual
-      (AddChange (Add 2 (Zone 16 20)))
+      (Add 2 (Zone 16 20))
       (overlayOnce (Zone 16 21) [Zone 5 10, Zone 10 15, Zone 20 25] |> fst)
 
     , test "Overlaying zone just after all others should add it" <|
       assertEqual
-      (AddChange (Add 3 (Zone 25 30)))
+      (Add 3 (Zone 25 30))
       (overlayOnce (Zone 25 30) [Zone 5 10, Zone 10 15, Zone 20 25] |> fst)
 
     , test "Overlaying zone some time after all others should add it" <|
       assertEqual
-      (AddChange (Add 3 (Zone 27 30)))
+      (Add 3 (Zone 27 30))
       (overlayOnce (Zone 27 30) [Zone 5 10, Zone 10 15, Zone 20 25] |> fst)
 
     ]
@@ -300,22 +300,22 @@ overlayOnceTestForSubst =
 
     [ test "Overlaying zone which extends to the end of another should be correct" <|
       assertEqual
-      (SubstChange (Subst 1 [Zone 10 12, Zone 12 15]))
+      (Subst 1 [Zone 10 12, Zone 12 15])
       (overlayOnce (Zone 12 20) [Zone 0 10, Zone 10 15, Zone 15 20] |> fst)
 
     , test "Overlaying zone which extends to the middle of another should be correct" <|
       assertEqual
-      (SubstChange (Subst 1 [Zone 10 12, Zone 12 15]))
+      (Subst 1 [Zone 10 12, Zone 12 15])
       (overlayOnce (Zone 12 17) [Zone 0 10, Zone 10 15, Zone 15 20] |> fst)
 
     , test "Overlaying zone which is the right part of another should be correct" <|
       assertEqual
-      (SubstChange (Subst 2 [Zone 10 13, Zone 13 15]))
+      (Subst 2 [Zone 10 13, Zone 13 15])
       (overlayOnce (Zone 13 15) [Zone 0 5, Zone 5 10, Zone 10 15] |> fst)
 
     , test "Overlaying zone which is in the middle of another should be correct" <|
       assertEqual
-      (SubstChange (Subst 2 [Zone 10 11, Zone 11 15]))
+      (Subst 2 [Zone 10 11, Zone 11 15])
       (overlayOnce (Zone 11 12) [Zone 0 5, Zone 5 10, Zone 10 15] |> fst)
 
     ]

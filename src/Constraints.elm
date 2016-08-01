@@ -2,8 +2,7 @@ module Constraints exposing
     ( inf, Zone, baseZone
     , Segment
     , Relation (NoRelation, Before, OnEdgeOf, Inside), relativeTo, isInside
-    , Subst, Add
-    , Change (SubstChange, AddChange, NoChange)
+    , Change (Subst, Add, NoChange)
     , splitOne, split
     , overlayOnce, overlay
     , Constraint, constraintToString
@@ -98,28 +97,16 @@ isInside : Float -> Zone -> Bool
 isInside x zone =
     (zone.from < x && x < zone.to)
 
--- When we split a list of zones we want to know which one (its index)
--- we substitute with which new zones
-
-type alias Subst =
-    { index : Int
-    , new : List Zone
-    }
-
--- When we add a zone to a list of zones we want to know where it goes
--- (its index) and what it is
-
-type alias Add =
-    { index : Int
-    , new : Zone
-    }
-
 -- Description of a change to a list of zones:
--- We either want to add a zone or substitute a zone
+-- We either want to add a zone or substitute a zone.
+-- When we split a list of zones we want to know which one (its index)
+-- we substitute with which new zones.
+-- When we add a zone to a list of zones we want to know where it goes
+-- (its index) and what it is.
 
 type Change
-    = SubstChange Subst
-    | AddChange Add
+    = Subst Int (List Zone)
+    | Add Int Zone
     | NoChange
 
 -- Take a zone and split it if a given value is inside it
@@ -133,21 +120,21 @@ splitOne x zone =
 
 -- Find a split, if there is one, in a list of zones
 
-split : Float -> List Zone -> Maybe Subst
+split : Float -> List Zone -> Change
 split x zones =
     split' 0 x zones
 
-split' : Int -> Float -> List Zone -> Maybe Subst
+split' : Int -> Float -> List Zone -> Change
 split' idx x zones =
     case zones of
         [] ->
-            Nothing
+            NoChange
         zone :: tail ->
             case (splitOne x zone) of
                 Nothing ->
                     split' (idx + 1) x tail
                 Just new ->
-                    Just (Subst idx new)
+                    Subst idx new
 
 -- Overlay a new zone onto a series of others (which are assumed to be
 -- ordered). We return the next one zone change only,
@@ -170,7 +157,7 @@ overlayOnceNoRelation zone zones =
     let
         idx = List.length zones
     in
-        (AddChange (Add idx zone), Nothing)
+        (Add idx zone, Nothing)
 
 overlayOnceBefore : Zone -> Zone -> List Zone -> (Change, Maybe Zone)
 overlayOnceBefore zone next zones =
@@ -184,7 +171,7 @@ overlayOnceBefore zone next zones =
             else
                 Just (Zone to' zone.to)
     in
-        (AddChange (Add idx zone'), remainder)
+        (Add idx zone', remainder)
 
 overlayOnceInside : Zone -> Zone -> List Zone -> (Change, Maybe Zone)
 overlayOnceInside zone curr zones =
@@ -198,7 +185,7 @@ overlayOnceInside zone curr zones =
             else
                 Just (Zone curr.to zone.to)
     in
-        (SubstChange (Subst idx [zone1, zone2]), remainder)
+        (Subst idx [zone1, zone2], remainder)
 
 overlayOnceOnEdgeOf : Zone -> Zone -> List Zone -> (Change, Maybe Zone)
 overlayOnceOnEdgeOf zone next zones =
@@ -308,20 +295,21 @@ addSegmentJustSegment seg model =
 addSegmentJustZoneEdge : Float -> Model -> Model
 addSegmentJustZoneEdge x model =
     case (split x model.zones) of
-        Nothing ->
+        NoChange ->
             model
-        Just subst ->
+        Subst index new ->
             { model
             | zones =
-                Util.spliceOne subst.index subst.new model.zones
+                Util.spliceOne index new model.zones
             , constraints =
-                addSegmentJustMapConstraints subst model.constraints
+                addSegmentJustMapConstraints index model.constraints
             }
+        Add _ _ ->
+            model
 
-addSegmentJustMapConstraints : Subst -> List Constraint -> List Constraint
-addSegmentJustMapConstraints subst cons =
+addSegmentJustMapConstraints : Int -> List Constraint -> List Constraint
+addSegmentJustMapConstraints idx cons =
     let
-        idx = subst.index
         subsOneCoeffs coeffs =
             case (Util.nth idx coeffs) of
                 Just coeff ->
