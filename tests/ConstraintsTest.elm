@@ -20,6 +20,7 @@ all =
     , overlayOnceTestForRemainderWithSubst
     , overlayOnceTestForRemainderWithNoChange
     --, overlayTest
+    , applyTest
     , constraintToStringTest
     , addSegmentTestForNewSegment
     , addSegmentTestForNewZone
@@ -445,15 +446,86 @@ overlayOnceTestForRemainderWithNoChange =
 --
 --     [ test "Overlaying to the left of some zones should add it" <|
 --       assertEqual
---       [AddChange (Add 0 (Zone -10 -5))]
+--       [Add 0 (Zone -10 -5)]
 --       (overlay (Zone -10 -5) [Zone 0 1, Zone 1 2, Zone 2 3])
 --
 --     , test "Overlaying right across some gappy zones should add several" <|
 --       assertEqual
---       [AddChange (Add 0 (Zone -10 0)), AddChange (Add 2 (Zone 1 4)), AddChange (Add 4 (Zone 5 10))]
+--       [Add 0 (Zone -10 0), Add 2 (Zone 1 4), Add 4 (Zone 5 10)]
 --       (overlay (Zone -10 10) [Zone 0 1, Zone 4 5])
 --
 --     ]
+
+applyTest : Test
+applyTest =
+    suite "applyTest"
+
+    [ test "Applying Add at the start should work" <|
+      assertEqual
+      [Zone -10 0, Zone 0 10, Zone 10 20]
+      (apply (Add 0 (Zone -10 0)) [Zone 0 10, Zone 10 20])
+
+    , test "Applying Add at the start of an empty list should work" <|
+      assertEqual
+      [Zone -10 0]
+      (apply (Add 0 (Zone -10 0)) [])
+
+    , test "Applying Add in the middle should work" <|
+      assertEqual
+      [Zone 0 10, Zone 10 15, Zone 15 20, Zone 20 30]
+      (apply (Add 1 (Zone 10 15)) [Zone 0 10, Zone 15 20, Zone 20 30])
+
+    , test "Applying Add at the end should work" <|
+      assertEqual
+      [Zone 0 10, Zone 10 20, Zone 20 30, Zone 30 40]
+      (apply (Add 3 (Zone 30 40)) [Zone 0 10, Zone 10 20, Zone 20 30])
+
+    , test "Applying Add at a negative point should have no effect" <|
+      assertEqual
+      [Zone 0 10, Zone 10 20, Zone 20 30]
+      (apply (Add -1 (Zone 30 40)) [Zone 0 10, Zone 10 20, Zone 20 30])
+
+    , test "Applying Add beyond the end should have no effect" <|
+      assertEqual
+      [Zone 0 10, Zone 10 20, Zone 20 30]
+      (apply (Add 4 (Zone 30 40)) [Zone 0 10, Zone 10 20, Zone 20 30])
+
+    , test "Applying Subst at the start should work" <|
+      assertEqual
+      [Zone 0 5, Zone 5 10, Zone 10 20]
+      (apply (Subst 0 [Zone 0 5, Zone 5 10]) [Zone 0 10, Zone 10 20])
+
+    , test "Applying Subst at index 0 of an empty list should have no effect" <|
+      assertEqual
+      []
+      (apply (Subst 0 [Zone 0 5, Zone 5 10]) [])
+
+    , test "Applying Subst in the middle should work" <|
+      assertEqual
+      [Zone 0 10, Zone 10 15, Zone 15 20, Zone 20 30]
+      (apply (Subst 1 [Zone 10 15, Zone 15 20]) [Zone 0 10, Zone 10 20, Zone 20 30])
+
+    , test "Applying Subst at the end should work" <|
+      assertEqual
+      [Zone 0 10, Zone 10 20, Zone 20 25, Zone 25 30]
+      (apply (Subst 2 [Zone 20 25, Zone 25 30]) [Zone 0 10, Zone 10 20, Zone 20 30])
+
+    , test "Applying Subst at a negative point should have no effect" <|
+      assertEqual
+      [Zone 0 10, Zone 10 20, Zone 20 30]
+      (apply (Subst -1 [Zone -10 -5, Zone -5 0]) [Zone 0 10, Zone 10 20, Zone 20 30])
+
+    , test "Applying Subst beyond the end should have no effect" <|
+      assertEqual
+      [Zone 0 10, Zone 10 20, Zone 20 30]
+      (apply (Subst 3 [Zone 30 35, Zone 35 40]) [Zone 0 10, Zone 10 20, Zone 20 30])
+
+    , test "Applying NoChange should have no effect" <|
+      assertEqual
+      [Zone 0 10, Zone 10 20, Zone 20 30]
+      (apply NoChange [Zone 0 10, Zone 10 20, Zone 20 30])
+
+    ]
 
 constraintToStringTest : Test
 constraintToStringTest =

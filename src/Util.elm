@@ -2,7 +2,7 @@ module Util exposing
     ( find, findPair
     , sliding
     , bracket, bracketMap
-    , spliceOne
+    , spliceOne, insert
     , nth, indexOf
     )
 
@@ -83,6 +83,20 @@ spliceOne idx new orig =
         after = List.drop (idx + 1) orig
     in
         if (0 <= idx && idx < List.length orig) then
+            List.concat [ before, new, after ]
+        else
+            orig
+
+-- Insert some elements at an index in a list.
+-- If the index is out of bounds there's no effect.
+
+insert : Int -> List a -> List a -> List a
+insert idx new orig =
+    let
+        before = List.take idx orig
+        after = List.drop idx orig
+    in
+        if (0 <= idx && idx <= List.length orig) then
             List.concat [ before, new, after ]
         else
             orig

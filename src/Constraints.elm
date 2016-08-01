@@ -5,6 +5,7 @@ module Constraints exposing
     , Change (Subst, Add, NoChange)
     , splitOne, split
     , overlayOnce, overlay
+    , apply
     , Constraint, constraintToString
     , Model
     , addSegment
@@ -208,6 +209,18 @@ overlayOnceOnEdgeOf zone next zones =
 overlay : Zone -> List Zone -> List Change
 overlay zone zones =
     []
+
+-- Apply a change to some zones
+
+apply : Change -> List Zone -> List Zone
+apply change zones =
+    case change of
+        Add idx new ->
+            Util.insert idx [new] zones
+        Subst idx new ->
+            Util.spliceOne idx new zones
+        NoChange ->
+            zones
 
 -- A constraint is something of the form
 -- a + c + d = 40

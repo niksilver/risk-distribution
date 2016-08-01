@@ -15,6 +15,7 @@ all =
     , bracketTest
     , bracketMapTest
     , spliceOneTest
+    , insertTest
     , nthTest
     , indexOfTest
     ]
@@ -250,6 +251,42 @@ spliceOneTest =
       assertEqual
       []
       (spliceOne 0 [99, 88] [])
+
+    ]
+
+insertTest : Test
+insertTest =
+    suite "insertTest"
+
+    [ test "Inserting at the start should work" <|
+      assertEqual
+      [10, 20, 88, 99]
+      (insert 0 [10, 20] [88, 99])
+
+    , test "Inserting at the end should work" <|
+      assertEqual
+      [88, 99, 10, 20]
+      (insert 2 [10, 20] [88, 99])
+
+    , test "Inserting in the middle should work" <|
+      assertEqual
+      [77, 10, 11, 88, 99]
+      (insert 1 [10, 11] [77, 88, 99])
+
+    , test "Inserting beyond the end should have no effect" <|
+      assertEqual
+      [77, 88, 99]
+      (insert 4 [10, 11] [77, 88, 99])
+
+    , test "Inserting at a negative index should have no effect" <|
+      assertEqual
+      [66, 77, 88]
+      (insert -1 [10, 11] [66, 77, 88])
+
+    , test "Inserting at 0 index for an empty list should work" <|
+      assertEqual
+      [10, 20]
+      (insert 0 [10, 20] [])
 
     ]
 
