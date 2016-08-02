@@ -213,7 +213,7 @@ overlay zone zones =
         change = split zone.to zones'
     in
         change :: revChanges
-            |> List.filter (\chg -> chg /= NoChange)
+            |> List.filter ((/=) NoChange)
             |> List.reverse
 
 overlay' : Zone -> List Zone -> List Change -> (List Change, List Zone)
