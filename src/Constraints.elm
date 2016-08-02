@@ -208,7 +208,32 @@ overlayOnceOnEdgeOf zone next zones =
 
 overlay : Zone -> List Zone -> List Change
 overlay zone zones =
-    []
+    let
+        (revChanges, zones') = overlay' zone zones []
+        change = split zone.to zones'
+    in
+        addChange change revChanges
+            |> List.reverse
+
+overlay' : Zone -> List Zone -> List Change -> (List Change, List Zone)
+overlay' zone zones changes =
+    let
+        (change, maybeZone) = overlayOnce zone zones
+        zones' = apply change zones
+        changes' = addChange change changes
+    in
+        case maybeZone of
+            Just zone' ->
+                overlay' zone' zones' changes'
+            Nothing ->
+                (changes', zones')
+
+addChange : Change -> List Change -> List Change
+addChange change changes =
+    if (change == NoChange) then
+        changes
+    else
+        change :: changes
 
 -- Apply a change to some zones
 

@@ -19,7 +19,7 @@ all =
     , overlayOnceTestForRemainderWithAdd
     , overlayOnceTestForRemainderWithSubst
     , overlayOnceTestForRemainderWithNoChange
-    --, overlayTest
+    , overlayTest
     , applyTest
     , constraintToStringTest
     , addSegmentTestForNewSegment
@@ -440,21 +440,56 @@ overlayOnceTestForRemainderWithNoChange =
 
     ]
 
--- overlayTest : Test
--- overlayTest =
---     suite "overlayTest"
---
---     [ test "Overlaying to the left of some zones should add it" <|
---       assertEqual
---       [Add 0 (Zone -10 -5)]
---       (overlay (Zone -10 -5) [Zone 0 1, Zone 1 2, Zone 2 3])
---
---     , test "Overlaying right across some gappy zones should add several" <|
---       assertEqual
---       [Add 0 (Zone -10 0), Add 2 (Zone 1 4), Add 4 (Zone 5 10)]
---       (overlay (Zone -10 10) [Zone 0 1, Zone 4 5])
---
---     ]
+overlayTest : Test
+overlayTest =
+    suite "overlayTest"
+
+    [ test "Overlaying to the left of some zones should add it" <|
+      assertEqual
+      [Add 0 (Zone -10 -5)]
+      (overlay (Zone -10 -5) [Zone 0 1, Zone 1 2, Zone 2 3])
+
+    , test "Overlaying to the right of some zones should add it" <|
+      assertEqual
+      [Add 3 (Zone 10 11)]
+      (overlay (Zone 10 11) [Zone 0 1, Zone 1 2, Zone 2 3])
+
+    , test "Overlaying right across some gappy zones should add several" <|
+      assertEqual
+      [Add 0 (Zone -10 0), Add 2 (Zone 1 4), Add 4 (Zone 5 10)]
+      (overlay (Zone -10 10) [Zone 0 1, Zone 4 5])
+
+    , test "Overlaying and ending in the middle of a zone should split that last zone" <|
+      assertEqual
+      [Add 2 (Zone 2 4), Subst 3 [Zone 4 4.5, Zone 4.5 5]]
+      (overlay (Zone 0 4.5) [Zone 0 1, Zone 1 2, Zone 4 5])
+
+    , test "Overlaying from a gap to beyond the end should add several" <|
+      assertEqual
+      [Add 1 (Zone 2 4), Add 3 (Zone 5 7)]
+      (overlay (Zone 2 7) [Zone 0 1, Zone 4 5])
+
+    , test "Overlaying across continuous zones should split at the start and end only" <|
+      assertEqual
+      [Add 0 (Zone -1 0), Add 4 (Zone 5 6)]
+      (overlay (Zone -1 6) [Zone 0 1, Zone 1 4, Zone 4 5])
+
+    , test "Overlaying on continuous zones and which matches zone start and end should change nothing" <|
+      assertEqual
+      []
+      (overlay (Zone 1 9) [Zone 0 1, Zone 1 4, Zone 4 5, Zone 5 9, Zone 9 10])
+
+    , test "Overlaying in the middle of a zone should split it into three" <|
+      assertEqual
+      [Subst 1 [Zone 1 2, Zone 2 4], Subst 2 [Zone 2 3, Zone 3 4]]
+      (overlay (Zone 2 3) [Zone 0 1, Zone 1 4, Zone 4 5])
+
+    , test "Overlaying onto nothing should add just that one zone" <|
+      assertEqual
+      [Add 0 (Zone 2 3)]
+      (overlay (Zone 2 3) [])
+
+    ]
 
 applyTest : Test
 applyTest =
