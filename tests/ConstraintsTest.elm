@@ -740,7 +740,7 @@ addSegmentTestForNewZone =
           [Zone 0 9, Zone 9 10, zone2, Zone 20 21, Zone 21 30]
           (addSegment seg model |> .zones)
 
-    , test "Adding segment that is outsize zones should not change zones" <|
+    , test "Adding segment that is outside zones should add it" <|
       let
           zone1 = Zone 0 10
           zone2 = Zone 10 20
@@ -749,7 +749,19 @@ addSegmentTestForNewZone =
           model = Model [] [zone1, zone2, zone3] []
       in
           assertEqual
-          [zone1, zone2, zone3]
+          [zone1, zone2, zone3, Zone 30 40]
+          (addSegment seg model |> .zones)
+
+    , test "Adding segment that spans gaps and splits a zone should add multiple zones" <|
+      let
+          zone1 = Zone 0 10
+          zone2 = Zone 10 20
+          zone3 = Zone 30 40
+          seg = Segment 40 (Zone -2 31)
+          model = Model [] [zone1, zone2, zone3] []
+      in
+          assertEqual
+          [Zone -2 0, zone1, zone2, Zone 20 30, Zone 30 31, Zone 31 40]
           (addSegment seg model |> .zones)
 
     , test "Adding segment that splits no zones should not change zones" <|
@@ -805,6 +817,25 @@ addSegmentTestForNewVariables =
           [ Constraint [1, 1, 1, 1, 1] 100
           , Constraint [1, 1, 1, 0, 0] 40
           , Constraint [0, 0, 1, 1, 1] 50
+          ]
+          (addSegment seg model |> .constraints)
+
+    , test "Adding segment that adds and splits vars should be okay" <|
+      let
+          zone1 = Zone 0 10
+          zone2 = Zone 10 20
+          zone3 = Zone 30 40
+          -- This Segment add two vars and split the last one
+          seg = Segment 65 (Zone -2 31)
+          con1 = Constraint [1, 1, 1] 100
+          con2 = Constraint [1, 1, 0] 40
+          con3 = Constraint [0, 1, 1] 50
+          model = Model [] [zone1, zone2, zone3] [con1, con2, con3]
+      in
+          assertEqual
+          [ Constraint [0, 1, 1, 0, 1, 1] 100
+          , Constraint [0, 1, 1, 0, 0, 0] 40
+          , Constraint [0, 0, 1, 0, 1, 1] 50
           ]
           (addSegment seg model |> .constraints)
 

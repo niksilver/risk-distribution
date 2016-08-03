@@ -317,16 +317,54 @@ type alias Model =
 
 addSegment : Segment -> Model -> Model
 addSegment seg model =
-    model
-        |> addSegmentJustSegment seg
-        |> addSegmentJustZoneEdge seg.zone.from
-        |> addSegmentJustZoneEdge seg.zone.to
+    let
+        zones = model.zones
+        changes = overlay seg.zone zones
+    in
+        model
+            |> addSegmentJustSegment seg
+            |> addSegmentJustZones changes
+            |> addSegmentJustConstraints2 changes
 
 addSegmentJustSegment : Segment -> Model -> Model
 addSegmentJustSegment seg model =
     { model
     | segments = List.concat [model.segments, [seg]]
     }
+
+addSegmentJustZones : List Change -> Model -> Model
+addSegmentJustZones changes model =
+    { model
+    | zones  = List.foldl apply model.zones changes
+    }
+
+addSegmentJustConstraints2 : List Change -> Model -> Model
+addSegmentJustConstraints2 changes model =
+    { model
+    | constraints = List.map (applyToCoeffs changes) model.constraints
+    }
+
+applyToCoeffs : List Change -> Constraint -> Constraint
+applyToCoeffs changes constraint =
+    { constraint
+    | coeffs = List.foldl applyOneToCoeffs constraint.coeffs changes
+    }
+
+applyOneToCoeffs : Change -> List Int -> List Int
+applyOneToCoeffs change coeffs =
+    case change of
+        Add idx _ ->
+            Util.insert idx [0] coeffs
+        Del idx ->
+            Util.spliceOne idx [] coeffs
+        Subst idx _ ->
+            case (Util.nth idx coeffs) of
+                Just c ->
+                    Util.spliceOne idx [c, c] coeffs
+                Nothing ->
+                    coeffs
+        NoChange ->
+            coeffs
 
 addSegmentJustZoneEdge : Float -> Model -> Model
 addSegmentJustZoneEdge x model =
