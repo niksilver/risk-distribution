@@ -2,7 +2,7 @@ module Constraints exposing
     ( inf, Zone, baseZone
     , Segment
     , Relation (NoRelation, Before, OnEdgeOf, Inside), relativeTo, isInside
-    , Change (Subst, Add, NoChange)
+    , Change (Subst, Add, Del, NoChange)
     , splitOne, split
     , overlayOnce, overlay
     , apply
@@ -104,10 +104,12 @@ isInside x zone =
 -- we substitute with which new zones.
 -- When we add a zone to a list of zones we want to know where it goes
 -- (its index) and what it is.
+-- When we delete a zone from a list of zones we specify its index.
 
 type Change
     = Subst Int (List Zone)
     | Add Int Zone
+    | Del Int
     | NoChange
 
 -- Take a zone and split it if a given value is inside it
@@ -236,6 +238,8 @@ apply change zones =
     case change of
         Add idx new ->
             Util.insert idx [new] zones
+        Del idx ->
+            Util.spliceOne idx [] zones
         Subst idx new ->
             Util.spliceOne idx new zones
         NoChange ->
@@ -337,6 +341,8 @@ addSegmentJustZoneEdge x model =
                 addSegmentJustMapConstraints index model.constraints
             }
         Add _ _ ->
+            model
+        Del _ ->
             model
 
 addSegmentJustMapConstraints : Int -> List Constraint -> List Constraint
