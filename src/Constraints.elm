@@ -324,7 +324,7 @@ addSegment seg model =
         model
             |> addSegmentJustSegment seg
             |> addSegmentJustZones changes
-            |> addSegmentJustConstraints2 changes
+            |> addSegmentJustConstraints changes
 
 addSegmentJustSegment : Segment -> Model -> Model
 addSegmentJustSegment seg model =
@@ -338,8 +338,8 @@ addSegmentJustZones changes model =
     | zones  = List.foldl apply model.zones changes
     }
 
-addSegmentJustConstraints2 : List Change -> Model -> Model
-addSegmentJustConstraints2 changes model =
+addSegmentJustConstraints : List Change -> Model -> Model
+addSegmentJustConstraints changes model =
     { model
     | constraints = List.map (applyToCoeffs changes) model.constraints
     }
@@ -365,34 +365,3 @@ applyOneToCoeffs change coeffs =
                     coeffs
         NoChange ->
             coeffs
-
-addSegmentJustZoneEdge : Float -> Model -> Model
-addSegmentJustZoneEdge x model =
-    case (split x model.zones) of
-        NoChange ->
-            model
-        Subst index new ->
-            { model
-            | zones =
-                Util.spliceOne index new model.zones
-            , constraints =
-                addSegmentJustMapConstraints index model.constraints
-            }
-        Add _ _ ->
-            model
-        Del _ ->
-            model
-
-addSegmentJustMapConstraints : Int -> List Constraint -> List Constraint
-addSegmentJustMapConstraints idx cons =
-    let
-        subsOneCoeffs coeffs =
-            case (Util.nth idx coeffs) of
-                Just coeff ->
-                    Util.spliceOne idx [coeff, coeff] coeffs
-                Nothing ->
-                    coeffs
-        subsOne constr =
-            { constr | coeffs = subsOneCoeffs constr.coeffs }
-    in
-        List.map subsOne cons
