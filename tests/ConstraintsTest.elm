@@ -29,6 +29,7 @@ all =
     , applyToCoeffsTest
     , constraintTest
     , addConstraintTest
+    , isSubcoeffTest
     ]
 
 infinityTest : Test
@@ -1062,4 +1063,35 @@ addConstraintTest =
           assertEqual
           [con1, con2, con3]
           (addConstraint con3 model |> .constraints)
+    ]
+
+isSubcoeffTest : Test
+isSubcoeffTest =
+    suite "isSubcoeffTest"
+
+    [ test "Smaller list is not subcoeff of larger list" <|
+      assertEqual
+      False
+      (isSubcoeff [1, 1] [1, 1, 1])
+
+    , test "Larger list is not subcoeff of smaller list" <|
+      assertEqual
+      False
+      (isSubcoeff [1, 1, 1] [1, 1])
+
+    , test "List is subcoeff of itself" <|
+      assertEqual
+      True
+      (isSubcoeff [1, 1, 0] [1, 1, 0])
+
+    , test "All zeros is subcoeff of anything with non-zeros (and same length)" <|
+      assertEqual
+      True
+      (isSubcoeff [0, 0, 0] [1, 1, 0])
+
+    , test "Something with non-zeros is subcoeff of that plus other non-zeros" <|
+      assertEqual
+      True
+      (isSubcoeff [1, 0, 0, 2, 0] [1, 0, 1, 2, 0])
+
     ]

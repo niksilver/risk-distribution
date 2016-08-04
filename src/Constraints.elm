@@ -7,6 +7,7 @@ module Constraints exposing
     , overlayOnce, overlay
     , apply
     , Constraint, constraintToString
+    , isSubcoeff
     , Model
     , addSegment, applyToCoeffs
     , constraint, addConstraint
@@ -304,6 +305,20 @@ constraintToStringLHS coeffs =
         idxCoeffs
             |> List.map outputIdxCoeff
             |> String.concat
+
+-- Coeffivient A is a subcoefficient of B if they're the same length
+-- and every non-zero in A has the same non-zero in B.
+
+isSubcoeff : List Int -> List Int -> Bool
+isSubcoeff sub super =
+    let
+        isSub' (c1, c2) =
+            c1 == 0 || c1 == c2
+        combined =
+            List.map2 (,) sub super
+    in
+        (List.length sub == List.length super)
+        && (List.all isSub' combined)
 
 -- A model represents:
 -- our segments (our judgements, or claims, over the distribution),
