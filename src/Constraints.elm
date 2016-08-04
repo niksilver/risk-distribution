@@ -8,7 +8,7 @@ module Constraints exposing
     , apply
     , Constraint, constraintToString
     , Model
-    , addSegment
+    , addSegment, applyToCoeffs
     )
 
 import Util
@@ -337,25 +337,34 @@ addSegmentJustZones changes model =
 addSegmentJustConstraints : List Change -> Model -> Model
 addSegmentJustConstraints changes model =
     { model
-    | constraints = List.map (applyToCoeffs changes) model.constraints
+    | constraints = List.map (applyAllToCoeffs changes) model.constraints
     }
 
-applyToCoeffs : List Change -> Constraint -> Constraint
-applyToCoeffs changes constraint =
+applyAllToCoeffs : List Change -> Constraint -> Constraint
+applyAllToCoeffs changes constraint =
     { constraint
-    | coeffs = List.foldl applyOneToCoeffs constraint.coeffs changes
+    | coeffs = List.foldl applyToCoeffs constraint.coeffs changes
     }
 
-applyOneToCoeffs : Change -> List Int -> List Int
-applyOneToCoeffs change coeffs =
+-- Apply a zone Change to a list of coefficients.
+
+applyToCoeffs : Change -> List Int -> List Int
+applyToCoeffs change coeffs =
     case change of
         Add idx _ ->
             Util.insert idx [0] coeffs
-        Subst idx _ ->
-            case (Util.nth idx coeffs) of
-                Just c ->
-                    Util.spliceOne idx [c, c] coeffs
-                Nothing ->
-                    coeffs
+        Subst idx new ->
+            applySubstToCoeffs idx new coeffs
         NoChange ->
             coeffs
+
+applySubstToCoeffs : Int -> List Zone -> List Int -> List Int
+applySubstToCoeffs idx new coeffs =
+    let
+        numZones = List.length new
+    in
+        case (Util.nth idx coeffs) of
+            Just c ->
+                Util.spliceOne idx (List.repeat numZones c) coeffs
+            Nothing ->
+                coeffs
