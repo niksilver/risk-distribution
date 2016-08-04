@@ -525,36 +525,6 @@ applyTest =
       [Zone 0 10, Zone 10 20, Zone 20 30]
       (apply (Add 4 (Zone 30 40)) [Zone 0 10, Zone 10 20, Zone 20 30])
 
-     , test "Applying Del at the start should delete it" <|
-      assertEqual
-      [Zone 10 20, Zone 20 30]
-      (apply (Del 0) [Zone 0 10, Zone 10 20, Zone 20 30])
-
-     , test "Applying Del at the end should delete it" <|
-      assertEqual
-      [Zone 0 10, Zone 10 20]
-      (apply (Del 2) [Zone 0 10, Zone 10 20, Zone 20 30])
-
-     , test "Applying Del in the middle should delete it" <|
-      assertEqual
-      [Zone 0 10, Zone 20 30]
-      (apply (Del 1) [Zone 0 10, Zone 10 20, Zone 20 30])
-
-     , test "Applying Del with a negative index should have no effect" <|
-      assertEqual
-      [Zone 0 10, Zone 10 20, Zone 20 30]
-      (apply (Del -1) [Zone 0 10, Zone 10 20, Zone 20 30])
-
-     , test "Applying Del beyond the end should have no effect" <|
-      assertEqual
-      [Zone 0 10, Zone 10 20, Zone 20 30]
-      (apply (Del 3) [Zone 0 10, Zone 10 20, Zone 20 30])
-
-     , test "Applying Del to an empty list should have no effect" <|
-      assertEqual
-      []
-      (apply (Del 0) [])
-
     , test "Applying Subst at the start should work" <|
       assertEqual
       [Zone 0 5, Zone 5 10, Zone 10 20]
