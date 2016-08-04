@@ -1,5 +1,5 @@
 module Constraints exposing
-    ( inf, Zone, baseZone
+    ( inf, Zone, baseZone, isSubzone
     , Segment
     , Relation (NoRelation, Before, OnEdgeOf, Inside), relativeTo, isInside
     , Change (Subst, Add, NoChange)
@@ -9,6 +9,7 @@ module Constraints exposing
     , Constraint, constraintToString
     , Model
     , addSegment, applyToCoeffs
+    , constraint
     )
 
 import Util
@@ -59,6 +60,13 @@ inf = 1/0
 type alias Zone = { from : Float, to : Float}
 
 baseZone = Zone -inf inf
+
+-- See if a zone is within another. A zone is a subzone of itself.
+
+isSubzone : Zone -> Zone -> Bool
+isSubzone small large =
+    large.from <= small.from
+    && small.to <= large.to
 
 -- A segemnt of our distribution representing the idea that, say,
 -- '40% of the distribution lies between -10 and +10'
@@ -368,3 +376,13 @@ applySubstToCoeffs idx new coeffs =
                 Util.spliceOne idx (List.repeat numZones c) coeffs
             Nothing ->
                 coeffs
+
+-- Create a Constraint
+
+constraint : Segment -> List Zone -> Constraint
+constraint seg zones =
+    let
+        coeff zone =
+            if (isSubzone zone seg.zone) then 1 else 0
+    in
+        Constraint (List.map coeff zones) seg.pc

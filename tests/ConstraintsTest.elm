@@ -9,6 +9,7 @@ all =
     suite "ConstraintsTest"
     [ infinityTest
     , baseZoneTest
+    , constraintTest
     , isInsideTest
     , relativeToTest
     , splitOneTest
@@ -26,6 +27,7 @@ all =
     , addSegmentTestForNewZone
     , addSegmentTestForNewVariables
     , applyToCoeffsTest
+    , isSubzoneTest
     ]
 
 infinityTest : Test
@@ -64,6 +66,67 @@ baseZoneTest =
       assertEqual
       inf
       baseZone.to
+
+    ]
+
+isSubzoneTest : Test
+isSubzoneTest =
+    suite "isSubzoneTest"
+
+    [ test "Zone some way to the left of is not a subzone" <|
+      assertEqual
+      False
+      (isSubzone (Zone 0 2) (Zone 5 10))
+
+    , test "Zone immediately to the left of is not a subzone" <|
+      assertEqual
+      False
+      (isSubzone (Zone 4 5) (Zone 5 10))
+
+    , test "Zone overlapping left of is not a subzone" <|
+      assertEqual
+      False
+      (isSubzone (Zone 5 7) (Zone 6 12))
+
+    , test "Zone in and on the left is a subzone" <|
+      assertEqual
+      True
+      (isSubzone (Zone 6 8) (Zone 6 12))
+
+    , test "Zone in the middle of is a subzone" <|
+      assertEqual
+      True
+      (isSubzone (Zone 17 18) (Zone 16 20))
+
+    , test "Zone in and on the right is a subzone" <|
+      assertEqual
+      True
+      (isSubzone (Zone 10 12) (Zone 6 12))
+
+    , test "Zone is a subzone of itself" <|
+      assertEqual
+      True
+      (isSubzone (Zone 5 13) (Zone 5 13))
+
+    , test "Large zone is not a subzone of a contained zone" <|
+      assertEqual
+      False
+      (isSubzone (Zone 4 14) (Zone 5 13))
+
+    , test "Zone overlapping right of is not a subzone" <|
+      assertEqual
+      False
+      (isSubzone (Zone 10 14) (Zone 6 12))
+
+    , test "Zone immediately to the right of is not a subzone" <|
+      assertEqual
+      False
+      (isSubzone (Zone 25 26) (Zone 20 25))
+
+    , test "Zone some way to the right of is not a subzone" <|
+      assertEqual
+      False
+      (isSubzone (Zone 15 77) (Zone 6 12))
 
     ]
 
@@ -921,5 +984,59 @@ applyToCoeffsTest =
       assertEqual
       [0, 1, 1]
       (applyToCoeffs NoChange [0, 1, 1])
+
+    ]
+
+constraintTest : Test
+constraintTest =
+    suite "constraintTest"
+
+    [ test "A constraint at the start should work" <|
+      assertEqual
+      (Constraint [1, 1, 0] 45)
+      (constraint
+        (Segment 45 (Zone -10 10))
+        [Zone -10 0, Zone 0 10, Zone 10 20]
+      )
+
+    , test "A constraint in the middle should work" <|
+      assertEqual
+      (Constraint [0, 1, 1, 0] 22)
+      (constraint
+        (Segment 22 (Zone 0 15))
+        [Zone -10 0, Zone 0 10, Zone 10 15, Zone 15 20]
+      )
+
+    , test "A constraint at the end should work" <|
+      assertEqual
+      (Constraint [0, 0, 1, 1] 33)
+      (constraint
+        (Segment 33 (Zone 10 20))
+        [Zone -10 0, Zone 0 10, Zone 10 15, Zone 15 20]
+      )
+
+    , test "A constraint covering one zone on the left should work" <|
+      assertEqual
+      (Constraint [1, 0, 0, 0] 44)
+      (constraint
+        (Segment 44 (Zone -10 0))
+        [Zone -10 0, Zone 0 10, Zone 10 15, Zone 15 20]
+      )
+
+    , test "A constraint covering one zone on the right should work" <|
+      assertEqual
+      (Constraint [0, 0, 0, 1] 55)
+      (constraint
+        (Segment 55 (Zone 15 20))
+        [Zone -10 0, Zone 0 10, Zone 10 15, Zone 15 20]
+      )
+
+    , test "A constraint covering all zones should work" <|
+      assertEqual
+      (Constraint [1, 1, 1, 1] 66)
+      (constraint
+        (Segment 66 (Zone -10 20))
+        [Zone -10 0, Zone 0 10, Zone 10 15, Zone 15 20]
+      )
 
     ]
