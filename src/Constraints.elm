@@ -9,7 +9,7 @@ module Constraints exposing
     , Constraint, constraintToString
     , Model
     , addSegment, applyToCoeffs
-    , constraint
+    , constraint, addConstraint
     )
 
 import Util
@@ -386,3 +386,11 @@ constraint seg zones =
             if (isSubzone zone seg.zone) then 1 else 0
     in
         Constraint (List.map coeff zones) seg.pc
+
+-- Add a constraint to a model
+
+addConstraint : Constraint -> Model -> Model
+addConstraint constraint model =
+    { model
+    | constraints = List.append model.constraints [constraint]
+    }

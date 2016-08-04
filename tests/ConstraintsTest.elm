@@ -28,6 +28,7 @@ all =
     , addSegmentTestForNewVariables
     , applyToCoeffsTest
     , constraintTest
+    , addConstraintTest
     ]
 
 infinityTest : Test
@@ -1039,4 +1040,26 @@ constraintTest =
         [Zone -10 0, Zone 0 10, Zone 10 15, Zone 15 20]
       )
 
+    ]
+
+addConstraintTest : Test
+addConstraintTest =
+    suite "addConstraintTest"
+
+    [ test "Constraint should be added at end" <|
+      let
+          seg1 = Segment 100 (Zone 0 30)
+          seg2 = Segment 40 (Zone 0 20)
+          seg3 = Segment 50 (Zone 20 30)
+          zone1 = Zone 0 10
+          zone2 = Zone 10 20
+          zone3 = Zone 20 30
+          con1 = Constraint [1, 1, 1] 100
+          con2 = Constraint [1, 1, 0] 40
+          con3 = Constraint [0, 1, 1] 50
+          model = Model [seg1, seg2, seg3] [zone1, zone2, zone3] [con1, con2]
+      in
+          assertEqual
+          [con1, con2, con3]
+          (addConstraint con3 model |> .constraints)
     ]
