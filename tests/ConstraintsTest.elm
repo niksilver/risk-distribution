@@ -9,7 +9,7 @@ all =
     suite "ConstraintsTest"
     [ infinityTest
     , baseZoneTest
-    , constraintTest
+    , isSubzoneTest
     , isInsideTest
     , relativeToTest
     , splitOneTest
@@ -27,7 +27,7 @@ all =
     , addSegmentTestForNewZone
     , addSegmentTestForNewVariables
     , applyToCoeffsTest
-    , isSubzoneTest
+    , constraintTest
     ]
 
 infinityTest : Test
