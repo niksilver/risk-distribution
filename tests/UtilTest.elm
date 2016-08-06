@@ -18,6 +18,7 @@ all =
     , insertTest
     , nthTest
     , indexOfTest
+    , expandTest
     ]
 
 findTest : Test
@@ -345,4 +346,35 @@ indexOfTest =
       (Nothing)
       (indexOf 'x' ['a', 'b', 'c'])
 
+    ]
+
+expandTest : Test
+expandTest =
+    suite "expandTest"
+
+    [ test "Expand on the multiplicands modulo 10" <|
+      let
+        fn prev a =
+            List.map (\p -> (p * a) % 10) prev
+      in
+        assertEqual
+        [4, 5, 3, 2, 8, 0, 6]
+        (expand fn [4, 5] 3)
+
+    , test "Expand on the sums modulo 10" <|
+      let
+        fn prev a =
+            List.map (\p -> (p + a) % 10) prev
+      in
+        assertEqual
+        [1, 2, 4, 5, 6, 7, 9, 8, 0, 3]
+        (expand fn [1, 2] 4)
+
+    , test "Expand on an empty list with a single value fn should give the single value" <|
+      let
+        fn prev a = [a]
+      in
+        assertEqual
+        [66]
+        (expand fn [] 66)
     ]

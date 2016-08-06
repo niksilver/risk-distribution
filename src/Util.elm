@@ -4,6 +4,7 @@ module Util exposing
     , bracket, bracketMap
     , spliceOne, insert
     , nth, indexOf
+    , expand
     )
 
 
@@ -128,3 +129,57 @@ indexOf' x xs idx =
                 Just idx
             else
                 indexOf' x tail (idx + 1)
+
+-- Expand a list as follows...
+-- A function fn takes a list of elements and new element a, and returns a
+-- new list.
+-- We take a seed, and imagine it is at the head of a queue (actually, the
+-- only element in the queue, currently).
+-- We filter the queue so that it contains only elements that aren't already
+-- in the list.
+-- We apply fn to the original list and the head of the queue.
+-- We put the returned list at the back of the queue.
+-- We put the head of the queue (the seed) onto the end of the original
+-- list. Then we repeat the process from the filtering step
+-- with the updated list and the updated head of the queue.
+-- We repeat from the filtering step until the queue is empty.
+-- This function may not terminate if you're not careful.
+--
+-- Example:
+-- fn multiplies all elements of the list by the given element, does modulo 10.
+-- Start with list [2, 3] and seed 4.
+-- The queue is [4] and filtering again gives [4].
+-- The result of fn is [2*4 mod 10, 3*4 mod 8] = [8, 2].
+-- We put 4 onto the end of the list to give [2, 3, 4].
+-- We filter the queue to give [8] (because 2 is already in the list).
+-- We apply fn to the list and [8], which gives
+-- [2*8 mod 10, 3*8 mod 10, 4*8 mod 10] = [6, 4, 2].
+-- We put the seed onto the end to give [2, 3, 4, 8].
+-- Filtering the queue gives [6].
+-- So our new seed is 6.
+-- Applying fn gives result
+-- [2*6 mod 10, 3*6 mod 10, 4*6 mod 10, 8*6 mod 10] = [2, 8, 4, 8].
+-- We put the seed on the end of the list to give [2, 3, 4, 8, 6].
+-- We filter the queue to give [].
+-- And now we're done: the result is [2, 3, 4, 8, 6].
+
+expand : (List a -> a -> List a) -> List a -> a -> List a
+expand fn xs seed =
+    expand' fn xs [seed]
+
+expand' : (List a -> a -> List a) -> List a -> List a -> List a
+expand' fn xs queue =
+    let
+        notInList e = not (List.member e xs)
+        filtQueue = List.filter notInList queue
+    in
+        case filtQueue of
+            [] ->
+                xs
+            seed :: tail ->
+                let
+                    tail2 = fn xs seed
+                    xs2 = List.append xs [seed]
+                    queue2 = List.append tail tail2
+                in
+                    expand' fn xs2 queue2
