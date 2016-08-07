@@ -32,6 +32,7 @@ all =
     , isSubcoeffTest
     , subtractTest
     , deriveOnceTest
+    , deriveAllTest
     ]
 
 infinityTest : Test
@@ -1141,7 +1142,7 @@ deriveOnceTest =
         con1 = Constraint [0, 1, 1] 65
         con2 = Constraint [0, 1, 0] 20
         seed = Constraint [1, 1, 1] 80
-        -- This subtracting others from seed should give these...
+        -- Subtracting others from seed should give these...
         res1 = Constraint [1, 0, 0] 15
         res2 = Constraint [1, 0, 1] 60
       in
@@ -1154,7 +1155,7 @@ deriveOnceTest =
         con1 = Constraint [0, 1, 1] 75
         con2 = Constraint [1, 1, 1] 90
         seed = Constraint [1, 1, 0] 30
-        -- This subtracting where we can should give this...
+        -- Subtracting where we can should give this...
         res1 = Constraint [0, 0, 1] 60
       in
         assertEqual
@@ -1168,5 +1169,70 @@ deriveOnceTest =
         assertEqual
         []
         (deriveOnce [] seed)
+
+    ]
+
+deriveAllTest : Test
+deriveAllTest =
+    suite "deriveAllTest"
+
+    [ test "Simple derivation of all should work" <|
+      let
+        con1 = Constraint [1, 1, 1] 100
+        con2 = Constraint [0, 1, 1] 55
+        seed = Constraint [0, 0, 1] 30
+        -- This subtracting seed from the others should give these...
+        res1 = Constraint [1, 1, 0] 70
+        res2 = Constraint [0, 1, 0] 25
+        -- And res2 should give this...
+        res3 = Constraint [1, 0, 1] 75
+        -- ...which will in turn give this...
+        res4 = Constraint [1, 0, 0] 45
+      in
+        assertEqual
+        [con1, con2, seed, res1, res2, res3, res4]
+        (deriveAll [con1, con2] seed)
+
+    , test "deriveAll should work when the seed is the larger constraint, to be subtracted from" <|
+      let
+        con1 = Constraint [0, 1, 1] 65
+        con2 = Constraint [0, 1, 0] 20
+        seed = Constraint [1, 1, 1] 80
+        -- This subtracting others from seed should give these...
+        res1 = Constraint [1, 0, 0] 15
+        res2 = Constraint [1, 0, 1] 60
+        -- Then subtracting these two gives...
+        res3 = Constraint [0, 0, 1] 45
+        -- And subtracting that from the seed gives
+        res4 = Constraint [1, 1, 0] 35
+      in
+        assertEqual
+        [con1, con2, seed, res1, res2, res3, res4]
+        (deriveAll [con1, con2] seed)
+
+    , test "deriveAll should skip constraint where it can't subtract" <|
+      let
+        con1 = Constraint [0, 1, 1] 75
+        con2 = Constraint [1, 1, 1] 90
+        seed = Constraint [1, 1, 0] 30
+        -- Subtracting where we can should give this...
+        res1 = Constraint [0, 0, 1] 60
+        -- And that should in turn give this...
+        res2 = Constraint [0, 1, 0] 15
+        -- And from that we can derive these...
+        res3 = Constraint [1, 0, 1] 75
+        res4 = Constraint [1, 0, 0] 15
+      in
+        assertEqual
+        [con1, con2, seed, res1, res2, res3, res4]
+        (deriveAll [con1, con2] seed)
+
+    , test "deriveAll returns just the seed if we're starting with no constraints" <|
+      let
+        seed = Constraint [1, 1, 0] 30
+      in
+        assertEqual
+        [seed]
+        (deriveAll [] seed)
 
     ]

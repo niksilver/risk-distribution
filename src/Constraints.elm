@@ -11,7 +11,7 @@ module Constraints exposing
     , Model
     , addSegment, applyToCoeffs
     , constraint, addConstraint, subtract
-    , deriveOnce
+    , deriveOnce, deriveAll
     )
 
 import Util
@@ -434,3 +434,10 @@ deriveOnce constraints seed =
                 Nothing
     in
         List.filterMap maybeMap constraints
+
+-- Derive all the constraints we can from some existing ones by
+-- adding a new one... including the original ones.
+
+deriveAll : List Constraint -> Constraint -> List Constraint
+deriveAll constraints seed =
+    Util.expand deriveOnce constraints seed
