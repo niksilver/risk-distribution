@@ -10,7 +10,7 @@ module Constraints exposing
     , isSubcoeff
     , Model
     , addSegment, applyToCoeffs
-    , constraint, addConstraint
+    , constraint, addConstraint, subtract
     )
 
 import Util
@@ -408,4 +408,12 @@ addConstraint : Constraint -> Model -> Model
 addConstraint constraint model =
     { model
     | constraints = List.append model.constraints [constraint]
+    }
+
+-- Take one constraint and subtract another
+
+subtract : Constraint -> Constraint -> Constraint
+subtract larger smaller =
+    { coeffs = List.map2 (-) larger.coeffs smaller.coeffs
+    , pc = larger.pc - smaller.pc
     }

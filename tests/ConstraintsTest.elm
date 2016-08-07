@@ -30,6 +30,7 @@ all =
     , constraintTest
     , addConstraintTest
     , isSubcoeffTest
+    , subtractTest
     ]
 
 infinityTest : Test
@@ -1093,5 +1094,26 @@ isSubcoeffTest =
       assertEqual
       True
       (isSubcoeff [1, 0, 0, 2, 0] [1, 0, 1, 2, 0])
+
+    ]
+
+subtractTest : Test
+subtractTest =
+    suite "subtractTest"
+
+    [ test "Basic subtraction should work" <|
+      assertEqual
+      (Constraint [1, 3, -3] 12)
+      (subtract (Constraint [2, 3, 4] 90) (Constraint [1, 0, 7] 78))
+
+    , test "Longer subtract shorter should ignore extra coefficients" <|
+      assertEqual
+      (Constraint [-2, 2] 4)
+      (subtract (Constraint [2, 3, 4, 1] 10) (Constraint [4, 1] 6))
+
+    , test "Shorter subtract longer should ignore extra coefficients" <|
+      assertEqual
+      (Constraint [2, -2] 3)
+      (subtract (Constraint [4, 1] 20) (Constraint [2, 3, 4, 5] 17))
 
     ]
