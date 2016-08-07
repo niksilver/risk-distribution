@@ -11,6 +11,7 @@ module Constraints exposing
     , Model
     , addSegment, applyToCoeffs
     , constraint, addConstraint, subtract
+    , deriveOnce
     )
 
 import Util
@@ -417,3 +418,19 @@ subtract larger smaller =
     { coeffs = List.map2 (-) larger.coeffs smaller.coeffs
     , pc = larger.pc - smaller.pc
     }
+
+-- Derive more constraints given some existing ones
+-- using another to subtract.
+
+deriveOnce : List Constraint -> Constraint -> List Constraint
+deriveOnce constraints seed =
+    let
+        maybeMap c =
+            if (isSubcoeff seed.coeffs c.coeffs) then
+                Just (subtract c seed)
+            else if (isSubcoeff c.coeffs seed.coeffs) then
+                Just (subtract seed c)
+            else
+                Nothing
+    in
+        List.filterMap maybeMap constraints
