@@ -1,6 +1,8 @@
 module Fact exposing
-    ( Model, Msg (ProbPerc, Value, ChangeLimit, ConfirmText)
-    , init, layer, update, view
+    ( Model
+    , Limit (AtLeast, AtMost, Between)
+    , Msg (ProbPerc, Lower, Upper, ChangeLimit, ConfirmText)
+    , init, segment, update, view
     )
 
 -- A statement describing the probability of some value range
@@ -20,39 +22,46 @@ import Html.Attributes exposing
 import Html.Events exposing (onInput, onClick, on)
 import Json.Decode exposing (Decoder)
 
-import Distribution exposing (Layer, Limit(AtMost, AtLeast))
+import Constraints exposing (inf, Segment, Zone)
 
 -- Our model of a fact
 
+type Limit
+    = AtLeast
+    | AtMost
+    | Between
+
 type alias Model =
-    { text : { probPerc : String, limit : Limit, value : String }
-    , data : Layer
+    { text : { probPerc : String, limit : Limit, lower : String, upper : String }
+    , data : Segment
     }
 
 -- Things that can change
 
 type Msg
     = ProbPerc String
-    | Value String
+    | Lower String
+    | Upper String
     | ChangeLimit Limit
     | ConfirmText
 
 -- Initial model
 
-init : Layer -> Model
+init : Segment -> Model
 init y =
     { text =
-        { probPerc = y.prob * 100 |> toString
-        , limit = y.limit
-        , value = y.value |> toString
+        { probPerc = y.pc |> toString
+        , limit = AtLeast
+        , lower = y.zone.from |> toString
+        , upper = y.zone.to |> toString
         }
     , data = y
     }
 
--- Extract the layer
+-- Extract the segment
 
-layer : Model -> Layer
-layer =
+segment : Model -> Segment
+segment =
     .data
 
 -- Updating the model
@@ -62,8 +71,10 @@ update msg model =
     case msg of
         ProbPerc probStr ->
             updateProbPerc probStr model
-        Value valueStr ->
-            updateValue valueStr model
+        Lower lowerStr ->
+            updateLower lowerStr model
+        Upper upperStr ->
+            updateUpper upperStr model
         ChangeLimit limit ->
             updateLimit limit model
         ConfirmText ->
@@ -76,12 +87,19 @@ updateProbPerc str model =
     in
         { model | text = { text | probPerc = str } }
 
-updateValue : String -> Model -> Model
-updateValue str model =
+updateLower : String -> Model -> Model
+updateLower str model =
     let
         text = model.text
     in
-        { model | text = { text | value = str } }
+        { model | text = { text | lower = str } }
+
+updateUpper : String -> Model -> Model
+updateUpper str model =
+    let
+        text = model.text
+    in
+        { model | text = { text | upper = str } }
 
 updateLimit : Limit -> Model -> Model
 updateLimit limit model =
@@ -93,18 +111,15 @@ updateLimit limit model =
 updateText : Model -> Model
 updateText model =
     let
-        probPerc' = String.toFloat model.text.probPerc
-        value' = String.toFloat model.text.value
+        probPerc' = String.toInt model.text.probPerc
+        lower' = String.toFloat model.text.lower
+        upper' = String.toFloat model.text.upper
         limit' = model.text.limit
     in
-        case (probPerc', value') of
-            (Ok prob, Ok val) ->
+        case (probPerc', lower', upper') of
+            (Ok prob, Ok lower, Ok upper) ->
                 { model
-                | data =
-                    { prob = prob / 100
-                    , limit = limit'
-                    , value = val
-                    }
+                | data = Segment prob (Zone lower upper)
                 }
             _ ->
                 model
@@ -119,7 +134,7 @@ view model =
         , "% chance that it's " |> text
         , limitControl model
         , " " |> text
-        , valueBox model
+        , lowerBox model.text.lower
         , okayView
         ]
 
@@ -160,14 +175,14 @@ probBox model =
         , mapping = ProbPerc
         }
 
-valueBox : Model -> Html Msg
-valueBox model =
+lowerBox : String -> Html Msg
+lowerBox lower =
     textBox
-        { id = "probPerc"
-        , label = "Percentage"
+        { id = "lower"
+        , label = "Value"
         , width = "7em"
-        , value = model.text.value
-        , mapping = Value
+        , value = lower
+        , mapping = Lower
         }
 
 onChange : Attribute Msg
@@ -177,24 +192,37 @@ onChange =
         toLimit str =
             if str == "at most" then
                 ChangeLimit AtMost
-            else
+            else if str == "at least" then
                 ChangeLimit AtLeast
+            else ChangeLimit Between
     in
         on "change" (Json.Decode.map toLimit strDecoder)
 
 limitControl : Model -> Html Msg
 limitControl model =
-    select
-    [ class "form-control"
-    , onChange
-    ]
-    [ option
-        [ selected (model.data.limit == AtMost) ]
-        [ text "at most" ]
-    , option
-        [ selected (model.data.limit == AtLeast) ]
-        [ text "at least" ]
-    ]
+    let
+        limit =
+            if (model.data.zone.from == -inf) then
+                AtLeast
+            else if (model.data.zone.to == inf) then
+                AtMost
+            else
+                Between
+    in
+        select
+        [ class "form-control"
+        , onChange
+        ]
+        [ option
+            [ selected (limit == AtMost) ]
+            [ text "at most" ]
+        , option
+            [ selected (limit == AtLeast) ]
+            [ text "at least" ]
+        , option
+            [ selected (limit == Between) ]
+            [ text "between" ]
+        ]
 
 okayView : Html Msg
 okayView =
@@ -205,4 +233,3 @@ okayView =
     , onClick ConfirmText
     ]
     [ text "Okay" ]
-

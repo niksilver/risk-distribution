@@ -1,12 +1,12 @@
-module FactList exposing (Model, Msg, init, layers, update, view)
+module FactList exposing (Model, Msg, init, segments, update, view)
 
 import Html exposing (Html, p, ol, li, button, text)
 import Html.Attributes exposing (style, class, type')
 import Html.Events exposing (onClick)
 import Html.App as App
 
-import Fact
-import Distribution as Dist exposing (Limit(AtLeast, AtMost))
+import Fact exposing (Limit (AtLeast, AtMost, Between))
+import Constraints exposing (inf, Segment, Zone)
 
 
 type alias Model =
@@ -27,22 +27,22 @@ init =
     { next = 2
     , iFacts =
         [ { id = 0
-          , fact = Fact.init { prob = 1.0, limit = AtLeast, value = 0.0 }
+          , fact = Fact.init (Segment 100 (Zone 0 inf))
           }
         , { id = 1
-          , fact = Fact.init { prob = 1.0, limit = AtMost, value = 10.0 }
+          , fact = Fact.init (Segment 100 (Zone -inf 10))
           }
         ]
     }
 
 
--- Extract the raw layers from the model
+-- Extract the raw segments from the model
 
-layers : Model -> List Dist.Layer
-layers model =
+segments : Model -> List Segment
+segments model =
     model.iFacts
         |> List.map .fact
-        |> List.map Fact.layer
+        |> List.map Fact.segment
 
 
 -- Updates
@@ -76,7 +76,7 @@ addFact model =
             case lastIFact of
                 Nothing ->
                     { id = model.next
-                    , fact = Fact.init { prob = 1, limit = AtLeast, value = 0.0 }
+                    , fact = Fact.init (Segment 100 (Zone 0 inf))
                     }
                 Just iFact ->
                     { id = model.next
@@ -94,7 +94,7 @@ removeFact removeId model =
             id /= removeId
     in
         { model
-        | iFacts = List.filter keep model.iFacts 
+        | iFacts = List.filter keep model.iFacts
         }
 
 
@@ -142,4 +142,3 @@ addView =
     , onClick Add
     ]
     [ text "Add" ]
-
