@@ -49,14 +49,24 @@ type Msg
 
 init : Segment -> Model
 init y =
-    { text =
-        { probPerc = y.pc |> toString
-        , limit = AtLeast
-        , lower = y.zone.from |> toString
-        , upper = y.zone.to |> toString
+    let
+        toString2 num =
+            if (num == inf || num == -inf) then "" else toString num
+        limit' =
+            if (y.zone.from == -inf) then
+                AtMost
+            else if (y.zone.to == inf) then
+                AtLeast
+            else Between
+    in
+        { text =
+            { probPerc = y.pc |> toString
+            , limit = limit'
+            , lower = y.zone.from |> toString2
+            , upper = y.zone.to |> toString2
+            }
+        , data = y
         }
-    , data = y
-    }
 
 -- Extract the segment
 
