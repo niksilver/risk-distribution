@@ -163,7 +163,7 @@ updateTestForChangeLimit =
 
     [ test "Updating limit AtLeast to AtMost should register in text only and change upper/lower" <|
       assertEqual
-      { text = { probPerc = "50", limit = AtMost, lower = "", upper = "0" }
+      { text = { probPerc = "50", limit = AtMost, lower = "", upper = "10" }
       , data = Segment 50 (Zone 10 inf)
       }
       ( { text = { probPerc = "50", limit = AtLeast, lower = "10", upper = "" }
@@ -185,7 +185,7 @@ updateTestForChangeLimit =
 
     , test "Updating limit AtLeast to Between should register in text only" <|
       assertEqual
-      { text = { probPerc = "50", limit = AtMost, lower = "10", upper = "" }
+      { text = { probPerc = "50", limit = Between, lower = "10", upper = "" }
       , data = Segment 50 (Zone 10 inf)
       }
       ( { text = { probPerc = "50", limit = AtLeast, lower = "10", upper = "" }
@@ -207,7 +207,7 @@ updateTestForChangeLimit =
 
     , test "Updating limit AtMost to Between should register in text only" <|
       assertEqual
-      { text = { probPerc = "50", limit = AtMost, lower = "10", upper = "" }
+      { text = { probPerc = "50", limit = Between, lower = "", upper = "10" }
       , data = Segment 50 (Zone -inf 10)
       }
       ( { text = { probPerc = "50", limit = AtMost, lower = "", upper = "10" }

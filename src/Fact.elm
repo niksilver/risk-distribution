@@ -112,11 +112,26 @@ updateUpper str model =
         { model | text = { text | upper = str } }
 
 updateLimit : Limit -> Model -> Model
-updateLimit limit model =
+updateLimit newLimit model =
     let
         text = model.text
+        oldLimit = text.limit
+        (lower', upper') =
+            case (oldLimit, newLimit) of
+                (AtLeast, AtMost) -> (text.upper, text.lower)
+                (AtMost, AtLeast) -> (text.upper, text.lower)
+                (Between, AtLeast) -> (text.lower, "")
+                (Between, AtMost) -> ("", text.upper)
+                _ -> (text.lower, text.upper)
     in
-        { model | text = { text | limit = limit } }
+        { model
+        | text =
+            { text
+            | limit = newLimit
+            , lower = lower'
+            , upper = upper'
+            }
+        }
 
 updateText : Model -> Model
 updateText model =
