@@ -268,10 +268,10 @@ updateTestForConfirmText =
 
     , test "Updating a Fact with several okay changes should register all" <|
       assertEqual
-      { text = { probPerc = "40", limit = AtMost, lower = "77", upper = "" }
+      { text = { probPerc = "40", limit = AtMost, lower = "", upper = "77" }
       , data = Segment 40 (Zone -inf 77)
       }
-      ( { text = { probPerc = "40", limit = AtMost, lower = "77", upper = "" }
+      ( { text = { probPerc = "40", limit = AtMost, lower = "", upper = "77" }
         , data = Segment 0 (Zone 0 inf)
         }
             |> update ConfirmText
@@ -312,7 +312,7 @@ updateTestForConfirmText =
 
     , test "Updating a Fact with equal lower and upper text should register none" <|
       assertEqual
-      { text = { probPerc = "40", limit = Between, lower = "10", upper = "50" }
+      { text = { probPerc = "40", limit = Between, lower = "10", upper = "10" }
       , data = Segment 40 (Zone 10 50)
       }
       ( { text = { probPerc = "40", limit = Between, lower = "10", upper = "10" }

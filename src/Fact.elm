@@ -137,12 +137,21 @@ updateText : Model -> Model
 updateText model =
     let
         probPerc' = String.toInt model.text.probPerc
-        lower' = String.toFloat model.text.lower
-        upper' = String.toFloat model.text.upper
+        lower' =
+            if (model.text.limit == AtMost) then
+                Ok -inf
+            else
+                String.toFloat model.text.lower
+        upper' =
+            if (model.text.limit == AtLeast) then
+                Ok inf
+            else
+                String.toFloat model.text.upper
         limit' = model.text.limit
+        comparison' = Result.map2 compare lower' upper'
     in
-        case (probPerc', lower', upper') of
-            (Ok prob, Ok lower, Ok upper) ->
+        case (probPerc', lower', upper', comparison') of
+            (Ok prob, Ok lower, Ok upper, Ok LT) ->
                 { model
                 | data = Segment prob (Zone lower upper)
                 }
