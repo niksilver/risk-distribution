@@ -10,7 +10,7 @@ module Constraints exposing
     , isSubcoeff
     , Model
     , addSegment, applyToCoeffs
-    , constraint, addConstraint, subtract
+    , constraint, subtract
     , deriveOnce, deriveAll
     , model
     )
@@ -403,14 +403,6 @@ constraint seg zones =
             if (isSubzone zone seg.zone) then 1 else 0
     in
         Constraint (List.map coeff zones) seg.pc
-
--- Add a constraint to a model
-
-addConstraint : Constraint -> Model -> Model
-addConstraint constraint model =
-    { model
-    | constraints = List.append model.constraints [constraint]
-    }
 
 -- Take one constraint and subtract another
 
