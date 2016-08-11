@@ -33,6 +33,7 @@ all =
     , subtractTest
     , deriveOnceTest
     , deriveAllTest
+    , modelTest
     ]
 
 infinityTest : Test
@@ -1234,5 +1235,44 @@ deriveAllTest =
         assertEqual
         [seed]
         (deriveAll [] seed)
+
+    ]
+
+modelTest : Test
+modelTest =
+    suite "modelTest"
+
+    [ test "Basic build of a model should work" <|
+      let
+        seg1 = Segment 50 (Zone 5 15)
+        seg2 = Segment 60 (Zone 0 inf)
+        seg3 = Segment 5 (Zone 15 inf)
+        expected =
+            { segments =
+                [ seg1, seg2, seg3 ]
+            , zones =
+                [ Zone -inf 0, Zone 0 5, Zone 5 15, Zone 15 inf ]
+            , constraints =
+                [ Constraint [1, 1, 1, 1] 100 -- Baseline, always
+                , Constraint [0, 0, 1, 0] 50  -- seg1
+                , Constraint [1, 1, 0, 1] 50  --   Baseline - seg1  [A]
+                , Constraint [0, 1, 1, 1] 60  -- seg2
+                , Constraint [1, 0, 0, 0] 40  --   Baseline - seg2  [B]
+                , Constraint [0, 1, 0, 1] 10  --   seg2 - seg1      [C]
+                , Constraint [1, 0, 1, 0] 90  --   Baseline - [C]   [D]
+                , Constraint [0, 0, 0, 1]  5  -- seg3
+                , Constraint [1, 1, 1, 0] 95  --   Baseline - seg3  [E]
+                , Constraint [1, 1, 0, 0] 45  --   [E] - seg1       [F]
+                , Constraint [0, 1, 1, 0] 55  --   [E] - [B]        [G]
+                , Constraint [0, 1, 0, 0]  5  --   [E] - [D]        [H]
+                , Constraint [0, 0, 1, 1] 55  --   Baseline - [F]   [I]
+                , Constraint [1, 0, 0, 1] 45  --   Baseline - [G]   [J]
+                , Constraint [1, 0, 1, 1] 95  --   Baseline - [H]
+                ]
+            }
+      in
+        assertEqual
+        expected
+        (model [seg1, seg2, seg3])
 
     ]

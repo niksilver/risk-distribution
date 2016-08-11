@@ -12,6 +12,7 @@ module Constraints exposing
     , addSegment, applyToCoeffs
     , constraint, addConstraint, subtract
     , deriveOnce, deriveAll
+    , model
     )
 
 import Util
@@ -441,3 +442,24 @@ deriveOnce constraints seed =
 deriveAll : List Constraint -> Constraint -> List Constraint
 deriveAll constraints seed =
     Util.expand deriveOnce constraints seed
+
+-- Build a model from segments
+
+model : List Segment -> Model
+model segments =
+    let
+        baseZone = Zone -inf inf
+        baseConstraint = Constraint [1] 100
+        initial = Model [] [baseZone] [baseConstraint]
+    in
+        List.foldl model' initial segments
+
+model' : Segment -> Model -> Model
+model' segment mod =
+    let
+        mod' = addSegment segment mod
+        constr = constraint segment mod'.zones
+    in
+        { mod'
+        | constraints = deriveAll mod'.constraints constr
+        }
