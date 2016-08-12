@@ -1,8 +1,8 @@
 module UI exposing (Model, Msg, init, view, update)
 
+import Util exposing (singleton)
 import Constraints exposing (Segment)
 import FactList
-
 
 import Html exposing (Html, div, p, ul, li, text)
 
@@ -40,5 +40,8 @@ view model =
 
 segmentsView : List Segment -> Html Msg
 segmentsView segments =
-    ul []
-    (List.map (\seg -> li [] [seg |> toString |> text])  segments)
+    segments
+        |> List.map (toString >> text >> singleton >> li [])
+        |> ul []
+    -- ul []
+    -- (List.map (\seg -> li [] [seg |> toString |> text])  segments)
