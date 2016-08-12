@@ -5,7 +5,10 @@ module Util exposing
     , spliceOne, insert
     , nth, indexOf
     , expand
+    , toLetter
     )
+
+import String
 
 
 -- See if a list element matches a given criterion
@@ -183,3 +186,14 @@ expand' fn xs queue =
                     queue2 = List.append tail tail2
                 in
                     expand' fn xs2 queue2
+-- Convert an Int 0 25 to a lower case letter
+
+toLetter : Int -> String
+toLetter idx =
+    let
+        az = "abcdefghijklmnopqrstuvwxyz"
+    in
+        if (0 <= idx && idx < String.length az) then
+            String.slice idx (idx+1) az
+        else
+            "?"

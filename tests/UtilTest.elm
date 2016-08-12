@@ -19,6 +19,7 @@ all =
     , nthTest
     , indexOfTest
     , expandTest
+    , toLetterTest
     ]
 
 findTest : Test
@@ -377,4 +378,25 @@ expandTest =
         assertEqual
         [66]
         (expand fn [] 66)
+    ]
+
+toLetterTest : Test
+toLetterTest =
+    suite "toLetterTest"
+
+    [ test "0 should give a" <|
+      assertEqual "a" (toLetter 0)
+
+    , test "1 should give b" <|
+      assertEqual "b" (toLetter 1)
+
+    , test "25 should give z" <|
+      assertEqual "z" (toLetter 25)
+
+    , test "-1 should give ?" <|
+      assertEqual "?" (toLetter -1)
+
+    , test "26 should give ?" <|
+      assertEqual "?" (toLetter 26)
+
     ]

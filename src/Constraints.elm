@@ -79,16 +79,6 @@ constraintToString cons =
     ++ " = "
     ++ (toString cons.pc)
 
-toLetter : Int -> String
-toLetter idx =
-    let
-        az = "abcdefghijklmnopqrstuvwxyz"
-    in
-        if (0 <= idx && idx <= String.length az) then
-            String.slice idx (idx+1) az
-        else
-            "?"
-
 constraintToStringLHS : List Int -> String
 constraintToStringLHS coeffs =
     let
@@ -101,7 +91,7 @@ constraintToStringLHS coeffs =
             Util.find idxOfNonZeroCoeff idxCoeffs
 
         coeffToLetter (idx, coeff) =
-            if (coeff == 0) then " " else toLetter idx
+            if (coeff == 0) then " " else Util.toLetter idx
 
         outputIdxCoeff (idx, coeff) =
             if (idx == 0) then
