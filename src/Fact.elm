@@ -22,7 +22,8 @@ import Html.Attributes exposing
 import Html.Events exposing (onInput, onClick, on)
 import Json.Decode exposing (Decoder)
 
-import Constraints exposing (inf, Segment, Zone)
+import Zone exposing (inf, Zone)
+import Constraints exposing (Segment)
 
 -- Our model of a fact
 

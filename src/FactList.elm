@@ -6,7 +6,8 @@ import Html.Events exposing (onClick)
 import Html.App as App
 
 import Fact exposing (Limit (AtLeast, AtMost, Between))
-import Constraints exposing (inf, Segment, Zone)
+import Zone exposing (inf, Zone)
+import Constraints exposing (Segment)
 
 
 type alias Model =

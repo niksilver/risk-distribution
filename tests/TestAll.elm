@@ -1,4 +1,5 @@
 import DistributionTest exposing (all)
+import ZoneTest exposing (all)
 import ConstraintsTest exposing (all)
 import FactTest exposing (all)
 import ChartUtilTest exposing (all)
@@ -16,6 +17,7 @@ main =
     runSuiteHtml <|
         suite "All tests"
         [ DistributionTest.all
+        , ZoneTest.all
         , ConstraintsTest.all
         , FactTest.all
         , ChartUtilTest.all

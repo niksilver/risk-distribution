@@ -2,7 +2,8 @@ module FactTest exposing (all)
 
 import Fact exposing (..)
 
-import Constraints exposing (inf, Segment, Zone)
+import Zone exposing (inf, Zone)
+import Constraints exposing (Segment)
 
 import ElmTest exposing (..)
 
