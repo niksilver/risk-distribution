@@ -9,7 +9,8 @@ import ElmTest exposing (..)
 all : Test
 all =
     suite "UtilTest"
-    [ findTest
+    [ singletonTest
+    , findTest
     , findPairTest
     , slidingTest
     , bracketTest
@@ -20,6 +21,17 @@ all =
     , indexOfTest
     , expandTest
     , toLetterTest
+    ]
+
+singletonTest : Test
+singletonTest =
+    suite "singletonTest"
+
+    [ test "Simple singleton should work (1)" <|
+      assertEqual [33] (singleton 33)
+
+    , test "Simple singleton should work (2)" <|
+      assertEqual ["hello"] (singleton "hello")
     ]
 
 findTest : Test

@@ -1,11 +1,10 @@
 module UI exposing (Model, Msg, init, view, update)
 
-import Distribution exposing (Layer)
+import Constraints exposing (Segment)
 import FactList
-import Chart
-import Errors
 
-import Html exposing (Html, div, p, text)
+
+import Html exposing (Html, div, p, ul, li, text)
 
 
 type alias Model = FactList.Model
@@ -32,20 +31,14 @@ update msg model =
 view : Model -> Html Msg
 view model =
     let
-        layers = FactList.layers model
+        segments = FactList.segments model
     in
         div []
         [ FactList.view model
-        , errorsOrChartView layers
+        , segmentsView segments
         ]
 
-errorsOrChartView : List Layer -> Html Msg
-errorsOrChartView layers =
-    let
-        errs = Errors.errors layers
-    in
-        if (List.isEmpty errs) then
-            Chart.layersToView layers
-        else
-            Errors.view errs
-
+segmentsView : List Segment -> Html Msg
+segmentsView segments =
+    ul []
+    (List.map (\seg -> li [] [seg |> toString |> text])  segments)

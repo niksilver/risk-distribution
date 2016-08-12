@@ -1,5 +1,6 @@
 module Util exposing
-    ( find, findPair
+    ( singleton
+    , find, findPair
     , sliding
     , bracket, bracketMap
     , spliceOne, insert
@@ -10,6 +11,12 @@ module Util exposing
 
 import String
 
+
+-- Create a singleton list of the given elements
+
+singleton : a -> List a
+singleton x =
+    [x]
 
 -- See if a list element matches a given criterion
 
