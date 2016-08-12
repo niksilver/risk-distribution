@@ -169,7 +169,7 @@ view model =
         , "% chance that it's " |> text
         , limitControl model
         , " " |> text
-        , lowerBox model.text.lower
+        , valueBoxes model
         , okayView
         ]
 
@@ -210,6 +210,20 @@ probBox model =
         , mapping = ProbPerc
         }
 
+valueBoxes : Model -> Html Msg
+valueBoxes model =
+    case model.text.limit of
+        AtLeast ->
+            lowerBox model.text.lower
+        AtMost ->
+            upperBox model.text.upper
+        Between ->
+            span []
+            [ lowerBox model.text.lower
+            , " and " |> text
+            , upperBox model.text.upper
+            ]
+
 lowerBox : String -> Html Msg
 lowerBox lower =
     textBox
@@ -218,6 +232,16 @@ lowerBox lower =
         , width = "7em"
         , value = lower
         , mapping = Lower
+        }
+
+upperBox : String -> Html Msg
+upperBox upper =
+    textBox
+        { id = "upper"
+        , label = "Value"
+        , width = "7em"
+        , value = upper
+        , mapping = Upper
         }
 
 onChange : Attribute Msg
