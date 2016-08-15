@@ -129,7 +129,7 @@ removeView { id, fact } =
     button
     [ class "btn btn-default"
     , type' "button"
-    , style [ ("margin-left", "3em") ]
+    , style [ ("margin-left", "1em") ]
     , onClick (Remove id)
     ]
     [ text "Remove" ]

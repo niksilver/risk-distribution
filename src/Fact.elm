@@ -212,17 +212,21 @@ probBox model =
 
 valueBoxes : Model -> Html Msg
 valueBoxes model =
-    case model.text.limit of
-        AtLeast ->
-            lowerBox model.text.lower
-        AtMost ->
-            upperBox model.text.upper
-        Between ->
-            span []
-            [ lowerBox model.text.lower
-            , " and " |> text
-            , upperBox model.text.upper
-            ]
+    let
+        span' =
+            span [ style [ ("display", "inline-block"), ("width", "19em") ]]
+    in
+        case model.text.limit of
+            AtLeast ->
+                span' [ lowerBox model.text.lower ]
+            AtMost ->
+                span' [ upperBox model.text.upper ]
+            Between ->
+                span'
+                    [ lowerBox model.text.lower
+                    , " and " |> text
+                    , upperBox model.text.upper
+                    ]
 
 lowerBox : String -> Html Msg
 lowerBox lower =
@@ -288,7 +292,7 @@ okayView =
     button
     [ class "btn btn-default"
     , type' "button"
-    , style [ ("margin-left", "3em") ]
+    , style [ ("margin-left", "1em") ]
     , onClick ConfirmText
     ]
     [ text "Okay" ]
