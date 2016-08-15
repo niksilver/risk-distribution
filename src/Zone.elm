@@ -1,6 +1,6 @@
 module Zone exposing
     ( inf
-    , Zone, baseZone, isSubzone
+    , Zone, isSubzone
     , Relation (NoRelation, Before, OnEdgeOf, Inside), relativeTo, isInside
     , Change (Subst, Add, NoChange)
     , splitOne, split
@@ -17,8 +17,6 @@ inf = 1/0
 -- part of the distribution curve.
 
 type alias Zone = { from : Float, to : Float}
-
-baseZone = Zone -inf inf
 
 -- See if a zone is within another. A zone is a subzone of itself.
 

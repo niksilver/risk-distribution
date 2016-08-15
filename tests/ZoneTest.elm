@@ -8,7 +8,6 @@ all : Test
 all =
     suite "ZoneTest"
     [ infinityTest
-    , baseZoneTest
     , isSubzoneTest
     , isInsideTest
     , relativeToTest
@@ -46,21 +45,6 @@ infinityTest =
     , test "inf <= inf" <|
       assert
       (inf <= inf)
-    ]
-
-baseZoneTest : Test
-baseZoneTest =
-    suite "baseZoneTest"
-    [ test "Baze zone runs from -inf" <|
-      assertEqual
-      -inf
-      baseZone.from
-
-    , test "Baze zone runs to +inf" <|
-      assertEqual
-      inf
-      baseZone.to
-
     ]
 
 isSubzoneTest : Test
@@ -207,7 +191,7 @@ splitOneTest =
     [ test "10 should split the base zone (-inf / +inf) correctly" <|
       assertEqual
       (Just [Zone -inf 10, Zone 10 inf])
-      (baseZone |> splitOne 10)
+      (Zone -inf inf |> splitOne 10)
 
     , test "10 should split (0, 11) correctly" <|
       assertEqual
@@ -248,7 +232,7 @@ splitTest =
     , test "Splitting base zone should give two zones substituting" <|
       assertEqual
       (Subst 0 [Zone -inf 11, Zone 11 inf])
-      ([baseZone] |> split 11)
+      ([Zone -inf inf] |> split 11)
 
     , test "Splitting a first zone should give two zones substituting" <|
       assertEqual
