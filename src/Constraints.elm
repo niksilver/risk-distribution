@@ -1,5 +1,5 @@
 module Constraints exposing
-    ( Segment
+    ( Segment, baseSegment
     , Constraint, constraintToString
     , isSubcoeff
     , Model
@@ -60,6 +60,12 @@ type alias Segment =
     { pc : Int
     , zone : Zone
     }
+
+-- A segment saying everything must add up to 100%
+
+baseSegment : Segment
+baseSegment =
+    Segment 100 (Zone -inf inf)
 
 -- A constraint is something of the form
 -- a + c + d = 40
@@ -237,16 +243,15 @@ deriveAll : List Constraint -> Constraint -> List Constraint
 deriveAll constraints seed =
     Util.expand deriveOnce constraints seed
 
--- Build a model from segments
+-- Build a model from segments.
+-- The base segment will be added at the start, before those given.
 
 model : List Segment -> Model
 model segments =
     let
-        baseZone = Zone -inf inf
-        baseConstraint = Constraint [1] 100
-        initial = Model [] [baseZone] [baseConstraint]
+        initial = Model [] [] []
     in
-        List.foldl model' initial segments
+        List.foldl model' initial (baseSegment :: segments)
 
 model' : Segment -> Model -> Model
 model' segment mod =

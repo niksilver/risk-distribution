@@ -33,13 +33,13 @@ view : Model -> Html Msg
 view model =
     let
         segments = FactList.segments model
-        constraintsModel = Constraints.model segments
+        cModel = Constraints.model segments
     in
         div []
         [ FactList.view model
-        , segmentsView segments
-        , zonesView constraintsModel.zones
-        , constraintsView constraintsModel.constraints
+        , segmentsView cModel.segments
+        , zonesView cModel.zones
+        , constraintsView cModel.constraints
         ]
 
 segmentsView : List Segment -> Html Msg

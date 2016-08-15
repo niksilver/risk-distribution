@@ -621,14 +621,30 @@ modelTest : Test
 modelTest =
     suite "modelTest"
 
-    [ test "Basic build of a model should work" <|
+    [ test "A model built from nothing should at least include the base segment" <|
+      let
+        expected =
+            { segments =
+                [ baseSegment ]
+            , zones =
+                [ Zone -inf inf ]
+            , constraints =
+                [ Constraint [1] 100
+                ]
+            }
+      in
+        assertEqual
+        expected
+        (model [])
+
+    , test "Basic build of a model should work" <|
       let
         seg1 = Segment 50 (Zone 5 15)
         seg2 = Segment 60 (Zone 0 inf)
         seg3 = Segment 5 (Zone 15 inf)
         expected =
             { segments =
-                [ seg1, seg2, seg3 ]
+                [ baseSegment, seg1, seg2, seg3 ]
             , zones =
                 [ Zone -inf 0, Zone 0 5, Zone 5 15, Zone 15 inf ]
             , constraints =
