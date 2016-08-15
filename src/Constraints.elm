@@ -217,6 +217,7 @@ subtract larger smaller =
 deriveOnce : List Constraint -> Constraint -> List Constraint
 deriveOnce constraints seed =
     let
+        existingConstraints = constraints
         maybeMap c =
             if (isSubcoeff seed.coeffs c.coeffs) then
                 Just (subtract c seed)

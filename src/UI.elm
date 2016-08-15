@@ -44,18 +44,18 @@ view model =
 
 segmentsView : List Segment -> Html Msg
 segmentsView segments =
-    segments
-        |> List.map (toString >> text >> singleton >> li [])
-        |> ul []
+    bulletListView toString segments
 
 zonesView : List Zone -> Html Msg
 zonesView zones =
-    zones
-        |> List.map (toString >> text >> singleton >> li [])
-        |> ul []
+    bulletListView toString zones
 
 constraintsView : List Constraint -> Html Msg
 constraintsView constraints =
-    constraints
-        |> List.map (Constraints.constraintToString >> text >> singleton >> li [])
+    bulletListView Constraints.constraintToString constraints
+
+bulletListView : (a -> String) -> List a -> Html Msg
+bulletListView trans xs =
+    xs
+        |> List.map (trans >> text >> singleton >> li [])
         |> ul []
