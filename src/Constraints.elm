@@ -219,7 +219,9 @@ deriveOnce constraints seed =
     let
         existingConstraints = constraints
         maybeMap c =
-            if (isSubcoeff seed.coeffs c.coeffs) then
+            if (seed.coeffs == c.coeffs) then
+                Nothing
+            else if (isSubcoeff seed.coeffs c.coeffs) then
                 Just (subtract c seed)
             else if (isSubcoeff c.coeffs seed.coeffs) then
                 Just (subtract seed c)

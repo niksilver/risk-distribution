@@ -541,6 +541,15 @@ deriveOnceTest =
         []
         (deriveOnce [] seed)
 
+    , test "deriveOnce will not derive all-zero coefficients if given different constraints with same coeffs" <|
+      let
+        con1 = Constraint [0, 1, 1] 65
+        seed = Constraint [0, 1, 1] 20
+      in
+        assertEqual
+        []
+        (deriveOnce [con1] seed)
+
     ]
 
 deriveAllTest : Test
