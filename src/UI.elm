@@ -1,7 +1,8 @@
 module UI exposing (Model, Msg, init, view, update)
 
 import Util exposing (singleton)
-import Constraints exposing (Segment)
+import Zone exposing (Zone)
+import Constraints exposing (Segment, Constraint)
 import FactList
 
 import Html exposing (Html, div, p, ul, li, text)
@@ -32,11 +33,13 @@ view : Model -> Html Msg
 view model =
     let
         segments = FactList.segments model
+        constraintsModel = Constraints.model segments
     in
         div []
         [ FactList.view model
         , segmentsView segments
-        , constraintsView segments
+        , zonesView constraintsModel.zones
+        , constraintsView constraintsModel.constraints
         ]
 
 segmentsView : List Segment -> Html Msg
@@ -45,10 +48,14 @@ segmentsView segments =
         |> List.map (toString >> text >> singleton >> li [])
         |> ul []
 
-constraintsView : List Segment -> Html Msg
-constraintsView segments =
-    segments
-        |> Constraints.model
-        |> .constraints
+zonesView : List Zone -> Html Msg
+zonesView zones =
+    zones
+        |> List.map (toString >> text >> singleton >> li [])
+        |> ul []
+
+constraintsView : List Constraint -> Html Msg
+constraintsView constraints =
+    constraints
         |> List.map (Constraints.constraintToString >> text >> singleton >> li [])
         |> ul []
