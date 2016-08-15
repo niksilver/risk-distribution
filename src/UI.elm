@@ -36,6 +36,7 @@ view model =
         div []
         [ FactList.view model
         , segmentsView segments
+        , constraintsView segments
         ]
 
 segmentsView : List Segment -> Html Msg
@@ -43,5 +44,11 @@ segmentsView segments =
     segments
         |> List.map (toString >> text >> singleton >> li [])
         |> ul []
-    -- ul []
-    -- (List.map (\seg -> li [] [seg |> toString |> text])  segments)
+
+constraintsView : List Segment -> Html Msg
+constraintsView segments =
+    segments
+        |> Constraints.model
+        |> .constraints
+        |> List.map (Constraints.constraintToString >> text >> singleton >> li [])
+        |> ul []
