@@ -265,9 +265,9 @@ limitControl : Model -> Html Msg
 limitControl model =
     let
         limit =
-            if (model.data.zone.from == -inf) then
+            if (model.data.zone.to == inf) then
                 AtLeast
-            else if (model.data.zone.to == inf) then
+            else if (model.data.zone.from == -inf) then
                 AtMost
             else
                 Between
