@@ -1,8 +1,9 @@
 module Derivation exposing
     ( Derivation, derivationToString
+    , subtract
     )
 
-import Constraints as Con exposing (Constraint)
+import Constraints as Cons exposing (Constraint)
 
 import String
 
@@ -19,7 +20,14 @@ type alias Derivation =
 
 derivationToString : Derivation -> String
 derivationToString deriv =
-    Con.constraintToString deriv.cons
+    Cons.constraintToString deriv.cons
     ++ " ("
     ++ (deriv.src |> List.map toString |> String.join ", ")
     ++ ")"
+
+-- Take one derivation and subtract another.
+-- The result should include the combined sources
+
+subtract : Derivation -> Derivation -> Derivation
+subtract larger smaller =
+    Derivation (Cons.subtract larger.cons smaller.cons) (larger.src ++ smaller.src)
