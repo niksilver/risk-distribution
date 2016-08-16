@@ -5,7 +5,7 @@ module Constraint exposing
     , Model
     , addSegment, applyToCoeffs
     , constraint, subtract
-    , deriveOnce, deriveAll
+    , deduceOnce, deduceAll
     , model
     )
 
@@ -221,8 +221,8 @@ subtract larger smaller =
 -- Derive more constraints given some existing ones
 -- using another to subtract.
 
-deriveOnce : List Constraint -> Constraint -> List Constraint
-deriveOnce constraints seed =
+deduceOnce : List Constraint -> Constraint -> List Constraint
+deduceOnce constraints seed =
     let
         existingConstraints = constraints
         maybeMap c =
@@ -240,9 +240,9 @@ deriveOnce constraints seed =
 -- Derive all the constraints we can from some existing ones by
 -- adding a new one... including the original ones.
 
-deriveAll : List Constraint -> Constraint -> List Constraint
-deriveAll constraints seed =
-    Util.expand deriveOnce constraints seed
+deduceAll : List Constraint -> Constraint -> List Constraint
+deduceAll constraints seed =
+    Util.expand deduceOnce constraints seed
 
 -- Build a model from segments.
 -- The base segment will be added at the start, before those given.
@@ -261,5 +261,5 @@ model' segment mod =
         constr = constraint segment mod'.zones
     in
         { mod'
-        | constraints = deriveAll mod'.constraints constr
+        | constraints = deduceAll mod'.constraints constr
         }
