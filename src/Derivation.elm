@@ -1,10 +1,11 @@
 module Derivation exposing
     ( Derivation, derivationToString
     , subtract
-    , deduceOnce
+    , deduceOnce, deduceAll
     )
 
 import Constraint as Cons exposing (Constraint)
+import Util
 
 import String
 
@@ -50,3 +51,14 @@ deduceOnce derivations seed =
                 Nothing
     in
         List.filterMap maybeMap derivations
+
+-- Derive all the derivations we can from some existing ones by
+-- adding a new one... including the original ones.
+
+deduceAll : List Derivation -> Derivation -> List Derivation
+deduceAll derivations seed =
+    let
+        equiv der1 der2 =
+            der1.cons == der2.cons
+    in
+        Util.filteredExpand deduceOnce equiv derivations seed

@@ -5,7 +5,8 @@ module Util exposing
     , bracket, bracketMap
     , spliceOne, insert
     , nth, indexOf
-    , expand
+    , removeEquivalent
+    , expand, filteredExpand
     , toLetter
     )
 
@@ -140,6 +141,17 @@ indexOf' x xs idx =
             else
                 indexOf' x tail (idx + 1)
 
+-- Remove candidate elements from a list that are deemed equivalent to
+-- any already present in a base list
+
+removeEquivalent : (a -> a -> Bool) -> List a -> List a -> List a
+removeEquivalent equiv base candidates =
+    let
+        equivPresent c = List.any (equiv c) base
+        equivNotPresent c = not (equivPresent c)
+    in
+        List.filter equivNotPresent candidates
+
 -- Expand a list as follows...
 -- A function fn takes a list of elements and new element a, and returns a
 -- new list.
@@ -193,6 +205,32 @@ expand' fn xs queue =
                     queue2 = List.append tail tail2
                 in
                     expand' fn xs2 queue2
+
+-- Expand a list just like the expand function above,
+-- except this time we're also given a equivalence function.
+-- We filter the queue to exclude elements that aren't already
+-- in the list passing equivalence.
+
+filteredExpand : (List a -> a -> List a) -> (a -> a -> Bool)-> List a -> a -> List a
+filteredExpand fn equiv xs seed =
+    filteredExpand' fn equiv xs [seed]
+
+filteredExpand' : (List a -> a -> List a) -> (a -> a -> Bool) -> List a -> List a -> List a
+filteredExpand' fn equiv xs queue =
+    let
+        filtQueue = removeEquivalent equiv xs queue
+    in
+        case filtQueue of
+            [] ->
+                xs
+            seed :: tail ->
+                let
+                    tail2 = fn xs seed
+                    xs2 = List.append xs [seed]
+                    queue2 = List.append tail tail2
+                in
+                    filteredExpand' fn equiv xs2 queue2
+
 -- Convert an Int 0 25 to a lower case letter
 
 toLetter : Int -> String

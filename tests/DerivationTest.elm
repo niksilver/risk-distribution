@@ -12,8 +12,8 @@ all =
     [ derivationToStringTest
     , subtractTest
     , deduceOnceTest
+    , deduceAllTest
     -- We'll need to bring in...
-    -- deriveAll
     -- model
     ]
 
@@ -135,5 +135,70 @@ deduceOnceTest =
         assertEqual
         []
         (deduceOnce [der1] seed)
+
+    ]
+
+deduceAllTest : Test
+deduceAllTest =
+    suite "deduceAllTest"
+
+    [ test "Simple deduction of all should work" <|
+      let
+        der1 = deriv [1, 1, 1] 100 [0]
+        der2 = deriv [0, 1, 1] 55  [1]
+        seed = deriv [0, 0, 1] 30  [2]
+        -- This subtracting seed from the others should give these...
+        res1 = deriv [1, 1, 0] 70  [0, 2]
+        res2 = deriv [0, 1, 0] 25  [1, 2]
+        -- And res2 should give this...
+        res3 = deriv [1, 0, 1] 75  [0, 1, 2]
+        -- And res1 and res2 should give this
+        res4 = deriv [1, 0, 0] 45  [0, 2, 1, 2]
+      in
+        assertEqual
+        [der1, der2, seed, res1, res2, res3, res4]
+        (deduceAll [der1, der2] seed)
+
+    , test "deduceAll should work when the seed is the larger constraint, to be subtracted from" <|
+      let
+        der1 = deriv [0, 1, 1] 65  [0]
+        der2 = deriv [0, 1, 0] 20  [1]
+        seed = deriv [1, 1, 1] 80  [2]
+        -- This subtracting others from seed should give these...
+        res1 = deriv [1, 0, 0] 15  [2, 0]
+        res2 = deriv [1, 0, 1] 60  [2, 1]
+        -- Then subtracting these two gives...
+        res3 = deriv [0, 0, 1] 45  [2, 1, 2, 0]
+        -- And subtracting that from the seed gives
+        res4 = deriv [1, 1, 0] 35  [2, 2, 1, 2, 0]
+      in
+        assertEqual
+        [der1, der2, seed, res1, res2, res3, res4]
+        (deduceAll [der1, der2] seed)
+
+    , test "deduceAll should skip constraint where it can't subtract" <|
+      let
+        der1 = deriv [0, 1, 1] 75  [0]
+        der2 = deriv [1, 1, 1] 90  [1]
+        seed = deriv [1, 1, 0] 30  [2]
+        -- Subtracting where we can should give this...
+        res1 = deriv [0, 0, 1] 60  [1, 2]
+        -- And that should in turn give this...
+        res2 = deriv [0, 1, 0] 15  [0, 1, 2]
+        -- And from that we can derive these...
+        res3 = deriv [1, 0, 1] 75  [1, 0, 1, 2]
+        res4 = deriv [1, 0, 0] 15  [2, 0, 1, 2]
+      in
+        assertEqual
+        [der1, der2, seed, res1, res2, res3, res4]
+        (deduceAll [der1, der2] seed)
+
+    , test "deduceAll returns just the seed if we're starting with no constraints" <|
+      let
+        seed = deriv [1, 1, 0] 30  [0]
+      in
+        assertEqual
+        [seed]
+        (deduceAll [] seed)
 
     ]

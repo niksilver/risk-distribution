@@ -236,7 +236,7 @@ deduceOnce constraints seed =
     in
         List.filterMap maybeMap constraints
 
--- Derive all the constraints we can from some existing ones by
+-- Deduce all the constraints we can from some existing ones by
 -- adding a new one... including the original ones.
 
 deduceAll : List Constraint -> Constraint -> List Constraint
