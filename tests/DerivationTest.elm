@@ -1,7 +1,7 @@
 module DerivationTest exposing (all)
 
 import Derivation exposing (..)
-import Constraints exposing (Constraint)
+import Constraint exposing (Constraint)
 
 import ElmTest exposing (..)
 

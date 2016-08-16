@@ -1,6 +1,6 @@
-module ConstraintsTest exposing (all)
+module ConstraintTest exposing (all)
 
-import Constraints exposing (..)
+import Constraint exposing (..)
 import Zone exposing
     ( Zone, inf
     , Change (Subst, Add, NoChange)
@@ -10,7 +10,7 @@ import ElmTest exposing (..)
 
 all : Test
 all =
-    suite "ConstraintsTest"
+    suite "ConstraintTest"
     [ constraintToStringTest
     , addSegmentTestForNewSegment
     , addSegmentTestForNewZone

@@ -1,6 +1,6 @@
 import DistributionTest exposing (all)
 import ZoneTest exposing (all)
-import ConstraintsTest exposing (all)
+import ConstraintTest exposing (all)
 import DerivationTest exposing (all)
 import FactTest exposing (all)
 import ChartUtilTest exposing (all)
@@ -19,7 +19,7 @@ main =
         suite "All tests"
         [ DistributionTest.all
         , ZoneTest.all
-        , ConstraintsTest.all
+        , ConstraintTest.all
         , DerivationTest.all
         , FactTest.all
         , ChartUtilTest.all

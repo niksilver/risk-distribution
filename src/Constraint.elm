@@ -1,4 +1,4 @@
-module Constraints exposing
+module Constraint exposing
     ( Segment, baseSegment
     , Constraint, constraintToString
     , isSubcoeff

@@ -2,7 +2,7 @@ module UI exposing (Model, Msg, init, view, update)
 
 import Util exposing (singleton)
 import Zone exposing (Zone)
-import Constraints exposing (Segment, Constraint)
+import Constraint exposing (Segment, Constraint)
 import FactList
 
 import Html exposing (Html, div, p, ul, li, text)
@@ -33,7 +33,7 @@ view : Model -> Html Msg
 view model =
     let
         segments = FactList.segments model
-        cModel = Constraints.model segments
+        cModel = Constraint.model segments
     in
         div []
         [ FactList.view model
@@ -52,7 +52,7 @@ zonesView zones =
 
 constraintsView : List Constraint -> Html Msg
 constraintsView constraints =
-    bulletListView Constraints.constraintToString constraints
+    bulletListView Constraint.constraintToString constraints
 
 bulletListView : (a -> String) -> List a -> Html Msg
 bulletListView trans xs =

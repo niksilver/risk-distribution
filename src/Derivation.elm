@@ -3,7 +3,7 @@ module Derivation exposing
     , subtract
     )
 
-import Constraints as Cons exposing (Constraint)
+import Constraint as Cons exposing (Constraint)
 
 import String
 
