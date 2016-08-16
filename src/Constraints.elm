@@ -1,7 +1,6 @@
 module Constraints exposing
     ( Segment, baseSegment
     , Constraint, constraintToString
-    , Derivation, derivationToString
     , isSubcoeff
     , Model
     , addSegment, applyToCoeffs
@@ -113,20 +112,6 @@ constraintToStringLHS coeffs =
         idxCoeffs
             |> List.map outputIdxCoeff
             |> String.concat
-
--- A constraint which also holds the source(s) from which it was derived.
-
-type alias Derivation =
-    { cons : Constraint
-    , src : List Int
-    }
-
-derivationToString : Derivation -> String
-derivationToString deriv =
-    constraintToString deriv.cons
-    ++ " ("
-    ++ (deriv.src |> List.map toString |> String.join ", ")
-    ++ ")"
 
 -- Coeffivient A is a subcoefficient of B if they're the same length
 -- and every non-zero in A has the same non-zero in B.
