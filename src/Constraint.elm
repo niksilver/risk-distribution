@@ -218,13 +218,12 @@ subtract larger smaller =
     , pc = larger.pc - smaller.pc
     }
 
--- Derive more constraints given some existing ones
+-- Deduce more constraints given some existing ones
 -- using another to subtract.
 
 deduceOnce : List Constraint -> Constraint -> List Constraint
 deduceOnce constraints seed =
     let
-        existingConstraints = constraints
         maybeMap c =
             if (seed.coeffs == c.coeffs) then
                 Nothing

@@ -1,6 +1,7 @@
 module Derivation exposing
     ( Derivation, derivationToString
     , subtract
+    , deduceOnce
     )
 
 import Constraint as Cons exposing (Constraint)
@@ -31,3 +32,21 @@ derivationToString deriv =
 subtract : Derivation -> Derivation -> Derivation
 subtract larger smaller =
     Derivation (Cons.subtract larger.cons smaller.cons) (larger.src ++ smaller.src)
+
+-- Deduce more derivations given some existing ones
+-- using another to subtract.
+
+deduceOnce : List Derivation -> Derivation -> List Derivation
+deduceOnce derivations seed =
+    let
+        maybeMap d =
+            if (seed.cons.coeffs == d.cons.coeffs) then
+                Nothing
+            else if (Cons.isSubcoeff seed.cons.coeffs d.cons.coeffs) then
+                Just (subtract d seed)
+            else if (Cons.isSubcoeff d.cons.coeffs seed.cons.coeffs) then
+                Just (subtract seed d)
+            else
+                Nothing
+    in
+        List.filterMap maybeMap derivations
