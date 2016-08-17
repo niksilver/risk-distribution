@@ -2,9 +2,15 @@ module Derivation exposing
     ( Derivation, derivationToString
     , subtract
     , deduceOnce, deduceAll
+    , Model --, model
+    , addSegment
     )
 
-import Constraint as Cons exposing (Constraint)
+import Zone exposing
+    ( Zone
+    , Change (Subst, Add, NoChange)
+    )
+import Constraint as Cons exposing (Segment, baseSegment, Constraint)
 import Util
 
 import String
@@ -62,3 +68,80 @@ deduceAll derivations seed =
             der1.cons == der2.cons
     in
         Util.filteredExpand deduceOnce equiv derivations seed
+
+-- A model represents:
+-- our segments (our judgements, or claims, over the distribution),
+-- the zones, and
+-- the derivations
+
+type alias Model =
+    { segments : List Segment
+    , zones : List Zone
+    , derivations : List Derivation
+    }
+
+-- Given a model, add a new segment, and adjust the zones and derivations
+-- accordingly
+
+addSegment : Segment -> Model -> Model
+addSegment seg model =
+    let
+        zones = model.zones
+        changes = Zone.overlay seg.zone zones
+    in
+        model
+            |> addSegmentJustSegment seg
+            |> addSegmentJustZones changes
+            |> addSegmentJustDerivations changes
+
+addSegmentJustSegment : Segment -> Model -> Model
+addSegmentJustSegment seg model =
+    { model
+    | segments = List.concat [model.segments, [seg]]
+    }
+
+addSegmentJustZones : List Change -> Model -> Model
+addSegmentJustZones changes model =
+    { model
+    | zones  = List.foldl Zone.apply model.zones changes
+    }
+
+addSegmentJustDerivations : List Change -> Model -> Model
+addSegmentJustDerivations changes model =
+    { model
+    | derivations = List.map (applyAllToCoeffs changes) model.derivations
+    }
+
+applyAllToCoeffs : List Change -> Derivation -> Derivation
+applyAllToCoeffs changes derivation =
+    let
+        constraint = derivation.cons
+    in
+        { derivation
+        | cons =
+            { constraint
+            | coeffs = List.foldl Cons.applyToCoeffs constraint.coeffs changes
+            }
+        }
+
+-- Build a model from segments.
+-- The base segment will be added at the start, before those given.
+
+-- model : List Segment -> Model
+-- model segments =
+--     let
+--         initial = Model [] [] []
+--     in
+--         List.foldl model' initial (baseSegment :: segments)
+--
+-- model' : Segment -> Model -> Model
+-- model' segment mod =
+--     let
+--         srcId = List.length mod.segments
+--         mod' = Cons.addSegment segment mod
+--         cons = Cons.constraint segment mod'.zones
+--         deriv = Derivation cons srcId
+--     in
+--         { mod'
+--         | derivations = deduceAll mod'.derivations deriv
+--         }
