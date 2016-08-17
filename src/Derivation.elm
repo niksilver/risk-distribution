@@ -2,8 +2,9 @@ module Derivation exposing
     ( Derivation, derivationToString
     , subtract
     , deduceOnce, deduceAll
-    , Model --, model
+    , Model
     , addSegment
+    , model
     )
 
 import Zone exposing
@@ -127,21 +128,21 @@ applyAllToCoeffs changes derivation =
 -- Build a model from segments.
 -- The base segment will be added at the start, before those given.
 
--- model : List Segment -> Model
--- model segments =
---     let
---         initial = Model [] [] []
---     in
---         List.foldl model' initial (baseSegment :: segments)
---
--- model' : Segment -> Model -> Model
--- model' segment mod =
---     let
---         srcId = List.length mod.segments
---         mod' = Cons.addSegment segment mod
---         cons = Cons.constraint segment mod'.zones
---         deriv = Derivation cons srcId
---     in
---         { mod'
---         | derivations = deduceAll mod'.derivations deriv
---         }
+model : List Segment -> Model
+model segments =
+    let
+        initial = Model [] [] []
+    in
+        List.foldl model' initial (baseSegment :: segments)
+
+model' : Segment -> Model -> Model
+model' segment mod =
+    let
+        srcId = List.length mod.segments
+        model2 = addSegment segment mod
+        cons = Cons.constraint segment model2.zones
+        deriv = Derivation cons [srcId]
+    in
+        { model2
+        | derivations = deduceAll model2.derivations deriv
+        }
