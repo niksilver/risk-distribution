@@ -445,21 +445,21 @@ modelTest =
             , zones =
                 [ Zone -inf 0, Zone 0 5, Zone 5 15, Zone 15 inf ]
             , derivations =
-                [ deriv [1, 1, 1, 1] 100 [0] -- Baseline, always
-                , deriv [0, 0, 1, 0] 50  [1] -- seg1
-                , deriv [1, 1, 0, 1] 50  [0, 1] --   Baseline - seg1  [A]
-                , deriv [0, 1, 1, 1] 60  [2] -- seg2
-                , deriv [1, 0, 0, 0] 40  [0, 2]--   Baseline - seg2  [B]
-                , deriv [0, 1, 0, 1] 10  [2, 1]--   seg2 - seg1      [C]
-                , deriv [1, 0, 1, 0] 90  [0, 2, 1]--   Baseline - [C]   [D]
-                , deriv [0, 0, 0, 1]  5  [3]-- seg3
-                , deriv [1, 1, 1, 0] 95  [0, 3]--   Baseline - seg3  [E]
-                , deriv [1, 1, 0, 0] 45  [0, 1, 3]--   [A] - seg3       [F]
-                , deriv [0, 1, 1, 0] 55  [2, 3]--   seg2 - seg3        [G]
-                , deriv [0, 1, 0, 0]  5  [2, 1, 3]--   [C] - seg3        [H]
-                , deriv [0, 0, 1, 1] 55  [0, 0, 1, 3]--   Baseline - [F]   [I]
-                , deriv [1, 0, 0, 1] 45  [0, 2, 3]--   Baseline - [G]   [J]
-                , deriv [1, 0, 1, 1] 95  [0, 2, 1, 3]--   Baseline - [H]
+                [ deriv [1, 1, 1, 1] 100 [0]          -- Baseline, always
+                , deriv [0, 0, 1, 0] 50  [1]          -- seg1
+                , deriv [1, 1, 0, 1] 50  [0, 1]       --   Baseline - seg1  [A]
+                , deriv [0, 1, 1, 1] 60  [2]          -- seg2
+                , deriv [1, 0, 0, 0] 40  [0, 2]       --   Baseline - seg2  [B]
+                , deriv [0, 1, 0, 1] 10  [2, 1]       --   seg2 - seg1      [C]
+                , deriv [1, 0, 1, 0] 90  [0, 2, 1]    --   Baseline - [C]   [D]
+                , deriv [0, 0, 0, 1]  5  [3]          -- seg3
+                , deriv [1, 1, 1, 0] 95  [0, 3]       --   Baseline - seg3  [E]
+                , deriv [1, 1, 0, 0] 45  [0, 1, 3]    --   [A] - seg3       [F]
+                , deriv [0, 1, 1, 0] 55  [2, 3]       --   seg2 - seg3        [G]
+                , deriv [0, 1, 0, 0]  5  [2, 1, 3]    --   [C] - seg3        [H]
+                , deriv [0, 0, 1, 1] 55  [0, 0, 1, 3] --   Baseline - [F]   [I]
+                , deriv [1, 0, 0, 1] 45  [0, 2, 3]    --   Baseline - [G]   [J]
+                , deriv [1, 0, 1, 1] 95  [0, 2, 1, 3] --   Baseline - [H]
                 ]
             }
       in
