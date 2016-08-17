@@ -187,29 +187,42 @@ removeEquivalent equiv base candidates =
 
 expand : (List a -> a -> List a) -> List a -> a -> List a
 expand fn xs seed =
-    expand' fn xs [seed]
+    filteredExpand fn (==) xs seed
 
-expand' : (List a -> a -> List a) -> List a -> List a -> List a
-expand' fn xs queue =
-    let
-        notInList e = not (List.member e xs)
-        filtQueue = List.filter notInList queue
-    in
-        case filtQueue of
-            [] ->
-                xs
-            seed :: tail ->
-                let
-                    tail2 = fn xs seed
-                    xs2 = List.append xs [seed]
-                    queue2 = List.append tail tail2
-                in
-                    expand' fn xs2 queue2
-
--- Expand a list just like the expand function above,
--- except this time we're also given a equivalence function.
--- We filter the queue to exclude elements that aren't already
--- in the list passing equivalence.
+-- Expand a list as follows...
+-- A function fn takes a list of elements and new element a, and returns a
+-- new list.
+-- We take a seed, and imagine it is at the head of a queue (actually, the
+-- only element in the queue, currently).
+-- We filter the queue so that it contains only elements that aren't already
+-- equivalent to ones in the list, as tested by an "equiv" function.
+-- We apply fn to the original list and the head of the queue.
+-- We put the returned list at the back of the queue.
+-- We put the head of the queue (the seed) onto the end of the original
+-- list. Then we repeat the process from the filtering step
+-- with the updated list and the updated head of the queue.
+-- We repeat from the filtering step until the queue is empty.
+-- This function may not terminate if you're not careful.
+--
+-- Example:
+-- fn multiplies all elements of the list by the given element,
+-- and equiv says two elements are equivalent if they have the same
+-- last digit (i.e. if they're equal modulo 10).
+-- Start with list [2, 3] and seed 4.
+-- The queue is [4] and filtering again gives [4].
+-- The result of fn is [2*4, 3*4] = [8, 12].
+-- We put 4 onto the end of the list to give [2, 3, 4].
+-- We filter the queue to give [8] (because 12 equivalent to 2 in the list).
+-- We apply fn to the list and [8], which gives
+-- [2*8, 3*8, 4*8] = [16, 24, 32].
+-- We put the seed onto the end to give [2, 3, 4, 8].
+-- Filtering the queue gives [16].
+-- So our new seed is 16.
+-- Applying fn gives result
+-- [2*16, 3*16, 4*16, 8*16] = [32, 48, 64, 128].
+-- We put the seed on the end of the list to give [2, 3, 4, 8, 16].
+-- We filter the queue to give [].
+-- And now we're done: the result is [2, 3, 4, 8, 16].
 
 filteredExpand : (List a -> a -> List a) -> (a -> a -> Bool)-> List a -> a -> List a
 filteredExpand fn equiv xs seed =
