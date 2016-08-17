@@ -2,11 +2,8 @@ module Constraint exposing
     ( Segment, baseSegment
     , Constraint, constraintToString
     , isSubcoeff
-    , Model
-    , addSegment, applyToCoeffs
+    , applyToCoeffs
     , constraint, subtract
-    , deduceOnce, deduceAll
-    , model
     )
 
 import Util
@@ -127,55 +124,6 @@ isSubcoeff sub super =
         (List.length sub == List.length super)
         && (List.all isSub' combined)
 
--- A model represents:
--- our segments (our judgements, or claims, over the distribution),
--- the zones, and
--- the constraints
-
-type alias Model =
-    { segments : List Segment
-    , zones : List Zone
-    , constraints : List Constraint
-    }
-
--- Given a model, add a new segment, and adjust the zones and constraints
--- accordingly
-
-addSegment : Segment -> Model -> Model
-addSegment seg model =
-    let
-        zones = model.zones
-        changes = Zone.overlay seg.zone zones
-    in
-        model
-            |> addSegmentJustSegment seg
-            |> addSegmentJustZones changes
-            |> addSegmentJustConstraints changes
-
-addSegmentJustSegment : Segment -> Model -> Model
-addSegmentJustSegment seg model =
-    { model
-    | segments = List.concat [model.segments, [seg]]
-    }
-
-addSegmentJustZones : List Change -> Model -> Model
-addSegmentJustZones changes model =
-    { model
-    | zones  = List.foldl Zone.apply model.zones changes
-    }
-
-addSegmentJustConstraints : List Change -> Model -> Model
-addSegmentJustConstraints changes model =
-    { model
-    | constraints = List.map (applyAllToCoeffs changes) model.constraints
-    }
-
-applyAllToCoeffs : List Change -> Constraint -> Constraint
-applyAllToCoeffs changes constraint =
-    { constraint
-    | coeffs = List.foldl applyToCoeffs constraint.coeffs changes
-    }
-
 -- Apply a zone Change to a list of coefficients.
 
 applyToCoeffs : Change -> List Int -> List Int
@@ -217,48 +165,3 @@ subtract larger smaller =
     { coeffs = List.map2 (-) larger.coeffs smaller.coeffs
     , pc = larger.pc - smaller.pc
     }
-
--- Deduce more constraints given some existing ones
--- using another to subtract.
-
-deduceOnce : List Constraint -> Constraint -> List Constraint
-deduceOnce constraints seed =
-    let
-        maybeMap c =
-            if (seed.coeffs == c.coeffs) then
-                Nothing
-            else if (isSubcoeff seed.coeffs c.coeffs) then
-                Just (subtract c seed)
-            else if (isSubcoeff c.coeffs seed.coeffs) then
-                Just (subtract seed c)
-            else
-                Nothing
-    in
-        List.filterMap maybeMap constraints
-
--- Deduce all the constraints we can from some existing ones by
--- adding a new one... including the original ones.
-
-deduceAll : List Constraint -> Constraint -> List Constraint
-deduceAll constraints seed =
-    Util.expand deduceOnce constraints seed
-
--- Build a model from segments.
--- The base segment will be added at the start, before those given.
-
-model : List Segment -> Model
-model segments =
-    let
-        initial = Model [] [] []
-    in
-        List.foldl model' initial (baseSegment :: segments)
-
-model' : Segment -> Model -> Model
-model' segment mod =
-    let
-        mod' = addSegment segment mod
-        constr = constraint segment mod'.zones
-    in
-        { mod'
-        | constraints = deduceAll mod'.constraints constr
-        }
