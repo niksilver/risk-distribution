@@ -5,7 +5,6 @@ import DerivationTest exposing (all)
 import FactTest exposing (all)
 import ChartUtilTest exposing (all)
 import ChartTest exposing (all)
-import ErrorsTest exposing (all)
 import UtilTest exposing (all)
 import AxisTest exposing (all)
 import PathTest exposing (all)
@@ -24,7 +23,6 @@ main =
         , FactTest.all
         , ChartUtilTest.all
         , ChartTest.all
-        , ErrorsTest.all
         , UtilTest.all
         , AxisTest.all
         , PathTest.all
