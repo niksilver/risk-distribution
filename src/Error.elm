@@ -15,16 +15,12 @@ type Error =
 find : Model -> List Error
 find model =
     findNegative model
-        |> Maybe.map Util.singleton
-        |> Maybe.withDefault []
 
-findNegative : Model -> Maybe Error
+findNegative : Model -> List Error
 findNegative model =
     let
-        getNeg deriv =
-            if (deriv.cons.pc < 0) then Just deriv else Nothing
-        negDeriv =
-            Util.find getNeg model.derivations
+        isNeg deriv =
+            deriv.cons.pc < 0
         derivToErr deriv =
             Negative
                 { zones = relevantZones model.zones deriv.cons.coeffs
@@ -32,7 +28,9 @@ findNegative model =
                 , src = deriv.src
                 }
     in
-        Maybe.map derivToErr negDeriv
+        model.derivations
+            |> List.filter isNeg
+            |> List.map derivToErr
 
 relevantZones : List Zone -> List Int -> List Zone
 relevantZones zones coeffs =
