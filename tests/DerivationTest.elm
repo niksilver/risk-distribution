@@ -13,8 +13,8 @@ all =
     suite "DerivationTest"
     [ derivationToStringTest
     , subtractTest
-    , deduceOnceTest
-    , deduceAllTest
+    , deriveOnceTest
+    , deriveAllTest
     , addSegmentTestForNewSegment
     , addSegmentTestForNewZone
     , addSegmentTestForNewVariables
@@ -81,11 +81,11 @@ subtractTest =
 
     ]
 
-deduceOnceTest : Test
-deduceOnceTest =
-    suite "deduceOnceTest"
+deriveOnceTest : Test
+deriveOnceTest =
+    suite "deriveOnceTest"
 
-    [ test "Simple deduction should work" <|
+    [ test "Simple derivation should work" <|
       let
         der1 = deriv [1, 1, 1] 100 [0]
         der2 = deriv [0, 1, 1] 55  [1]
@@ -96,9 +96,9 @@ deduceOnceTest =
       in
         assertEqual
         [res1, res2]
-        (deduceOnce [der1, der2] seed)
+        (deriveOnce [der1, der2] seed)
 
-    , test "deduceOnce should work when the seed is the larger constraint, to be subtracted from" <|
+    , test "deriveOnce should work when the seed is the larger constraint, to be subtracted from" <|
       let
         der1 = deriv [0, 1, 1] 65  [0]
         der2 = deriv [0, 1, 0] 20  [1]
@@ -109,9 +109,9 @@ deduceOnceTest =
       in
         assertEqual
         [res1, res2]
-        (deduceOnce [der1, der2] seed)
+        (deriveOnce [der1, der2] seed)
 
-    , test "deduceOnce should skip constraint where it can't subtract" <|
+    , test "deriveOnce should skip constraint where it can't subtract" <|
       let
         der1 = deriv [0, 1, 1] 75  [0]
         der2 = deriv [1, 1, 1] 90  [1]
@@ -121,32 +121,32 @@ deduceOnceTest =
       in
         assertEqual
         [res1]
-        (deduceOnce [der1, der2] seed)
+        (deriveOnce [der1, der2] seed)
 
-    , test "deduceOnce returns nothing if we're starting with no constraints" <|
+    , test "deriveOnce returns nothing if we're starting with no constraints" <|
       let
         seed = deriv [1, 1, 0] 30  [0]
       in
         assertEqual
         []
-        (deduceOnce [] seed)
+        (deriveOnce [] seed)
 
-    , test "deduceOnce will not derive all-zero coefficients if given different constraints with same coeffs" <|
+    , test "deriveOnce will not derive all-zero coefficients if given different constraints with same coeffs" <|
       let
         der1 = deriv [0, 1, 1] 65  [0]
         seed = deriv [0, 1, 1] 20  [1]
       in
         assertEqual
         []
-        (deduceOnce [der1] seed)
+        (deriveOnce [der1] seed)
 
     ]
 
-deduceAllTest : Test
-deduceAllTest =
-    suite "deduceAllTest"
+deriveAllTest : Test
+deriveAllTest =
+    suite "deriveAllTest"
 
-    [ test "Simple deduction of all should work" <|
+    [ test "Simple derivation of all should work" <|
       let
         der1 = deriv [1, 1, 1] 100 [0]
         der2 = deriv [0, 1, 1] 55  [1]
@@ -161,9 +161,9 @@ deduceAllTest =
       in
         assertEqual
         [der1, der2, seed, res1, res2, res3, res4]
-        (deduceAll [der1, der2] seed)
+        (deriveAll [der1, der2] seed)
 
-    , test "deduceAll should work when the seed is the larger constraint, to be subtracted from" <|
+    , test "deriveAll should work when the seed is the larger constraint, to be subtracted from" <|
       let
         der1 = deriv [0, 1, 1] 65  [0]
         der2 = deriv [0, 1, 0] 20  [1]
@@ -178,9 +178,9 @@ deduceAllTest =
       in
         assertEqual
         [der1, der2, seed, res1, res2, res3, res4]
-        (deduceAll [der1, der2] seed)
+        (deriveAll [der1, der2] seed)
 
-    , test "deduceAll should skip constraint where it can't subtract" <|
+    , test "deriveAll should skip constraint where it can't subtract" <|
       let
         der1 = deriv [0, 1, 1] 75  [0]
         der2 = deriv [1, 1, 1] 90  [1]
@@ -195,15 +195,15 @@ deduceAllTest =
       in
         assertEqual
         [der1, der2, seed, res1, res2, res3, res4]
-        (deduceAll [der1, der2] seed)
+        (deriveAll [der1, der2] seed)
 
-    , test "deduceAll returns just the seed if we're starting with no constraints" <|
+    , test "deriveAll returns just the seed if we're starting with no constraints" <|
       let
         seed = deriv [1, 1, 0] 30  [0]
       in
         assertEqual
         [seed]
-        (deduceAll [] seed)
+        (deriveAll [] seed)
 
     ]
 

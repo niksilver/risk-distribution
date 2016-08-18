@@ -1,7 +1,7 @@
 module Derivation exposing
     ( Derivation, derivationToString
     , subtract
-    , deduceOnce, deduceAll
+    , deriveOnce, deriveAll
     , Model
     , addSegment
     , model
@@ -44,8 +44,8 @@ subtract larger smaller =
 -- Deduce more derivations given some existing ones
 -- using another to subtract.
 
-deduceOnce : List Derivation -> Derivation -> List Derivation
-deduceOnce derivations seed =
+deriveOnce : List Derivation -> Derivation -> List Derivation
+deriveOnce derivations seed =
     let
         maybeMap d =
             if (seed.cons.coeffs == d.cons.coeffs) then
@@ -62,13 +62,13 @@ deduceOnce derivations seed =
 -- Derive all the derivations we can from some existing ones by
 -- adding a new one... including the original ones.
 
-deduceAll : List Derivation -> Derivation -> List Derivation
-deduceAll derivations seed =
+deriveAll : List Derivation -> Derivation -> List Derivation
+deriveAll derivations seed =
     let
         equiv der1 der2 =
             der1.cons == der2.cons
     in
-        Util.filteredExpand deduceOnce equiv derivations seed
+        Util.filteredExpand deriveOnce equiv derivations seed
 
 -- A model represents:
 -- our segments (our judgements, or claims, over the distribution),
@@ -144,5 +144,5 @@ model' segment mod =
         deriv = Derivation cons [srcId]
     in
         { model2
-        | derivations = deduceAll model2.derivations deriv
+        | derivations = deriveAll model2.derivations deriv
         }
