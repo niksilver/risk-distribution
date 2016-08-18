@@ -2,6 +2,7 @@ import DistributionTest exposing (all)
 import ZoneTest exposing (all)
 import ConstraintTest exposing (all)
 import DerivationTest exposing (all)
+import ErrorTest exposing (all)
 import FactTest exposing (all)
 import ChartUtilTest exposing (all)
 import ChartTest exposing (all)
@@ -20,6 +21,7 @@ main =
         , ZoneTest.all
         , ConstraintTest.all
         , DerivationTest.all
+        , ErrorTest.all
         , FactTest.all
         , ChartUtilTest.all
         , ChartTest.all
