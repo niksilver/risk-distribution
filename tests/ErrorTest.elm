@@ -179,4 +179,44 @@ findTestForContradiction =
         []
         (find model)
 
+    , test "Distinct non-contraditions should be skipped while spotting multiple actual contradictions" <|
+      let
+        -- This doesn't make logical sense; it's just something with
+        -- the appropriate error among the derivations.
+        model =
+            { segments =
+                [ Segment 90 (Zone 0 10)
+                , Segment 70 (Zone 5 15)
+                , Segment 65 (Zone 15 20)
+                ]
+            , zones =
+                [ Zone 0 5, Zone 5 10, Zone 10 15, Zone 15 20 ]
+            , derivations =
+                [ deriv [1, 1, 0, 0] 90  [0]
+                , deriv [0, 1, 1, 0] 70  [1]
+                , deriv [0, 0, 1, 0] 50  [1, 0]    -- Keep for error A
+                , deriv [0, 0, 1, 1] 65  [2]
+                , deriv [0, 1, 0, 1] 10  [3]       -- Keep for error B
+                , deriv [0, 0, 1, 0] 50  [1, 0, 2] -- Ignore from error A
+                , deriv [0, 1, 0, 1] 11  [2, 3]    -- Keep for error B
+                , deriv [0, 0, 1, 0] 40  [1, 0, 3] -- Keep for error A
+                ]
+            }
+        expected1 =
+            Contradiction
+                { zones = [ Zone 10 15 ]
+                , pcs = [50, 40]
+                , src = [1, 0, 1, 0, 3]
+                }
+        expected2 =
+            Contradiction
+                { zones = [ Zone 5 10, Zone 15 20 ]
+                , pcs = [10, 11]
+                , src = [3, 2, 3]
+                }
+      in
+        assertEqual
+        [expected1, expected2]
+        (find model)
+
     ]
