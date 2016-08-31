@@ -38,10 +38,10 @@ find pred xs =
 findPair : (a -> a -> Maybe b) -> List a -> Maybe b
 findPair fn xs =
     let
-        findErrorFor x =
+        findOtherFor x =
             find (fn x) xs
     in
-        find findErrorFor xs
+        find findOtherFor xs
 
 -- Group elements by a discriminator function.
 -- E.g. grouping [54, 6, 14] by "last digit" will give [[54, 14], [6]].
