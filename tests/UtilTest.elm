@@ -21,6 +21,7 @@ all =
     , insertTest
     , nthTest
     , indexOfTest
+    , dedupeTest
     , removeEquivalentTest
     , expandTest
     , filteredExpandTest
@@ -398,6 +399,27 @@ indexOfTest =
       assertEqual
       (Nothing)
       (indexOf 'x' ['a', 'b', 'c'])
+
+    ]
+
+dedupeTest : Test
+dedupeTest =
+    suite "dedupeTest"
+
+    [ test "Deduping empty list should give empty list" <|
+      assertEqual
+      []
+      (dedupe (==) [])
+
+    , test "Deduping by equality should simply remove duplicates" <|
+      assertEqual
+      [4, 2, 6, 1]
+      (dedupe (==) [4, 2, 6, 4, 6, 1, 2])
+
+    , test "Deduping by last digit should work" <|
+      assertEqual
+      [14, 12, 6, 1]
+      (dedupe (\a b -> a % 10 == b % 10) [14, 12, 6, 24, 36, 1, 92])
 
     ]
 

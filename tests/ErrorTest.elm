@@ -154,5 +154,29 @@ findTestForContradiction =
         [expected]
         (find model)
 
+    , test "Distinct non-contraditions should be skipped" <|
+      let
+        -- This doesn't make logical sense; it's just something with
+        -- the appropriate error among the derivations.
+        model =
+            { segments =
+                [ Segment 90 (Zone 0 10)
+                , Segment 70 (Zone 5 15)
+                , Segment 65 (Zone 15 20)
+                ]
+            , zones =
+                [ Zone 0 5, Zone 5 10, Zone 10 15, Zone 15 20 ]
+            , derivations =
+                [ deriv [1, 1, 0, 0] 90  [0]
+                , deriv [0, 1, 1, 0] 70  [1]
+                , deriv [0, 0, 1, 0] 50  [1, 0]
+                , deriv [0, 0, 1, 1] 65  [2]
+                , deriv [0, 0, 1, 0] 50  [1, 0, 2]
+                ]
+            }
+      in
+        assertEqual
+        []
+        (find model)
+
     ]
-    

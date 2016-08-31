@@ -6,6 +6,7 @@ module Util exposing
     , bracket, bracketMap
     , spliceOne, insert
     , nth, indexOf
+    , dedupe
     , removeEquivalent
     , expand, filteredExpand
     , toLetter
@@ -170,6 +171,25 @@ indexOf' x xs idx =
                 Just idx
             else
                 indexOf' x tail (idx + 1)
+
+-- Deduplicate a list by removing elements that are equivalent
+-- to earlier elements.
+
+dedupe : (a -> a -> Bool) -> List a -> List a
+dedupe equiv xs =
+    dedupe' equiv xs []
+        |> List.reverse
+
+dedupe' : (a -> a -> Bool) -> List a -> List a -> List a
+dedupe' equiv xs accum =
+    case xs of
+        [] ->
+            accum
+        head :: tail ->
+            if (List.any (equiv head) accum) then
+                dedupe' equiv tail accum
+            else
+                dedupe' equiv tail (head :: accum)
 
 -- Remove candidate elements from a list that are deemed equivalent to
 -- any already present in a base list

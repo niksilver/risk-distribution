@@ -54,12 +54,23 @@ findContradiction model =
         discriminator deriv =
             deriv.cons.coeffs |> toString
 
+        -- Useful utility
+        lengthTwoOrMore ds =
+            List.length ds >= 2
+
+        -- Ensure all derivations in a list have a different percentage,
+        -- by removing duplicates
+        dedupeByPc : List Derivation -> List Derivation
+        dedupeByPc derivs =
+            Util.dedupe (\d1 d2 -> d1.cons.pc == d2.cons.pc) derivs
+
         -- Get groups of derivations that contradict
         getContradictingDerivs : List (List Derivation)
         getContradictingDerivs =
             Util.groupBy discriminator model.derivations
                 |> Dict.values
-                |> List.filter (\ds -> List.length ds >= 2)
+                |> List.map dedupeByPc
+                |> List.filter lengthTwoOrMore
 
         -- We should have some derivations with the same coefficients;
         -- get the coefficients from one of them.
