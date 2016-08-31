@@ -10,7 +10,8 @@ import ElmTest exposing (..)
 all : Test
 all =
     suite "ErrorTest"
-    [ findTest
+    [ findTestForNegative
+    , findTestForContradiction
     ]
 
 -- A quick way of creating a Derivation
@@ -21,9 +22,9 @@ deriv coeffs pc src =
 
 -- The tests...
 
-findTest : Test
-findTest =
-    suite "findTest"
+findTestForNegative : Test
+findTestForNegative =
+    suite "findTestForNegative"
 
     [ test "Zone of negative derivation should be found" <|
       let
@@ -117,3 +118,41 @@ findTest =
         (find model)
 
     ]
+
+findTestForContradiction : Test
+findTestForContradiction =
+    suite "findTestForContradiction"
+
+    [ test "Contradiction between two derivations should be found" <|
+      let
+        -- This doesn't make logical sense; it's just something with
+        -- the appropriate error among the derivations.
+        model =
+            { segments =
+                [ Segment 90 (Zone 0 10)
+                , Segment 70 (Zone 5 15)
+                , Segment 65 (Zone 15 20)
+                ]
+            , zones =
+                [ Zone 0 5, Zone 5 10, Zone 10 15, Zone 15 20 ]
+            , derivations =
+                [ deriv [1, 1, 0, 0] 90  [0]
+                , deriv [0, 1, 1, 0] 70  [1]
+                , deriv [0, 0, 1, 0] 50  [1, 0]
+                , deriv [0, 0, 1, 1] 65  [2]
+                , deriv [0, 0, 1, 0] 35  [1, 0, 2]
+                ]
+            }
+        expected =
+            Contradiction
+                { zones = [ Zone 10 15 ]
+                , pcs = [50, 35]
+                , src = [1, 0, 1, 0, 2]
+                }
+      in
+        assertEqual
+        [expected]
+        (find model)
+
+    ]
+    
