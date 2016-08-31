@@ -1,6 +1,7 @@
 module Util exposing
     ( singleton
     , find, findPair
+    , groupBy
     , sliding
     , bracket, bracketMap
     , spliceOne, insert
@@ -11,6 +12,7 @@ module Util exposing
     )
 
 import String
+import Dict exposing (Dict)
 
 
 -- Create a singleton list of the given elements
@@ -40,6 +42,33 @@ findPair fn xs =
             find (fn x) xs
     in
         find findErrorFor xs
+
+-- Group elements by a discriminator function.
+-- E.g. grouping [54, 6, 14] by "last digit" will give [[54, 14], [6]].
+
+groupBy : (a -> comparable) -> List a -> Dict comparable (List a)
+groupBy discr xs =
+    let
+        rev k xs = List.reverse xs
+    in
+        groupBy' discr xs Dict.empty
+            |> Dict.map rev
+
+groupBy' : (a -> comparable) -> List a -> Dict comparable (List a) -> Dict comparable (List a)
+groupBy' discr xs accum =
+    let
+        groupWith v mv =
+            case mv of
+                Nothing -> Just [v]
+                Just vs -> Just (v :: vs)
+        augment v =
+            Dict.update (discr v) (groupWith v) accum
+    in
+        case xs of
+            [] ->
+                accum
+            head :: tail ->
+                groupBy' discr tail (augment head)
 
 -- Groups elements in fixed size blocks by passing a "sliding window" over them.
 

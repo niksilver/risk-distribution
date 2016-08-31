@@ -3,6 +3,7 @@ module UtilTest exposing (all)
 import Util exposing (..)
 
 import String
+import Dict
 
 import ElmTest exposing (..)
 
@@ -12,6 +13,7 @@ all =
     [ singletonTest
     , findTest
     , findPairTest
+    , groupByTest
     , slidingTest
     , bracketTest
     , bracketMapTest
@@ -99,6 +101,42 @@ findPairTest =
           assertEqual
           (Just (12, 10))
           (findPair twoApart [1, 5, 12, 9, 10, 20])
+
+    ]
+
+groupByTest : Test
+groupByTest =
+    suite "groupByTest"
+
+    [ test "Grouping empty list should yield empty Dict" <|
+      assertEqual
+      Dict.empty
+      (groupBy (identity) [])
+
+    , test "Grouping singleton list should yield singleton Dict" <|
+      assertEqual
+      (Dict.singleton "Hi" ["Hi"])
+      (groupBy (identity) ["Hi"])
+
+    , test "Grouping distinct values by identity should yield individual values" <|
+      assertEqual
+      [(2, [2]), (3, [3]), (5, [5]), (6, [6])]
+      (groupBy (identity) [6, 5, 2, 3] |> Dict.toList)
+
+    , test "Grouping distinct values by 'constant discriminator' should yield all values together" <|
+      assertEqual
+      [("x", [6, 5, 2, 3])]
+      (groupBy (always "x") [6, 5, 2, 3] |> Dict.toList)
+
+    , test "Grouping by non-simple function should work" <|
+      assertEqual
+      [(4, [54, 14]), (6, [6])]
+      (groupBy (\a -> a % 10) [54, 6, 14] |> Dict.toList)
+
+    , test "Grouping duplicates with a non-simple function should reproduce the duplicates" <|
+      assertEqual
+      [(4, [54, 54]), (6, [6])]
+      (groupBy (\a -> a % 10) [54, 6, 54] |> Dict.toList)
 
     ]
 
