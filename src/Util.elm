@@ -44,7 +44,8 @@ findPair fn xs =
         find findOtherFor xs
 
 -- Group elements by a discriminator function.
--- E.g. grouping [54, 6, 14] by "last digit" will give [[54, 14], [6]].
+-- E.g. grouping [54, 6, 14] by "last digit" will give
+-- a Dict of 4 -> [54, 14], and 6 -> [6].
 
 groupBy : (a -> comparable) -> List a -> Dict comparable (List a)
 groupBy discr xs =
