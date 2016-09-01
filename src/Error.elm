@@ -12,7 +12,7 @@ import Dict
 type Error
     -- Zone(s) together have a negative percentage
     = Negative { zones : List Zone, pc : Int, src : List Int }
-    -- Two more zones have different percentages via different derivations
+    -- Two or more zones have different percentages via different derivations
     | Contradiction { zones : List Zone, pcs : List Int, src : List Int }
 
 -- Find all the errors in a model

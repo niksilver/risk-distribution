@@ -455,8 +455,8 @@ modelTest =
                 , deriv [0, 0, 0, 1]  5  [3]          -- seg3
                 , deriv [1, 1, 1, 0] 95  [0, 3]       --   Baseline - seg3  [E]
                 , deriv [1, 1, 0, 0] 45  [0, 1, 3]    --   [A] - seg3       [F]
-                , deriv [0, 1, 1, 0] 55  [2, 3]       --   seg2 - seg3        [G]
-                , deriv [0, 1, 0, 0]  5  [2, 1, 3]    --   [C] - seg3        [H]
+                , deriv [0, 1, 1, 0] 55  [2, 3]       --   seg2 - seg3      [G]
+                , deriv [0, 1, 0, 0]  5  [2, 1, 3]    --   [C] - seg3       [H]
                 , deriv [0, 0, 1, 1] 55  [0, 0, 1, 3] --   Baseline - [F]   [I]
                 , deriv [1, 0, 0, 1] 45  [0, 2, 3]    --   Baseline - [G]   [J]
                 , deriv [1, 0, 1, 1] 95  [0, 2, 1, 3] --   Baseline - [H]
