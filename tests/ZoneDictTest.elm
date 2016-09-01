@@ -51,4 +51,28 @@ getEntriesTest =
         (Constraint [0] 50)
       )
 
+    , test "Given two coeffs of 0, 0 we should get no entries" <|
+      assertEqual
+      []
+      (getEntries
+        [Zone 5 7]
+        (Constraint [0, 0] 50)
+      )
+
+    , test "Given two coeffs of 1, 0 we should get entry for first only" <|
+      assertEqual
+      [(Zone 5 7, Exactly 30)]
+      (getEntries
+        [Zone 5 7, Zone 7 10]
+        (Constraint [1, 0] 30)
+      )
+
+    , test "Given two coeffs of 0, 1 we should get entry for second only" <|
+      assertEqual
+      [(Zone 7 10, Exactly 40)]
+      (getEntries
+        [Zone 5 7, Zone 7 10]
+        (Constraint [0, 1] 40)
+      )
+
     ]
