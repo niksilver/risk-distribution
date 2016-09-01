@@ -75,9 +75,17 @@ getEntriesTest =
         (Constraint [0, 1] 40)
       )
 
-    , test "Given three coeffs of 0, 1, 1 we should get entry for second and third only" <|
+    , test "Given two coeffs of 1, 1 we should get entry for both, stating a max" <|
       assertEqual
-      [(Zone 5 7, Exactly 50), (Zone 7 10, Exactly 50)]
+      [(Zone 5 7, Maximum 40), (Zone 7 10, Maximum 40)]
+      (getEntries
+        [Zone 5 7, Zone 7 10]
+        (Constraint [1, 1] 40)
+      )
+
+    , test "Given three coeffs of 0, 1, 1 we should get entris for second and third only, stating max" <|
+      assertEqual
+      [(Zone 5 7, Maximum 50), (Zone 7 10, Maximum 50)]
       (getEntries
         [Zone 0 5, Zone 5 7, Zone 7 10]
         (Constraint [0, 1, 1] 50)

@@ -1,5 +1,5 @@
 module ZoneDict exposing
-    ( Value (Exactly)
+    ( Value (Exactly, Maximum)
     , getEntries
     )
 
@@ -12,6 +12,7 @@ import Constraint exposing (Constraint)
 
 type Value
     = Exactly Int
+    | Maximum Int
 
 -- Get some entries for a ZoneDict.
 -- Given some zones and a constraint each entry shows the best result
@@ -22,7 +23,12 @@ getEntries zones cons =
     let
         includeZone zone coeff =
             if (coeff == 0) then Nothing else Just zone
+        value =
+            if (List.sum cons.coeffs == 1) then
+                Exactly cons.pc
+            else
+                Maximum cons.pc
     in
         List.map2 includeZone zones cons.coeffs
             |> List.filterMap identity
-            |> List.map (\z -> (z, Exactly cons.pc))
+            |> List.map (\z -> (z, value))
