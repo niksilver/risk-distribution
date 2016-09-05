@@ -98,12 +98,4 @@ getEntriesTest =
         (deriv [0, 1, 1] 50 [1, 3])
       )
 
-    -- , test "Given one coeff of negative value we should get one -ve entry" <|
-    --   assertEqual
-    --   [(Zone 5 7, Negative -5 [0, 2])]
-    --   (getEntries
-    --     [Zone 0 5, Zone 5 7, Zone 7 10]
-    --     (deriv [0, 0, 1] -5 [0, 2])
-    --   )
-
     ]
