@@ -1,6 +1,6 @@
 module ZoneDict exposing
-    ( Value (Exactly, Maximum)
-    , getEntries
+    ( Value (Exactly, Maximum, Contradiction)
+    , getEntries, combine
     )
 
 import Zone exposing (Zone)
@@ -14,6 +14,7 @@ import Derivation exposing (Derivation)
 type Value
     = Exactly Int (List Int)
     | Maximum Int (List Int)
+    | Contradiction (List Int)
 
 -- Get some entries for a ZoneDict.
 -- Given some zones and a derivation each entry shows the best result
@@ -33,3 +34,36 @@ getEntries zones {cons, src} =
         List.map2 includeZone zones cons.coeffs
             |> List.filterMap identity
             |> List.map (\z -> (z, value))
+
+-- Combine one value with another to see if there is consistency or otherwise
+-- a better understanding of that particular zone.
+
+combine : Value -> Value -> Value
+combine v1 v2 =
+    case (v1, v2) of
+        (Contradiction src1, Contradiction src2) ->
+            Contradiction (List.append src1 src2)
+        (Contradiction _, _) ->
+            v1
+        (_, Contradiction _) ->
+            v2
+        (Exactly pc1 src1, Exactly pc2 src2) ->
+            if (pc1 == pc2) then
+                v1
+            else
+                Contradiction (List.append src1 src2)
+        (Exactly pc1 src1, Maximum pc2 src2) ->
+            if (pc1 <= pc2) then
+                v1
+            else
+                Contradiction (List.append src1 src2)
+        (Maximum pc1 src1, Exactly pc2 src2) ->
+            if (pc1 >= pc2) then
+                v2
+            else
+                Contradiction (List.append src1 src2)
+        (Maximum pc1 src1, Maximum pc2 src2) ->
+            if (pc1 <= pc2) then
+                v1
+            else
+                v2
