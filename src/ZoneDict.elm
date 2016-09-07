@@ -1,12 +1,22 @@
 module ZoneDict exposing
-    ( Value (Exactly, Maximum, Contradiction)
+    ( ZoneDict
+    , Value (Exactly, Maximum, Contradiction)
     , getEntries, combine
+    , fill, toList
     )
 
 import Zone exposing (Zone)
 import Constraint exposing (Constraint)
 import Derivation exposing (Derivation)
 
+import Dict exposing (Dict)
+
+
+-- A Dict where each entry is a Zone, and each value is what we know
+-- about that zone's percentage value
+
+type alias ZoneDict =
+    Dict (Float, Float) Value
 
 -- Result of successive derivations, showing what we think the
 -- value is for a particular zone, and its source(s).
@@ -67,3 +77,43 @@ combine v1 v2 =
                 v1
             else
                 v2
+
+-- Fill a ZoneDict based on some zones and the derivations we have about them
+
+fill : List Zone -> List Derivation -> ZoneDict
+fill zones derivs =
+    fill' zones derivs Dict.empty
+
+fill' : List Zone -> List Derivation -> ZoneDict -> ZoneDict
+fill' zones derivs accum =
+    case derivs of
+        deriv :: derivs' ->
+            fillForDeriv zones deriv accum
+                |> fill' zones derivs'
+        [] ->
+            accum
+
+fillForDeriv : List Zone -> Derivation -> ZoneDict -> ZoneDict
+fillForDeriv zones deriv dict =
+    let
+        entries = getEntries zones deriv
+        revise value2 maybeValue1 =
+            case maybeValue1 of
+                Nothing -> Just value2
+                Just value1 -> Just (combine value1 value2)
+        update (zone, value) dict1 =
+            Dict.update (zone.from, zone.to) (revise value) dict1
+    in
+        List.foldl update dict entries
+
+-- Get a ZoneDict's entries in the form of a list of pairs
+
+toList : ZoneDict -> List (Zone, Value)
+toList dict =
+    let
+        toZone (from, to) = Zone from to
+        convertEntry (pair, value) = (toZone pair, value)
+    in
+        dict
+            |> Dict.toList
+            |> List.map convertEntry
