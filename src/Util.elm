@@ -8,7 +8,7 @@ module Util exposing
     , nth, indexOf
     , dedupe
     , removeEquivalent
-    , expand, filteredExpand
+    , expand, filteredExpand, filteredExpand2
     , toLetter
     )
 
@@ -293,6 +293,65 @@ filteredExpand' fn equiv xs queue =
                     queue2 = List.append tail tail2
                 in
                     filteredExpand' fn equiv xs2 queue2
+
+-- Expand a list as follows...
+-- We start with:
+--   - A function fn takes a list of elements and new element a, and returns a
+--     new list.
+--   - A filter function, pred, allows an element only if it passes a test based on
+--     the contents of a list.
+--   - An initial list
+--   - A seed
+-- We take the seed, and imagine it is at the head of a queue (actually, the
+-- only element in the queue, currently).
+-- We filter the queue according to the pred function.
+-- We apply fn to the original list and the head of the queue.
+-- We put the returned list at the back of the queue.
+-- We put the head of the queue (the seed) onto the end of the original
+-- list. Then we repeat the process from the filtering step
+-- with the updated list and the updated head of the queue.
+-- We repeat from the filtering step until the queue is empty.
+-- Warning: This function may not terminate if you're not careful.
+--
+-- Example:
+-- fn multiplies all elements of the list by the given element,
+-- and pred says it will allow an element its last digit is unique among the
+-- given list (i.e. if there's nothing there equal modulo 10).
+-- Start with list [2, 3] and seed 4.
+-- The queue is [4] and filtering again gives [4].
+-- The result of fn is [2*4, 3*4] = [8, 12].
+-- We put 4 onto the end of the list to give [2, 3, 4].
+-- We filter the queue to give [8] (because only 8 has a unique last digit, not 12).
+-- We apply fn to the list and [8], which gives
+-- [2*8, 3*8, 4*8] = [16, 24, 32].
+-- We put the seed onto the end to give [2, 3, 4, 8].
+-- Filtering the queue gives [16].
+-- So our new seed is 16.
+-- Applying fn gives result
+-- [2*16, 3*16, 4*16, 8*16] = [32, 48, 64, 128].
+-- We put the seed on the end of the list to give [2, 3, 4, 8, 16].
+-- We filter the queue to give [].
+-- And now we're done: the result is [2, 3, 4, 8, 16].
+
+filteredExpand2 : (List a -> a -> List a) -> (List a -> a -> Bool)-> List a -> a -> List a
+filteredExpand2 fn pred xs seed =
+    filteredExpand2' fn pred xs [seed]
+
+filteredExpand2' : (List a -> a -> List a) -> (List a -> a -> Bool) -> List a -> List a -> List a
+filteredExpand2' fn pred xs queue =
+    let
+        filtQueue = List.filter (pred xs) queue
+    in
+        case filtQueue of
+            [] ->
+                xs
+            seed :: tail ->
+                let
+                    tail2 = fn xs seed
+                    xs2 = List.append xs [seed]
+                    queue2 = List.append tail tail2
+                in
+                    filteredExpand2' fn pred xs2 queue2
 
 -- Convert an Int 0 25 to a lower case letter
 

@@ -47,6 +47,8 @@ subtract larger smaller =
 deriveOnce : List Derivation -> Derivation -> List Derivation
 deriveOnce derivations seed =
     let
+        w = derivations --|> Debug.log "Derivs"
+        x = seed --|> Debug.log "Seed"
         maybeMap d =
             if (seed.cons.coeffs == d.cons.coeffs) then
                 Nothing
@@ -57,7 +59,7 @@ deriveOnce derivations seed =
             else
                 Nothing
     in
-        List.filterMap maybeMap derivations
+        List.filterMap maybeMap derivations --|> Debug.log "Result"
 
 -- Derive all the derivations we can from some existing ones by
 -- adding a new one... including the original ones.

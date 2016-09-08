@@ -25,6 +25,7 @@ all =
     , removeEquivalentTest
     , expandTest
     , filteredExpandTest
+    , filteredExpand2Test
     , toLetterTest
     ]
 
@@ -505,6 +506,90 @@ filteredExpandTest =
         assertEqual
         [1, 2, 3]
         (filteredExpand fn equiv [1, 2, 3] 88)
+    ]
+
+filteredExpand2Test : Test
+filteredExpand2Test =
+    suite "filteredExpand2Test"
+
+    [ test "Expand on multiplication, and filter on unique last digit" <|
+      let
+        fn prev a = List.map (\p -> p * a) prev
+        pred xs a =
+            List.any (\x -> x % 10 == a % 10) xs |> not
+      in
+        assertEqual
+        [4, 5, 3, 12, 48, 60, 36]
+        (filteredExpand2 fn pred [4, 5] 3)
+
+     , test "Expand with addition, and filter on unique last digit" <|
+      let
+        fn prev a = List.map (\p -> p + a) prev
+        pred xs a =
+            List.any (\x -> x % 10 == a % 10) xs |> not
+      in
+        assertEqual
+        [1, 2, 4, 5, 6, 7, 9, 8, 10, 13]
+        (filteredExpand2 fn pred [1, 2] 4)
+
+    , test "Expand by summing, and filter so modulo 10 an elt is unique and between the highest and lowest" <|
+      let
+        fn prev a = List.map (\p -> p + a) prev
+        pred xs elt =
+            let
+                elt10 = elt % 10
+                digits = List.map (\x -> x % 10) xs
+                isUnique = not (List.member elt10 digits)
+                min = List.minimum digits
+                max = List.maximum digits
+                inRange y lower upper =
+                    (lower < y) && (y < upper)
+                inMaxMinRange y =
+                    (Maybe.map2 (inRange y) min max) == Just True
+            in
+                isUnique &&
+                    inMaxMinRange (elt10)
+      in
+        assertEqual
+        [1, 7, 4, 5, 6, 12, 13]
+        (filteredExpand2 fn pred [1, 7] 4)
+        -- [1, 7] [4]
+        --     Filter: [4]
+        --     Expand: [5, 11]
+        -- [1, 7, 4] [5, 11]
+        --     Filter: [5]
+        --     Expand: [6, 12, 9]
+        -- [1, 7, 4, 5] [6, 12, 9]
+        --     Filter: [6, 12]
+        --     Expand: [7, 13, 10, 11]
+        -- [1, 7, 4, 5, 6] [12, 7, 13, 10, 11]
+        --     Filter: [12, 13]
+        --     Expand: [13, 19, 16, 17, 18]
+        -- [1, 7, 4, 5, 6, 12] [13, 13, 19, 16, 17, 18]
+        --     Filter: [13, 13]
+        --     Expand: [14, 20, 17, 18, 19, 25]
+        -- [1, 7, 4, 5, 6, 12, 13] [13, 14, 20, 17, 18, 19, 25]
+        --     Filter: []
+        --     Expand: []
+        -- which gives us our result
+
+    , test "Expanding with new values should give nothing if predicate always false" <|
+      let
+        fn prev a = [4, 5, 6]
+        pred xs elt = False
+      in
+        assertEqual
+        [1, 2, 3]
+        (filteredExpand2 fn pred [1, 2, 3] 88)
+
+    , test "Should be able to expand to a max list length" <|
+      let
+        fn prev a = [4, 5]
+        pred xs elt = (List.length xs <= 8)
+      in
+        assertEqual
+        [1, 2, 3, 88, 4, 5, 4, 5, 4]  -- 8 elements, plus the final seed makes 9
+        (filteredExpand2 fn pred [1, 2, 3] 88)
     ]
 
 toLetterTest : Test
