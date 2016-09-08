@@ -1,5 +1,6 @@
 module Util exposing
     ( singleton
+    , none
     , find, findPair
     , groupBy
     , sliding
@@ -21,6 +22,12 @@ import Dict exposing (Dict)
 singleton : a -> List a
 singleton x =
     [x]
+
+-- True if none of a list matches a predicate
+
+none : (a -> Bool) -> List a -> Bool
+none pred xs =
+    List.any pred xs |> not
 
 -- See if a list element matches a given criterion
 

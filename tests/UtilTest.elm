@@ -11,6 +11,7 @@ all : Test
 all =
     suite "UtilTest"
     [ singletonTest
+    , noneTest
     , findTest
     , findPairTest
     , groupByTest
@@ -38,6 +39,28 @@ singletonTest =
 
     , test "Simple singleton should work (2)" <|
       assertEqual ["hello"] (singleton "hello")
+    ]
+
+noneTest : Test
+noneTest =
+    suite "noneTest"
+
+    [ test "None isEven in [3, 4, 7] should be False" <|
+      let
+        isEven a = (a % 2 == 0)
+      in
+        assertEqual
+        False
+        (none isEven [3, 4, 7])
+
+    , test "None isEven in [7, 9, 1] should be True" <|
+      let
+        isEven a = (a % 2 == 0)
+      in
+        assertEqual
+        True
+        (none isEven [7, 9, 1])
+
     ]
 
 findTest : Test
@@ -526,7 +549,7 @@ filteredExpand2Test =
       let
         fn prev a = List.map (\p -> p + a) prev
         pred xs a =
-            List.any (\x -> x % 10 == a % 10) xs |> not
+            Util.none (\x -> x % 10 == a % 10) xs
       in
         assertEqual
         [1, 2, 4, 5, 6, 7, 9, 8, 10, 13]
