@@ -205,6 +205,25 @@ deriveAllTest =
         [seed]
         (deriveAll [] seed)
 
+    , test "deriveAll should terminate if there's an inconsistent 'between' derivation" <|
+      -- This error derives from entering the following constraints:
+      -- There's a 100% chance it's between 0 and 10  [1]
+      -- There's a  50% chance it's between 2 and 8   [2]
+      -- There's a  40% chance it's between 2 and 8   [3]
+      -- (Plus the implicit 100% chance it's between -inf and inf)
+      -- So the zones are: -inf to 0,  0 to 2,  2 to 8,  8 to 10,  10 to inf
+      let
+        der0 = deriv [1, 1, 1, 1, 1] 100  [0]
+        der1 = deriv [0, 1, 1, 1, 0] 100  [1]
+        der2 = deriv [0, 0, 1, 0, 0]  50  [2]
+        der3 = deriv [0, 0, 1, 0, 0]  40  [3]
+        res1 = deriveAll [der0] der1
+        res2 = deriveAll res1 der2
+      in
+        assertEqual
+        False
+        (deriveAll res2 der3 |> List.isEmpty)
+
     ]
 
 addSegmentTestForNewSegment : Test
