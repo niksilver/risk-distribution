@@ -1,5 +1,6 @@
 module Derivation exposing
     ( Derivation, derivationToString
+    , containsContradiction
     , subtract
     , deriveOnce, deriveAll
     , Model
@@ -24,6 +25,7 @@ type alias Derivation =
     , src : List Int
     }
 
+
 -- The string version of this is just the Constraint plus
 -- the source in parentheses
 
@@ -33,6 +35,13 @@ derivationToString deriv =
     ++ " ("
     ++ (deriv.src |> List.map toString |> String.join ", ")
     ++ ")"
+
+-- A list of derivations contains a constradictions if two constraints
+-- directly contradict.
+
+containsContradiction derivs =
+    List.map .cons derivs
+        |> Cons.containsContradiction
 
 -- Take one derivation and subtract another.
 -- The result should include the combined sources
@@ -71,11 +80,11 @@ deriveAll derivations seed =
             der1.cons.coeffs /= der2.cons.coeffs
         independentToAll derivs der1 =
             List.all (independent der1) derivs
-        containsContradiction derivs =
-            List.map .cons derivs
-                |> Cons.containsContradiction
+        addsFirstContradiction derivs der1 =
+            not (containsContradiction derivs)
+            && containsContradiction (der1 :: derivs)
         pred derivs der1 =
-            ( containsContradiction derivs
+            ( addsFirstContradiction derivs der1
             || independentToAll derivs der1
             )
     in

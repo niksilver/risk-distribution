@@ -224,7 +224,9 @@ deriveAllTest =
         False
         (deriveAll res2 der3 |> List.isEmpty)
 
-    , test "deriveAll shouldn't generate excessive derivations if there's an inconsistent 'between' derivation" <|
+    , test ("If there's an inconsistent 'between' derivation "
+        ++ "deriveAll shouldn't generate excessive derivations "
+        ++ "but should include at least one contradiction") <|
       -- This error derives from entering the following constraints:
       -- There's a 100% chance it's between 0 and 10  [1]
       -- There's a  50% chance it's between 2 and 8   [2]
@@ -240,8 +242,10 @@ deriveAllTest =
         res2 = deriveAll res1 der2
       in
         assertEqual
-        20
-        (deriveAll res2 der3 |> List.length |> max 20)
+        (True, True)
+        (deriveAll res2 der3
+            |> (\ds -> (List.length ds <= 10, containsContradiction ds))
+        )
 
     ]
 
