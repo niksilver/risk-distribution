@@ -23,9 +23,6 @@ all =
     , nthTest
     , indexOfTest
     , dedupeTest
-    , removeEquivalentTest
-    , expandTest
-    , filteredExpandTest
     , filteredExpand2Test
     , toLetterTest
     ]
@@ -445,90 +442,6 @@ dedupeTest =
       [14, 12, 6, 1]
       (dedupe (\a b -> a % 10 == b % 10) [14, 12, 6, 24, 36, 1, 92])
 
-    ]
-
-removeEquivalentTest : Test
-removeEquivalentTest =
-    suite "removeEquivalentTest"
-
-    [ test "If always equivalent then result should be empty" <|
-      assertEqual
-      []
-      (removeEquivalent (\a b -> True) [4, 5, 6] [7, 8, 9])
-
-    , test "If never equivalent then result should be same as input" <|
-      assertEqual
-      [5, 6, 7]
-      (removeEquivalent (\a b -> False) [4, 5, 6] [5, 6, 7])
-
-    , test "If last digit is test of equivalence then should keep elts with new last digits" <|
-      assertEqual
-      [13, 12]
-      (removeEquivalent (\a b -> a % 10 == b % 10) [4, 5, 6] [16, 13, 12, 14])
-
-    ]
-
-expandTest : Test
-expandTest =
-    suite "expandTest"
-
-    [ test "Expand on the multiplicands modulo 10" <|
-      let
-        fn prev a =
-            List.map (\p -> (p * a) % 10) prev
-      in
-        assertEqual
-        [4, 5, 3, 2, 8, 0, 6]
-        (expand fn [4, 5] 3)
-
-    , test "Expand on the sums modulo 10" <|
-      let
-        fn prev a =
-            List.map (\p -> (p + a) % 10) prev
-      in
-        assertEqual
-        [1, 2, 4, 5, 6, 7, 9, 8, 0, 3]
-        (expand fn [1, 2] 4)
-
-    , test "Expand on an empty list with a single value fn should give the single value" <|
-      let
-        fn prev a = [a]
-      in
-        assertEqual
-        [66]
-        (expand fn [] 66)
-    ]
-
-filteredExpandTest : Test
-filteredExpandTest =
-    suite "filteredExpandTest"
-
-    [ test "Expand on the multiplicands modulo 10" <|
-      let
-        fn prev a = List.map (\p -> p * a) prev
-        equiv a b = (a % 10 == b % 10)
-      in
-        assertEqual
-        [4, 5, 3, 12, 48, 60, 36]
-        (filteredExpand fn equiv [4, 5] 3)
-
-    , test "Expand on the sums modulo 10" <|
-      let
-        fn prev a = List.map (\p -> p + a) prev
-        equiv a b = (a % 10 == b % 10)
-      in
-        assertEqual
-        [1, 2, 4, 5, 6, 7, 9, 8, 10, 13]
-        (filteredExpand fn equiv [1, 2] 4)
-
-    , test "Expanding with new values should give nothing if equivalence is always true" <|
-      let
-        fn prev a = [4, 5, 6]
-        equiv a b = True
-      in
-        assertEqual
-        [1, 2, 3]
-        (filteredExpand fn equiv [1, 2, 3] 88)
     ]
 
 filteredExpand2Test : Test
