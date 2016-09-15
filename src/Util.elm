@@ -8,7 +8,7 @@ module Util exposing
     , spliceOne, insert
     , nth, indexOf
     , dedupe
-    , filteredExpand2
+    , filteredExpand
     , toLetter
     )
 
@@ -236,12 +236,12 @@ dedupe' equiv xs accum =
 -- We filter the queue to give [].
 -- And now we're done: the result is [2, 3, 4, 8, 16].
 
-filteredExpand2 : (List a -> a -> List a) -> (List a -> a -> Bool)-> List a -> a -> List a
-filteredExpand2 fn pred xs seed =
-    filteredExpand2' fn pred xs [seed]
+filteredExpand : (List a -> a -> List a) -> (List a -> a -> Bool)-> List a -> a -> List a
+filteredExpand fn pred xs seed =
+    filteredExpand' fn pred xs [seed]
 
-filteredExpand2' : (List a -> a -> List a) -> (List a -> a -> Bool) -> List a -> List a -> List a
-filteredExpand2' fn pred xs queue =
+filteredExpand' : (List a -> a -> List a) -> (List a -> a -> Bool) -> List a -> List a -> List a
+filteredExpand' fn pred xs queue =
     let
         filtQueue = List.filter (pred xs) queue
     in
@@ -254,7 +254,7 @@ filteredExpand2' fn pred xs queue =
                     xs2 = List.append xs [seed]
                     queue2 = List.append tail tail2
                 in
-                    filteredExpand2' fn pred xs2 queue2
+                    filteredExpand' fn pred xs2 queue2
 
 -- Convert an Int 0 25 to a lower case letter
 

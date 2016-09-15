@@ -23,7 +23,7 @@ all =
     , nthTest
     , indexOfTest
     , dedupeTest
-    , filteredExpand2Test
+    , filteredExpandTest
     , toLetterTest
     ]
 
@@ -444,9 +444,9 @@ dedupeTest =
 
     ]
 
-filteredExpand2Test : Test
-filteredExpand2Test =
-    suite "filteredExpand2Test"
+filteredExpandTest : Test
+filteredExpandTest =
+    suite "filteredExpandTest"
 
     [ test "Expand on multiplication, and filter on unique last digit" <|
       let
@@ -456,7 +456,7 @@ filteredExpand2Test =
       in
         assertEqual
         [4, 5, 3, 12, 48, 60, 36]
-        (filteredExpand2 fn pred [4, 5] 3)
+        (filteredExpand fn pred [4, 5] 3)
 
      , test "Expand with addition, and filter on unique last digit" <|
       let
@@ -466,7 +466,7 @@ filteredExpand2Test =
       in
         assertEqual
         [1, 2, 4, 5, 6, 7, 9, 8, 10, 13]
-        (filteredExpand2 fn pred [1, 2] 4)
+        (filteredExpand fn pred [1, 2] 4)
 
     , test "Expand by summing, and filter so modulo 10 an elt is unique and between the highest and lowest" <|
       let
@@ -488,7 +488,7 @@ filteredExpand2Test =
       in
         assertEqual
         [1, 7, 4, 5, 6, 12, 13]
-        (filteredExpand2 fn pred [1, 7] 4)
+        (filteredExpand fn pred [1, 7] 4)
         -- [1, 7] [4]
         --     Filter: [4]
         --     Expand: [5, 11]
@@ -516,7 +516,7 @@ filteredExpand2Test =
       in
         assertEqual
         [1, 2, 3]
-        (filteredExpand2 fn pred [1, 2, 3] 88)
+        (filteredExpand fn pred [1, 2, 3] 88)
 
     , test "Should be able to expand to a max list length" <|
       let
@@ -525,7 +525,7 @@ filteredExpand2Test =
       in
         assertEqual
         [1, 2, 3, 88, 4, 5, 4, 5, 4]  -- 8 elements, plus the final seed makes 9
-        (filteredExpand2 fn pred [1, 2, 3] 88)
+        (filteredExpand fn pred [1, 2, 3] 88)
     ]
 
 toLetterTest : Test

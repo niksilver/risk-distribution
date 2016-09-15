@@ -88,7 +88,7 @@ deriveAll derivations seed =
             || independentToAll derivs der1
             )
     in
-        Util.filteredExpand2 deriveOnce pred derivations seed
+        Util.filteredExpand deriveOnce pred derivations seed
 
 -- A model represents:
 -- our segments (our judgements, or claims, over the distribution),
