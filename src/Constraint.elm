@@ -4,6 +4,7 @@ module Constraint exposing
     , isSubcoeff
     , applyToCoeffs
     , constraint, subtract
+    , isContradiction
     )
 
 import Util
@@ -165,3 +166,11 @@ subtract larger smaller =
     { coeffs = List.map2 (-) larger.coeffs smaller.coeffs
     , pc = larger.pc - smaller.pc
     }
+
+-- Do two constraints contradict?
+-- I.e. same coefficients but different percentage
+
+isContradiction : Constraint -> Constraint -> Bool
+isContradiction cons1 cons2 =
+    cons1.coeffs == cons2.coeffs
+    && cons1.pc /= cons2.pc

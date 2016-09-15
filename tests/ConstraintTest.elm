@@ -16,6 +16,7 @@ all =
     , constraintTest
     , isSubcoeffTest
     , subtractTest
+    , isContradictionTest
     ]
 
 constraintToStringTest : Test
@@ -275,5 +276,35 @@ subtractTest =
       assertEqual
       (Constraint [2, -2] 3)
       (subtract (Constraint [4, 1] 20) (Constraint [2, 3, 4, 5] 17))
+
+    ]
+
+isContradictionTest : Test
+isContradictionTest =
+    suite "isContradictionTest"
+
+    [ test "A constraint does not contradict itself" <|
+      assertEqual
+      False
+      (isContradiction
+        (Constraint [0, 1, 1, 0] 20)
+        (Constraint [0, 1, 1, 0] 20)
+      )
+
+    , test "Constraints with different coefficients don't contradict" <|
+      assertEqual
+      False
+      (isContradiction
+        (Constraint [0, 1, 1, 0] 40)
+        (Constraint [0, 1, 0, 0] 40)
+      )
+
+    , test "Constraints with same coefficients but different percentages do contradict" <|
+      assertEqual
+      True
+      (isContradiction
+        (Constraint [0, 1, 0, 0] 30)
+        (Constraint [0, 1, 0, 0] 35)
+      )
 
     ]
