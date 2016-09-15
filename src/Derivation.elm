@@ -71,19 +71,13 @@ deriveAll derivations seed =
             der1.cons.coeffs /= der2.cons.coeffs
         independentToAll derivs der1 =
             List.all (independent der1) derivs
-        contradictingCons der1 der2 =
-            ( der1.cons.coeffs == der2.cons.coeffs
-            && der1.cons.pc /= der2.cons.pc
-            )
-        contradictingConsCount derivs der1 =
-            (List.filter (contradictingCons der1) derivs
-                |> List.length
-            )
+        containsContradiction derivs =
+            List.map .cons derivs
+                |> Cons.containsContradiction
         pred derivs der1 =
-            List.length derivs < 20
-            && ( contradictingConsCount derivs der1 == 1
-                || independentToAll derivs der1
-                )
+            ( containsContradiction derivs
+            || independentToAll derivs der1
+            )
     in
         Util.filteredExpand2 deriveOnce pred derivations seed
 
