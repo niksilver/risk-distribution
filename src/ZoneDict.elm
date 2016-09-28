@@ -1,13 +1,14 @@
 module ZoneDict exposing
     ( ZoneDict
     , Value (Exactly, Maximum, Contradiction)
-    , getEntries, combine
+    , getEntries, combine, rationalise
     , fill, toList
     )
 
 import Zone exposing (Zone)
 import Constraint exposing (Constraint)
 import Derivation exposing (Derivation)
+import Util
 
 import Dict exposing (Dict)
 
@@ -77,6 +78,21 @@ combine v1 v2 =
                 v1
             else
                 v2
+
+-- Convert "Maximum 0" to "Exactly 0", and remove duplicate sources,
+-- otherwise keep the same thing.
+
+rationalise : Value -> Value
+rationalise v =
+    case v of
+        Exactly a src ->
+            Exactly a (Util.dedupe (==) src)
+        Maximum 0 src ->
+            Exactly 0 (Util.dedupe (==) src)
+        Maximum a src ->
+            Maximum a (Util.dedupe (==) src)
+        Contradiction src ->
+            Contradiction (Util.dedupe (==) src)
 
 -- Fill a ZoneDict based on some zones and the derivations we have about them
 

@@ -13,6 +13,7 @@ all =
     suite "ZoneDictTest"
     [ getEntriesTest
     , combineTest
+    , rationaliseTest
     , fillAndToListTest
     ]
 
@@ -253,6 +254,37 @@ combineTest =
         (Contradiction [4, 1, 2])
         (Contradiction [6, 4])
       )
+
+    ]
+
+rationaliseTest : Test
+rationaliseTest =
+    suite "rationaliseTest"
+
+    [ test "Rationalising Maximum 0 should give Exactly 0 with deduped sources" <|
+      assertEqual
+      (Exactly 0 [5, 1])
+      (Maximum 0 [5, 5, 1] |> rationalise)
+
+    , test "Rationalising Maximum 1 should give the same thing with deduped sources" <|
+      assertEqual
+      (Maximum 1 [2, 3])
+      (Maximum 1 [2, 3, 3] |> rationalise)
+
+    , test "Rationalising Maximum -1 should give the same thing with deduped sources" <|
+      assertEqual
+      (Maximum -1 [5, 1])
+      (Maximum -1 [5, 1, 5] |> rationalise)
+
+    , test "Rationalising Exactly should give the same thing with deduped sources" <|
+      assertEqual
+      (Exactly 10 [4, 2])
+      (Exactly 10 [4, 2, 2] |> rationalise)
+
+    , test "Rationalising Contradiction should give the same thing with deduped sources" <|
+      assertEqual
+      (Contradiction [4, 2])
+      (Contradiction [4, 2, 4] |> rationalise)
 
     ]
 

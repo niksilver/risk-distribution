@@ -39,9 +39,9 @@ view model =
     in
         div []
         [ FactList.view model
-        , segmentsView dModel.segments
-        , zonesView dModel.zones
-        , derivationsView dModel.derivations
+        --, segmentsView dModel.segments
+        --, zonesView dModel.zones
+        --, derivationsView dModel.derivations
         , valuesView dModel.zones dModel.derivations
         ]
 
