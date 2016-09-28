@@ -94,11 +94,13 @@ rationalise v =
         Contradiction src ->
             Contradiction (Util.dedupe (==) src)
 
--- Fill a ZoneDict based on some zones and the derivations we have about them
+-- Fill a ZoneDict based on some zones and the derivations we have about them.
+-- Will also rationalise the values
 
 fill : List Zone -> List Derivation -> ZoneDict
 fill zones derivs =
     fill' zones derivs Dict.empty
+        |> Dict.map (\z v -> rationalise v)
 
 fill' : List Zone -> List Derivation -> ZoneDict -> ZoneDict
 fill' zones derivs accum =

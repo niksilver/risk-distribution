@@ -359,7 +359,7 @@ fillAndToListTest =
         assertEqual
         [ (Zone 0 5,   Maximum 90 [0])
         , (Zone 5 10,  Maximum 70 [1])
-        , (Zone 10 15, Contradiction [1, 0, 1, 0, 2])
+        , (Zone 10 15, Contradiction [1, 0, 2]) -- Rationalised from [1, 0, 1, 0, 2]
         , (Zone 15 20, Maximum 65 [2])
         ]
         (fill zones derivations |> toList)
@@ -402,7 +402,7 @@ fillAndToListTest =
         assertEqual
         [ (Zone 0 5,   Maximum 90 [0])
         , (Zone 5 10,  Maximum 10 [3])
-        , (Zone 10 15, Contradiction [1, 0, 1, 0, 3])
+        , (Zone 10 15, Contradiction [1, 0, 3]) -- Rationalised from [1, 0, 1, 0, 3]
         , (Zone 15 20, Maximum 10 [3])
         ]
         (fill zones derivations |> toList)
