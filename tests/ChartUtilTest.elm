@@ -2,6 +2,8 @@ module ChartUtilTest exposing (all)
 
 import ChartUtil exposing (..)
 
+import Zone exposing (inf, Zone)
+import ZoneDict exposing (Value(..))
 import Spline exposing (Pos)
 
 import ElmTest exposing (..)
@@ -10,7 +12,8 @@ import ElmTest exposing (..)
 all : Test
 all =
     suite "ChartUtilTest"
-    [ scaleXTest
+    [ fromEntriesTest
+    , scaleXTest
     , scaleYTest
     , transformXTest
     , transformYTest
@@ -18,6 +21,27 @@ all =
     , bracketRectsTest
     ]
 
+
+fromEntriesTest : Test
+fromEntriesTest =
+    suite "fromEntriesTest"
+
+    [ test "No entries mean no shapes" <|
+      assertEqual
+      []
+      (fromEntries [])
+
+    , test "One infinite entry means a simple shape (1)" <|
+      assertEqual
+      [Taper { bias = Both, from = -1, to = 1, area = 100, src = [2, 1] }]
+      (fromEntries [ (Zone -inf inf, Exactly 100 [2, 1]) ])
+
+    , test "One infinite entry means a simple shape (2)" <|
+      assertEqual
+      [Taper { bias = Both, from = -1, to = 1, area = 80, src = [0] }]
+      (fromEntries [ (Zone -inf inf, Exactly 80 [0]) ])
+
+    ]
 
 scaleXTest : Test
 scaleXTest =
@@ -280,4 +304,3 @@ bracketRectsTest =
       )
 
     ]
-

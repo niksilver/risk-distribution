@@ -1,15 +1,30 @@
 module ChartUtil exposing
-    ( Rect, Spec, ViewDims, Transformer
+    ( Bias(Both), Shape (Taper)
+    , Rect, Spec, ViewDims, Transformer
+    , fromEntries
     , transformX, transformY, scaleX, scaleY, transformer
     , curvePointsForRect
     , bracketRects
     )
 
+import Zone exposing (Zone)
+import ZoneDict exposing (Value (Exactly))
 import Spline exposing (Pos)
 import Util
 
 
--- Specification for a chart
+-- Shapes and specification for a chart
+
+type Bias = Both  -- Which way a taper is biased
+
+type Shape =
+    Taper
+        { bias : Bias
+        , from : Float
+        , to : Float
+        , area : Float
+        , src : List Int
+        }
 
 type alias Rect =
     { left : Float
@@ -44,6 +59,29 @@ type alias Transformer =
     , scY : Float -> Float    -- Scale a y co-ordinate
     }
 
+
+-- Go from ZoneDict entries to a list of shapes for a chart
+
+fromEntries : List (Zone, Value) -> List Shape
+fromEntries entries =
+    fromEntries' entries []
+
+fromEntries' : List (Zone, Value) -> List Shape -> List Shape
+fromEntries' entries accum =
+    case entries of
+        [] ->
+            accum
+        (zone, Exactly pc src) :: tail ->
+            [ Taper
+                { bias = Both
+                , from = -1
+                , to = 1
+                , area = toFloat pc
+                , src = src
+                }
+            ]
+        _ ->
+            []
 
 -- Scale a length on the x- or y-axis from a spec to a view box.
 
@@ -127,4 +165,3 @@ bracketRects1 end proportion rect =
                 Rect (rect.left - width) rect.left height
             Back ->
                 Rect rect.right (rect.right + width) height
-
