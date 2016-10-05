@@ -1,13 +1,14 @@
 module ChartUtil exposing
-    ( Bias(Both), Shape (Taper)
+    ( Bias (Left, Both), Shape (Taper)
     , Rect, Spec, ViewDims, Transformer
-    , fromEntries
+    , AxisPoints (NoPoints, MinusInfToPoint, PointToInf, Range)
+    , truncateRange, fromEntries
     , transformX, transformY, scaleX, scaleY, transformer
     , curvePointsForRect
     , bracketRects
     )
 
-import Zone exposing (Zone)
+import Zone exposing (inf, Zone)
 import ZoneDict exposing (Value (Exactly), PcValue)
 import Spline exposing (Pos)
 import Util
@@ -15,7 +16,7 @@ import Util
 
 -- Shapes and specification for a chart
 
-type Bias = Both  -- Which way a taper is biased
+type Bias = Left | Both  -- Which way a taper is biased
 
 type Shape =
     Taper
@@ -59,6 +60,43 @@ type alias Transformer =
     }
 
 
+-- Find sensible limits for a range of values, for the x-axis.
+-- Axis points represent the known limits on an axis. We may have zero
+-- or more finite points, and it may taper off to infinity at either end.
+
+type AxisPoints
+    = NoPoints -- No points, or maybe just -inf to inf
+    | MinusInfToPoint Float  -- Just -inf to a point
+    | PointToInf Float  -- Just a point to inf
+    | Range Bool Float Float Bool  -- A range, maybe -inf, maybe inf
+
+truncateRange : AxisPoints -> (Float, Float)
+truncateRange points =
+    case points of
+        NoPoints ->
+            (-1, 1)
+        MinusInfToPoint x ->
+            if (x > 0) then
+                (-x, x)
+            else if (x < 0) then
+                (2 * x, x)
+            else
+                (-1, 0)
+        PointToInf x ->
+            if (x < 0) then
+                (x, -x)
+            else if (x > 0) then
+                (x, 2 * x)
+            else
+                (0, 1)
+        Range mInf x1 x2 pInf ->
+            case (mInf, pInf) of
+                (False, False) -> (x1, x2)
+                (True, False) -> (x1 - (x2 - x1)/5, x2)
+                (False, True) -> (x1, x2 + (x2 - x1)/5)
+                (True, True) -> (x1 - (x2 - x1)/5, x2 + (x2 - x1)/5)
+
+
 -- Go from ZoneDict entries to a list of shapes for a chart
 
 fromEntries : List (Zone, PcValue) -> List Shape
@@ -70,14 +108,21 @@ fromEntries' entries accum =
     case entries of
         [] ->
             accum
-        (zone, value) :: tail ->
+        ({ from, to }, value) :: tail ->
             [ Taper
-                { bias = Both
-                , from = -1
-                , to = 1
+                { bias = calcBias from to
+                , from = from
+                , to = to
                 , area = ZoneDict.toValueFloat value
                 }
             ]
+
+calcBias : Float -> Float -> Bias
+calcBias from to =
+    if (from == -inf && to == inf) then
+        Both
+    else
+        Left
 
 -- Scale a length on the x- or y-axis from a spec to a view box.
 

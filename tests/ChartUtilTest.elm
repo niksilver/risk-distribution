@@ -12,7 +12,8 @@ import ElmTest exposing (..)
 all : Test
 all =
     suite "ChartUtilTest"
-    [ fromEntriesTest
+    [ truncateRangeTest
+    , fromEntriesTest
     , scaleXTest
     , scaleYTest
     , transformXTest
@@ -21,6 +22,101 @@ all =
     , bracketRectsTest
     ]
 
+
+truncateRangeTest : Test
+truncateRangeTest =
+    suite "truncateRangeTest"
+
+    {- Our possible combinations are...
+        Nothing at all
+        -inf to +inf and nothing in between
+        a single point
+        -inf but only one upper single point
+        +inf but only one lower single point
+        -inf, a single point, and +inf
+        a finite range
+        -inf and a finite range
+        +inf and a finite range
+        -inf, a finite range, and +inf
+    -}
+
+    [  -- When there is no range at all
+
+      test "No points or -inf to inf should give (-1, 1)" <|
+      assertEqual
+      (-1, 1)
+      (NoPoints |> truncateRange)
+
+    -- When there is one infinite end and only one finite point
+
+    , test "-inf to 27 should give (-27, 27)" <|
+      assertEqual
+      (-27, 27)
+      (MinusInfToPoint 27 |> truncateRange)
+
+    , test "-inf to -20 should give (-40, -20)" <|
+      assertEqual
+      (-40, -20)
+      (MinusInfToPoint -20 |> truncateRange)
+
+    , test "-inf to 0 should give (-1, 0)" <|
+      assertEqual
+      (-1, 0)
+      (MinusInfToPoint 0 |> truncateRange)
+
+    , test "-4 to inf should give (-4, 4)" <|
+      assertEqual
+      (-4, 4)
+      (PointToInf -4 |> truncateRange)
+
+    , test "13 to inf should give (13, 26)" <|
+      assertEqual
+      (13, 26)
+      (PointToInf 13 |> truncateRange)
+
+    , test "0 to inf should give (0, 1)" <|
+      assertEqual
+      (0, 1)
+      (PointToInf 0 |> truncateRange)
+
+    -- When there is a finite range, and may infinite ends
+
+    , test "Just a range should give that range" <|
+      assertEqual
+      (13, 16)
+      (Range False 13 16 False |> truncateRange)
+
+    , test "-inf to range should give a fifth of that range at the start (1)" <|
+      assertEqual
+      (8, 20)
+      (Range True 10 20 False |> truncateRange)
+
+    , test "-inf to range should give a fifth of that range at the start (2)" <|
+      assertEqual
+      (26, 50)
+      (Range True 30 50 False |> truncateRange)
+
+    , test "Range to inf should give a fifth of that range at the end (1)" <|
+      assertEqual
+      (10, 22)
+      (Range False 10 20 True |> truncateRange)
+
+    , test "Range to inf should give a fifth of that range at the end (2)" <|
+      assertEqual
+      (30, 54)
+      (Range False 30 50 True |> truncateRange)
+
+    , test "-inf to inf with range to inf should give a fifth of range at either end (1)" <|
+      assertEqual
+      (8, 22)
+      (Range True 10 20 True |> truncateRange)
+
+    , test "-inf to inf with range to inf should give a fifth of range at either end (2)" <|
+      assertEqual
+      (26, 54)
+      (Range True 30 50 True |> truncateRange)
+
+    ]
 
 fromEntriesTest : Test
 fromEntriesTest =
@@ -31,6 +127,8 @@ fromEntriesTest =
       []
       (fromEntries [])
 
+    -- A single two-sided taper
+
     , test "One infinite exact entry means a simple exact shape (1)" <|
       assertEqual
       [Taper { bias = Both, from = -1, to = 1, area = Exactly 100 [2, 1] }]
@@ -40,6 +138,20 @@ fromEntriesTest =
       assertEqual
       [Taper { bias = Both, from = -1, to = 1, area = Exactly 80 [0] }]
       (fromEntries [ (Zone -inf inf, Exactly 80 [0]) ])
+
+    , test "One infinite maximum entry means a simple max shape" <|
+      assertEqual
+      [Taper { bias = Both, from = -1, to = 1, area = Maximum 20 [1] }]
+      (fromEntries [ (Zone -inf inf, Maximum 20 [1]) ])
+
+    -- A single left taper
+
+    , test "A single zone -inf to 10 should give left taper -10 to 10" <|
+      assertEqual
+      [Taper { bias = Left, from = -10, to = 10, area = Exactly 20 [0] }]
+      (fromEntries [ (Zone -inf 10, Exactly 20 [0]) ])
+
+    -- FINISH ME!!!!!!!!!!!
 
     ]
 
