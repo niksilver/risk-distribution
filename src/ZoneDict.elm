@@ -1,6 +1,6 @@
 module ZoneDict exposing
     ( ZoneDict
-    , Value (Exactly, Maximum, Contradiction)
+    , Value (Exactly, Maximum, Contradiction), PcValue
     , getEntries, combine, rationalise
     , fill, toList
     )
@@ -17,21 +17,23 @@ import Dict exposing (Dict)
 -- about that zone's percentage value
 
 type alias ZoneDict =
-    Dict (Float, Float) Value
+    Dict (Float, Float) PcValue
 
 -- Result of successive derivations, showing what we think the
 -- value is for a particular zone, and its source(s).
 
-type Value
-    = Exactly Int (List Int)
-    | Maximum Int (List Int)
+type Value a
+    = Exactly a (List Int)
+    | Maximum a (List Int)
     | Contradiction (List Int)
+
+type alias PcValue = Value Int  -- Value for an integer percentage
 
 -- Get some entries for a ZoneDict.
 -- Given some zones and a derivation each entry shows the best result
 -- for each zone expressed in the constraint.
 
-getEntries : List Zone -> Derivation -> List (Zone, Value)
+getEntries : List Zone -> Derivation -> List (Zone, PcValue)
 getEntries zones {cons, src} =
     let
         includeZone zone coeff =
@@ -49,7 +51,7 @@ getEntries zones {cons, src} =
 -- Combine one value with another to see if there is consistency or otherwise
 -- a better understanding of that particular zone.
 
-combine : Value -> Value -> Value
+combine : PcValue -> PcValue -> PcValue
 combine v1 v2 =
     case (v1, v2) of
         (Contradiction src1, Contradiction src2) ->
@@ -82,7 +84,7 @@ combine v1 v2 =
 -- Convert "Maximum 0" to "Exactly 0", and remove duplicate sources,
 -- otherwise keep the same thing.
 
-rationalise : Value -> Value
+rationalise : PcValue -> PcValue
 rationalise v =
     case v of
         Exactly a src ->
@@ -126,7 +128,7 @@ fillForDeriv zones deriv dict =
 
 -- Get a ZoneDict's entries in the form of a list of pairs
 
-toList : ZoneDict -> List (Zone, Value)
+toList : ZoneDict -> List (Zone, PcValue)
 toList dict =
     let
         toZone (from, to) = Zone from to

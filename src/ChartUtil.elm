@@ -8,7 +8,7 @@ module ChartUtil exposing
     )
 
 import Zone exposing (Zone)
-import ZoneDict exposing (Value (Exactly))
+import ZoneDict exposing (PcValue, Value (Exactly))
 import Spline exposing (Pos)
 import Util
 
@@ -62,11 +62,11 @@ type alias Transformer =
 
 -- Go from ZoneDict entries to a list of shapes for a chart
 
-fromEntries : List (Zone, Value) -> List Shape
+fromEntries : List (Zone, PcValue) -> List Shape
 fromEntries entries =
     fromEntries' entries []
 
-fromEntries' : List (Zone, Value) -> List Shape -> List Shape
+fromEntries' : List (Zone, PcValue) -> List Shape -> List Shape
 fromEntries' entries accum =
     case entries of
         [] ->
