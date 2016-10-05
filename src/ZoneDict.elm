@@ -1,6 +1,7 @@
 module ZoneDict exposing
     ( ZoneDict
     , Value (Exactly, Maximum, Contradiction), PcValue
+    , toValueFloat
     , getEntries, combine, rationalise
     , fill, toList
     )
@@ -28,6 +29,19 @@ type Value a
     | Contradiction (List Int)
 
 type alias PcValue = Value Int  -- Value for an integer percentage
+
+
+-- Convert a Value Int to a Value Float
+
+toValueFloat : Value Int -> Value Float
+toValueFloat v =
+    case v of
+        Exactly pc src ->
+            Exactly (toFloat pc) src
+        Maximum pc src ->
+            Maximum (toFloat pc) src
+        Contradiction src ->
+            Contradiction src
 
 -- Get some entries for a ZoneDict.
 -- Given some zones and a derivation each entry shows the best result

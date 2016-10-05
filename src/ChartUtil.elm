@@ -8,7 +8,7 @@ module ChartUtil exposing
     )
 
 import Zone exposing (Zone)
-import ZoneDict exposing (PcValue, Value (Exactly))
+import ZoneDict exposing (Value (Exactly), PcValue)
 import Spline exposing (Pos)
 import Util
 
@@ -22,8 +22,7 @@ type Shape =
         { bias : Bias
         , from : Float
         , to : Float
-        , area : Float
-        , src : List Int
+        , area : Value Float
         }
 
 type alias Rect =
@@ -71,17 +70,14 @@ fromEntries' entries accum =
     case entries of
         [] ->
             accum
-        (zone, Exactly pc src) :: tail ->
+        (zone, value) :: tail ->
             [ Taper
                 { bias = Both
                 , from = -1
                 , to = 1
-                , area = toFloat pc
-                , src = src
+                , area = ZoneDict.toValueFloat value
                 }
             ]
-        _ ->
-            []
 
 -- Scale a length on the x- or y-axis from a spec to a view box.
 

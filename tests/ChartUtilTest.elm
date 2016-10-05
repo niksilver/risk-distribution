@@ -33,12 +33,12 @@ fromEntriesTest =
 
     , test "One infinite exact entry means a simple exact shape (1)" <|
       assertEqual
-      [Taper { bias = Both, from = -1, to = 1, area = 100, src = [2, 1] }]
+      [Taper { bias = Both, from = -1, to = 1, area = Exactly 100 [2, 1] }]
       (fromEntries [ (Zone -inf inf, Exactly 100 [2, 1]) ])
 
     , test "One infinite exact entry means a simple exact shape (2)" <|
       assertEqual
-      [Taper { bias = Both, from = -1, to = 1, area = 80, src = [0] }]
+      [Taper { bias = Both, from = -1, to = 1, area = Exactly 80 [0] }]
       (fromEntries [ (Zone -inf inf, Exactly 80 [0]) ])
 
     ]
