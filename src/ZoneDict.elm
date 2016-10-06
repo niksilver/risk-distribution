@@ -4,9 +4,10 @@ module ZoneDict exposing
     , toValueFloat
     , getEntries, combine, rationalise
     , fill, toList
+    , toRange
     )
 
-import Zone exposing (Zone)
+import Zone exposing (inf, Zone)
 import Constraint exposing (Constraint)
 import Derivation exposing (Derivation)
 import Util
@@ -151,3 +152,31 @@ toList dict =
         dict
             |> Dict.toList
             |> List.map convertEntry
+
+-- Convert a list of zone/value pairs into a range for a chart's x-axis
+
+toRange : List (Zone, PcValue) -> (Float, Float)
+toRange entries =
+    entries
+        |> List.map fst
+        |> minMax
+        |> fixMinusInf
+
+minMax : List Zone -> (Float, Float)
+minMax zones =
+    ( zones
+        |> List.head |> Maybe.map .from |> Maybe.withDefault -1
+    , zones |> List.reverse
+        |> List.head |> Maybe.map .to |> Maybe.withDefault 1
+    )
+
+fixMinusInf : (Float, Float) -> (Float, Float)
+fixMinusInf (min, max) =
+    if (min == -inf && max > 0) then
+        (-max, max)
+    else if (min == -inf && max < 0) then
+        (2 * max, max)
+    else if (min == -inf && max == 0) then
+        (-1, max)
+    else
+        (min, max)
