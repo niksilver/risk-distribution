@@ -1,8 +1,7 @@
 module ChartUtil exposing
-    ( Bias (Left, Both), Shape (Taper)
-    , Rect, Spec, ViewDims, Transformer
+    ( Rect, Spec, ViewDims, Transformer
     , AxisPoints (NoPoints, MinusInfToPoint, PointToInf, Range)
-    , truncateRange, fromEntries
+    , truncateRange
     , transformX, transformY, scaleX, scaleY, transformer
     , curvePointsForRect
     , bracketRects
@@ -14,17 +13,7 @@ import Spline exposing (Pos)
 import Util
 
 
--- Shapes and specification for a chart
-
-type Bias = Left | Both  -- Which way a taper is biased
-
-type Shape =
-    Taper
-        { bias : Bias
-        , from : Float
-        , to : Float
-        , area : Value Float
-        }
+-- Specification for a chart
 
 type alias Rect =
     { left : Float
@@ -96,33 +85,6 @@ truncateRange points =
                 (False, True) -> (x1, x2 + (x2 - x1)/5)
                 (True, True) -> (x1 - (x2 - x1)/5, x2 + (x2 - x1)/5)
 
-
--- Go from ZoneDict entries to a list of shapes for a chart
-
-fromEntries : List (Zone, PcValue) -> List Shape
-fromEntries entries =
-    fromEntries' entries []
-
-fromEntries' : List (Zone, PcValue) -> List Shape -> List Shape
-fromEntries' entries accum =
-    case entries of
-        [] ->
-            accum
-        ({ from, to }, value) :: tail ->
-            [ Taper
-                { bias = calcBias from to
-                , from = from
-                , to = to
-                , area = ZoneDict.toValueFloat value
-                }
-            ]
-
-calcBias : Float -> Float -> Bias
-calcBias from to =
-    if (from == -inf && to == inf) then
-        Both
-    else
-        Left
 
 -- Scale a length on the x- or y-axis from a spec to a view box.
 

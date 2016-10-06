@@ -13,7 +13,6 @@ all : Test
 all =
     suite "ChartUtilTest"
     [ truncateRangeTest
-    , fromEntriesTest
     , scaleXTest
     , scaleYTest
     , transformXTest
@@ -115,43 +114,6 @@ truncateRangeTest =
       assertEqual
       (26, 54)
       (Range True 30 50 True |> truncateRange)
-
-    ]
-
-fromEntriesTest : Test
-fromEntriesTest =
-    suite "fromEntriesTest"
-
-    [ test "No entries mean no shapes" <|
-      assertEqual
-      []
-      (fromEntries [])
-
-    -- A single two-sided taper
-
-    , test "One infinite exact entry means a simple exact shape (1)" <|
-      assertEqual
-      [Taper { bias = Both, from = -1, to = 1, area = Exactly 100 [2, 1] }]
-      (fromEntries [ (Zone -inf inf, Exactly 100 [2, 1]) ])
-
-    , test "One infinite exact entry means a simple exact shape (2)" <|
-      assertEqual
-      [Taper { bias = Both, from = -1, to = 1, area = Exactly 80 [0] }]
-      (fromEntries [ (Zone -inf inf, Exactly 80 [0]) ])
-
-    , test "One infinite maximum entry means a simple max shape" <|
-      assertEqual
-      [Taper { bias = Both, from = -1, to = 1, area = Maximum 20 [1] }]
-      (fromEntries [ (Zone -inf inf, Maximum 20 [1]) ])
-
-    -- A single left taper
-
-    , test "A single zone -inf to 10 should give left taper -10 to 10" <|
-      assertEqual
-      [Taper { bias = Left, from = -10, to = 10, area = Exactly 20 [0] }]
-      (fromEntries [ (Zone -inf 10, Exactly 20 [0]) ])
-
-    -- FINISH ME!!!!!!!!!!!
 
     ]
 
