@@ -10,7 +10,8 @@ import ElmTest exposing (..)
 all : Test
 all =
     suite "UtilTest"
-    [ singletonTest
+    [ isFiniteTest
+    , singletonTest
     , noneTest
     , findTest
     , findPairTest
@@ -25,6 +26,42 @@ all =
     , dedupeTest
     , filteredExpandTest
     , toLetterTest
+    ]
+
+isFiniteTest : Test
+isFiniteTest =
+    suite "isFiniteTest"
+
+    [ test "-Infinity should not be finite" <|
+      assertEqual
+      False
+      (isFinite (-1/0))
+
+    , test "+Infinity should not be finite" <|
+      assertEqual
+      False
+      (isFinite (1/0))
+
+    , test "0/0 should not be finite" <|
+      assertEqual
+      False
+      (isFinite (0/0))
+
+    , test "sqrt(-1) should not be finite" <|
+      assertEqual
+      False
+      (isFinite (sqrt -1))
+
+    , test "-0.5 should be finite" <|
+      assertEqual
+      True
+      (isFinite -0.5)
+
+    , test "1.5 should be finite" <|
+      assertEqual
+      True
+      (isFinite 1.5)
+
     ]
 
 singletonTest : Test

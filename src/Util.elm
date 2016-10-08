@@ -1,5 +1,6 @@
 module Util exposing
-    ( singleton
+    ( isFinite
+    , singleton
     , none
     , find, findPair
     , groupBy
@@ -15,6 +16,12 @@ module Util exposing
 import String
 import Dict exposing (Dict)
 
+
+-- Is a float finite?
+
+isFinite : Float -> Bool
+isFinite x =
+    (not <| isInfinite x) && (not <| isNaN x)
 
 -- Create a singleton list of the given elements
 

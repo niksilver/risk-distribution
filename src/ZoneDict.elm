@@ -184,7 +184,12 @@ taperFactor = 5
 
 taperZoneWidth : Int -> Float -> Int -> Float
 taperZoneWidth pc1 width2 pc2 =
-    width2 * toFloat pc1 / toFloat pc2 * taperFactor
+    let
+        pc1' = toFloat pc1
+        pc2' =
+            if (pc2 == 0) then 10.0 else toFloat pc2
+    in
+    width2 * pc1' / pc2' * taperFactor
 
 -- Convert a list of zone/value pairs into a range for a chart's x-axis
 

@@ -5,6 +5,7 @@ import ZoneDict exposing (..)
 import Zone exposing (inf, Zone)
 import Constraint exposing (Constraint)
 import Derivation exposing (Derivation)
+import Util
 
 import ElmTest exposing (..)
 
@@ -442,35 +443,45 @@ taperZoneWidthTest : Test
 taperZoneWidthTest =
     suite "taperZoneWidthTest"
 
-    [ test "Equal %ages should give length which is a constant bigger (1)" <|
+    [ test "Equal %ages should give width which is a constant bigger (1)" <|
       assertEqual
       (4 * taperFactor)
       (taperZoneWidth 50 4 50)
 
-    , test "Equal %ages should give length which is a constant bigger (2)" <|
+    , test "Equal %ages should give width which is a constant bigger (2)" <|
       assertEqual
       (10 * taperFactor)
       (taperZoneWidth 20 10 20)
 
-    , test "Zone of half the prob should give length which is half a constant bigger (1)" <|
+    , test "Zone of half the prob should give width which is half a constant bigger (1)" <|
       assertEqual
       (6 * taperFactor / 2)
       (taperZoneWidth 15 6 30)
 
-    , test "Zone of half the prob should give length which is half a constant bigger (2)" <|
+    , test "Zone of half the prob should give width which is half a constant bigger (2)" <|
       assertEqual
       (10 * taperFactor / 2)
       (taperZoneWidth 20 10 40)
 
-    , test "Zone of three times the prob should give length which is 3 x constant bigger (1)" <|
+    , test "Zone of three times the prob should give width which is 3 x constant bigger (1)" <|
       assertEqual
       (50 * taperFactor * 3)
       (taperZoneWidth 15 50 5)
 
-    , test "Zone of three times the prob should give length which is 3 x constant bigger (2)" <|
+    , test "Zone of three times the prob should give width which is 3 x constant bigger (2)" <|
       assertEqual
       (4 * taperFactor * 3)
       (taperZoneWidth 30 4 10)
+
+    , test "Zone of zero prob should never be used, but should give finite width if it is" <|
+      assertEqual
+      (True)
+      (taperZoneWidth 30 4 0 |> Util.isFinite)
+
+    , test "Zone of width should never be used, but should give finite width if it is" <|
+      assertEqual
+      (True)
+      (taperZoneWidth 30 4 0 |> Util.isFinite)
 
     ]
 
