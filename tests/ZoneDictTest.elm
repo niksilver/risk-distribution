@@ -16,6 +16,7 @@ all =
     , combineTest
     , rationaliseTest
     , fillAndToListTest
+    , infZoneTruncationTest
     , toRangeTest
     ]
 
@@ -437,6 +438,42 @@ fillAndToListTest =
 
     ]
 
+infZoneTruncationTest : Test
+infZoneTruncationTest =
+    suite "infZoneTruncationTest"
+
+    [ test "Equal %ages should give length which is a constant bigger (1)" <|
+      assertEqual
+      (4 * taperFactor)
+      (infZoneTruncation 50 4 50)
+
+    , test "Equal %ages should give length which is a constant bigger (2)" <|
+      assertEqual
+      (10 * taperFactor)
+      (infZoneTruncation 20 10 20)
+
+    , test "Zone of half the prob should give length which is half a constant bigger (1)" <|
+      assertEqual
+      (6 * taperFactor / 2)
+      (infZoneTruncation 15 6 30)
+
+    , test "Zone of half the prob should give length which is half a constant bigger (2)" <|
+      assertEqual
+      (10 * taperFactor / 2)
+      (infZoneTruncation 20 10 40)
+
+    , test "Zone of three times the prob should give length which is 3 x constant bigger (1)" <|
+      assertEqual
+      (50 * taperFactor * 3)
+      (infZoneTruncation 15 50 5)
+
+    , test "Zone of three times the prob should give length which is 3 x constant bigger (2)" <|
+      assertEqual
+      (4 * taperFactor * 3)
+      (infZoneTruncation 30 4 10)
+
+    ]
+
 toRangeTest : Test
 toRangeTest =
     suite "toRangeTest"
@@ -490,6 +527,16 @@ toRangeTest =
       (toRange [(Zone -inf 0, Exactly 80 [2, 0])])
 
     -- Zones from -inf to a finite number: Two zones
+
+    -- , test "Two zones (-inf, x) and (x, y) should be sized relative to their %ages and the taper-factor (1)" <|
+    --   assertEqual
+    --   (???, 10)
+    --   (toRange
+    --     [ (Zone -inf -2, Maximum 20 [0, 1])
+    --     , (Zone -2 10, Maximum 50 [3,1])
+    --     ]
+    --   )
+
     -- Zones from -inf to a finite number: Three-plus zones
     -- Zones from finite number to inf: Single zone
     -- Zones from finite number to inf: Two zones

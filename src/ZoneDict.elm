@@ -4,7 +4,7 @@ module ZoneDict exposing
     , toValueFloat
     , getEntries, combine, rationalise
     , fill, toList
-    , toRange
+    , taperFactor, infZoneTruncation, toRange
     )
 
 import Zone exposing (inf, Zone)
@@ -152,6 +152,39 @@ toList dict =
         dict
             |> Dict.toList
             |> List.map convertEntry
+
+-- Say we have two zones; the first is infinitely long, the second is
+-- finite, and both have a %age probability. Then we need to work out
+-- how big the truncated form of the first zone should be to represent
+-- on a chart.
+--
+-- E.g. Zone -inf to 0 of probability 10 (pc1)
+-- and zone of length 5 of probability 15 (pc2).
+-- We want a charge that will look like this:
+--
+--               ----
+--               |  |
+--              .|  |  Area under bar = 15
+--              .|  |  Area under curve = 10 (approx)
+--             . |  |  Curve starts half way up the bar
+--        . .    |  |  and is a series of rects, each of half the height
+--        -----------  of the previous one.
+--                     So we rely on the fact that a rectangle equals
+-- 1/2 itself + 1/4 itself + 1/8 itself + ...
+-- And those are the rectangles we stack next to each other to get the
+-- taper. We don't do this forever. We only do it taperFactor times, which
+-- we say is close enough. And our first (tallest) rectangle will be
+-- half the height of the neighbouring one, which means its width needs
+-- to be the same width but then scaled to the relative percentages (pc1/pc2).
+--
+-- Question: What happens when the height of the neighbour (pc2) is zero?
+
+taperFactor : Float
+taperFactor = 5
+
+infZoneTruncation : Int -> Float -> Int -> Float
+infZoneTruncation pc1 width2 pc2 =
+    width2 * toFloat pc1 / toFloat pc2 * taperFactor
 
 -- Convert a list of zone/value pairs into a range for a chart's x-axis
 
