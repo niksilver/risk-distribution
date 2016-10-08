@@ -1,6 +1,6 @@
-module ZoneLayoutTest exposing (all)
+module ZonesLayoutTest exposing (all)
 
-import ZoneLayout exposing (..)
+import ZonesLayout exposing (..)
 
 import Zone exposing (inf, Zone)
 import ZoneDict exposing (Value (Exactly, Maximum, Contradiction))

@@ -1,4 +1,4 @@
-module ZoneLayout exposing
+module ZonesLayout exposing
     ( taperFactor, taperZoneWidth, toRange
     )
 
