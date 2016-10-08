@@ -16,7 +16,7 @@ all =
     , combineTest
     , rationaliseTest
     , fillAndToListTest
-    , infZoneTruncationTest
+    , taperZoneWidthTest
     , toRangeTest
     ]
 
@@ -438,39 +438,39 @@ fillAndToListTest =
 
     ]
 
-infZoneTruncationTest : Test
-infZoneTruncationTest =
-    suite "infZoneTruncationTest"
+taperZoneWidthTest : Test
+taperZoneWidthTest =
+    suite "taperZoneWidthTest"
 
     [ test "Equal %ages should give length which is a constant bigger (1)" <|
       assertEqual
       (4 * taperFactor)
-      (infZoneTruncation 50 4 50)
+      (taperZoneWidth 50 4 50)
 
     , test "Equal %ages should give length which is a constant bigger (2)" <|
       assertEqual
       (10 * taperFactor)
-      (infZoneTruncation 20 10 20)
+      (taperZoneWidth 20 10 20)
 
     , test "Zone of half the prob should give length which is half a constant bigger (1)" <|
       assertEqual
       (6 * taperFactor / 2)
-      (infZoneTruncation 15 6 30)
+      (taperZoneWidth 15 6 30)
 
     , test "Zone of half the prob should give length which is half a constant bigger (2)" <|
       assertEqual
       (10 * taperFactor / 2)
-      (infZoneTruncation 20 10 40)
+      (taperZoneWidth 20 10 40)
 
     , test "Zone of three times the prob should give length which is 3 x constant bigger (1)" <|
       assertEqual
       (50 * taperFactor * 3)
-      (infZoneTruncation 15 50 5)
+      (taperZoneWidth 15 50 5)
 
     , test "Zone of three times the prob should give length which is 3 x constant bigger (2)" <|
       assertEqual
       (4 * taperFactor * 3)
-      (infZoneTruncation 30 4 10)
+      (taperZoneWidth 30 4 10)
 
     ]
 

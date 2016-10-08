@@ -4,7 +4,7 @@ module ZoneDict exposing
     , toValueFloat
     , getEntries, combine, rationalise
     , fill, toList
-    , taperFactor, infZoneTruncation, toRange
+    , taperFactor, taperZoneWidth, toRange
     )
 
 import Zone exposing (inf, Zone)
@@ -182,8 +182,8 @@ toList dict =
 taperFactor : Float
 taperFactor = 5
 
-infZoneTruncation : Int -> Float -> Int -> Float
-infZoneTruncation pc1 width2 pc2 =
+taperZoneWidth : Int -> Float -> Int -> Float
+taperZoneWidth pc1 width2 pc2 =
     width2 * toFloat pc1 / toFloat pc2 * taperFactor
 
 -- Convert a list of zone/value pairs into a range for a chart's x-axis
