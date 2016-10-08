@@ -5,6 +5,14 @@ module ZoneLayout exposing
 import Zone exposing (inf, Zone)
 import ZoneDict exposing (PcValue)
 
+-- When we want to taper a zone off to infinity we'll do it as a series
+-- of rectangles. These will be:
+-- 1/2 height + 1/4 height + 1/8 height + ...
+-- The number of such rectangles we use in practice is this value
+
+taperFactor : Float
+taperFactor = 5
+
 -- Module to help work out the shapes needed to lay out and display
 -- a probability curve, based on zones of various percentage values.
 
@@ -34,9 +42,6 @@ import ZoneDict exposing (PcValue)
 --
 -- Question: What happens when the height of the neighbour (pc2) is zero?
 
-taperFactor : Float
-taperFactor = 5
-
 taperZoneWidth : Int -> Float -> Int -> Float
 taperZoneWidth pc1 width2 pc2 =
     let
@@ -44,7 +49,7 @@ taperZoneWidth pc1 width2 pc2 =
         pc2' =
             if (pc2 == 0) then 10.0 else toFloat pc2
     in
-    width2 * pc1' / pc2' * taperFactor
+        width2 * pc1' / pc2' * taperFactor
 
 -- Convert a list of zone/value pairs into a range for a chart's x-axis
 
