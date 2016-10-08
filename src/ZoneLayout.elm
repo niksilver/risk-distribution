@@ -40,7 +40,7 @@ taperFactor = 5
 -- half the height of the neighbouring one, which means its width needs
 -- to be the same width but then scaled to the relative percentages (pc1/pc2).
 --
--- Question: What happens when the height of the neighbour (pc2) is zero?
+-- If the height of the neighbour is zero then we assume some default value.
 
 taperZoneWidth : Int -> Float -> Int -> Float
 taperZoneWidth pc1 width2 pc2 =
