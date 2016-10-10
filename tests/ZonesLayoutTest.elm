@@ -73,32 +73,32 @@ taperZoneWidthTest =
 
     [ test "Equal %ages should give width which is a constant bigger (1)" <|
       assertEqual
-      (4 * taperFactor)
+      (4)
       (taperZoneWidth 50 4 50)
 
     , test "Equal %ages should give width which is a constant bigger (2)" <|
       assertEqual
-      (10 * taperFactor)
+      (10)
       (taperZoneWidth 20 10 20)
 
     , test "Zone of half the prob should give width which is half a constant bigger (1)" <|
       assertEqual
-      (6 * taperFactor / 2)
+      (6 / 2)
       (taperZoneWidth 15 6 30)
 
     , test "Zone of half the prob should give width which is half a constant bigger (2)" <|
       assertEqual
-      (10 * taperFactor / 2)
+      (10 / 2)
       (taperZoneWidth 20 10 40)
 
     , test "Zone of three times the prob should give width which is 3 x constant bigger (1)" <|
       assertEqual
-      (50 * taperFactor * 3)
+      (50 * 3)
       (taperZoneWidth 15 50 5)
 
     , test "Zone of three times the prob should give width which is 3 x constant bigger (2)" <|
       assertEqual
-      (4 * taperFactor * 3)
+      (4 * 3)
       (taperZoneWidth 30 4 10)
 
     , test "Zone of zero prob should never be used, but should give finite width if it is" <|

@@ -3,6 +3,9 @@ module ZonesLayout exposing
     , trim, taperFactor, taperZoneWidth, toRange
     )
 
+-- Module to help work out the shapes needed to lay out and display
+-- a probability curve, based on zones of various percentage values.
+
 import Zone exposing (inf, Zone)
 import ZoneDict exposing (Value (Exactly, Maximum, Contradiction), PcValue)
 
@@ -48,13 +51,10 @@ trimFront blocks =
 taperFactor : Float
 taperFactor = 5
 
--- Module to help work out the shapes needed to lay out and display
--- a probability curve, based on zones of various percentage values.
-
 -- Say we have two zones; the first is infinitely long, the second is
--- finite, and both have a %age probability. Then we need to work out
--- how big the truncated form of the first zone should be to represent
--- on a chart.
+-- finite, and both have a %age probability. We want to represent the
+-- first as a series of reducing rectangles. This function tells us the
+-- width of each such rectangle.
 --
 -- E.g. Zone -inf to 0 of probability 10 (pc1)
 -- and zone of length 5 of probability 15 (pc2).
@@ -84,7 +84,7 @@ taperZoneWidth pc1 width2 pc2 =
         pc2' =
             if (pc2 == 0) then 10.0 else toFloat pc2
     in
-        width2 * pc1' / pc2' * taperFactor
+        width2 * pc1' / pc2'
 
 -- Convert a list of zone/value pairs into a range for a chart's x-axis
 
