@@ -11,8 +11,60 @@ import ElmTest exposing (..)
 all : Test
 all =
     suite "ZoneLayoutTest"
-    [ taperZoneWidthTest
+    [ trimTest
+    , taperZoneWidthTest
     , toRangeTest
+    ]
+
+trimTest : Test
+trimTest =
+    suite "trimTest"
+
+    [ test "Non-zero blocks should not be trimmed" <|
+      let
+        blocks =
+            [ Block (Zone 0 1) (Maximum 10 [0, 1])
+            , Block (Zone 1 4) (Exactly 85 [2])
+            , Block (Zone 4 5) (Maximum 5 [1, 2])
+            ]
+      in
+        assertEqual
+        blocks
+        (trim blocks)
+
+    , test "Zero-blocks at the start should be trimmed" <|
+      let
+        block1 = Block (Zone 0 1) (Maximum 0 [0, 1])
+        block2 = Block (Zone 1 3) (Exactly 0 [2, 1])
+        block3 = Block (Zone 3 10) (Maximum 50 [0])
+        block4 = Block (Zone 10 inf) (Maximum 50 [0, 2])
+      in
+        assertEqual
+        [ block3, block4 ]
+        (trim [ block1, block2, block3, block4 ])
+
+    , test "Zero-blocks at the end should be trimmed" <|
+      let
+        block1 = Block (Zone 0 1) (Maximum 20 [0, 1])
+        block2 = Block (Zone 1 3) (Exactly 80 [2, 1])
+        block3 = Block (Zone 3 10) (Maximum 0 [0])
+        block4 = Block (Zone 10 inf) (Maximum 0 [0, 2])
+      in
+        assertEqual
+        [ block1, block2 ]
+        (trim [ block1, block2, block3, block4 ])
+
+    , test "Zero-blocks in the middle should not be trimmed" <|
+      let
+        block1 = Block (Zone 0 1) (Maximum 20 [0, 1])
+        block2 = Block (Zone 1 3) (Exactly 0 [2, 1])
+        block3 = Block (Zone 3 10) (Maximum 0 [0])
+        block4 = Block (Zone 10 inf) (Maximum 80 [0, 2])
+      in
+        assertEqual
+        [ block1, block2, block3, block4 ]
+        (trim [ block1, block2, block3, block4 ])
+
     ]
 
 taperZoneWidthTest : Test

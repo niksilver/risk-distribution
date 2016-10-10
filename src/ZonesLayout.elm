@@ -1,9 +1,44 @@
 module ZonesLayout exposing
-    ( taperFactor, taperZoneWidth, toRange
+    ( Block
+    , trim, taperFactor, taperZoneWidth, toRange
     )
 
 import Zone exposing (inf, Zone)
-import ZoneDict exposing (PcValue)
+import ZoneDict exposing (Value (Exactly, Maximum, Contradiction), PcValue)
+
+
+type alias Block a =
+    { zone : Zone
+    , value : Value a
+    }
+
+-- Things to add:
+--   - Convert a finite zone to a rect
+--   - Calculate the height of the tallest rect of an infinite zone
+--   - Convert an infinite zone to a series of rects
+
+-- Trim a list of zones, removing zero-height ones from the start and end
+
+trim : List (Block number) -> List (Block number)
+trim blocks =
+    trimFront blocks
+        |> List.reverse
+        |> trimFront
+        |> List.reverse
+
+trimFront : List (Block number) -> List (Block number)
+trimFront blocks =
+    case blocks of
+        [] ->
+            []
+        block :: tail ->
+            case block.value of
+                Exactly 0 src ->
+                    trimFront tail
+                Maximum 0 src ->
+                    trimFront tail
+                _ ->
+                    blocks
 
 -- When we want to taper a zone off to infinity we'll do it as a series
 -- of rectangles. These will be:
