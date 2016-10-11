@@ -6,7 +6,7 @@ module ChartUtil exposing
     )
 
 import Zone exposing (inf, Zone)
-import ZoneDict exposing (Value (Exactly), PcValue)
+import ZoneDict exposing (Value (Exactly))
 import Spline exposing (Pos)
 import Util
 

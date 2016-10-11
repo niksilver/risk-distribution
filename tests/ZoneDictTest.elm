@@ -11,8 +11,7 @@ import ElmTest exposing (..)
 all : Test
 all =
     suite "ZoneDictTest"
-    [ toValueFloattTest
-    , getEntriesTest
+    [ getEntriesTest
     , combineTest
     , rationaliseTest
     , fillAndToListTest
@@ -25,32 +24,6 @@ deriv coeffs pc src =
     Derivation (Constraint coeffs pc) src
 
 -- The tests...
-
-toValueFloattTest : Test
-toValueFloattTest =
-    suite "toValueFloattTest"
-
-    [ test "toValueFloat exact should work (1)" <|
-      assertEqual
-      (Exactly 100.0 [4, 5])
-      (Exactly 100 [4, 5] |> toValueFloat)
-
-    , test "toValueFloat exact should work (2)" <|
-      assertEqual
-      (Exactly 80.0 [3, 0])
-      (Exactly 80 [3, 0] |> toValueFloat)
-
-    , test "toValueFloat max should work (1)" <|
-      assertEqual
-      (Maximum 99.0 [0])
-      (Maximum 99 [0] |> toValueFloat)
-
-    , test "toValueFloat max should work (2)" <|
-      assertEqual
-      (Maximum 20.0 [1, 2])
-      (Maximum 20 [1, 2] |> toValueFloat)
-
-    ]
 
 getEntriesTest : Test
 getEntriesTest =

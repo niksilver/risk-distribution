@@ -9,23 +9,23 @@ module ZonesLayout exposing
 -- a probability curve, based on zones of various percentage values.
 
 import Zone exposing (inf, Zone)
-import ZoneDict exposing (Value (Exactly, Maximum, Contradiction), PcValue)
+import ZoneDict exposing (Value (Exactly, Maximum, Contradiction))
 import ChartUtil exposing (Rect)
 
 
 -- A block representing a zone in a probability distribution
 
-type alias Block a =
+type alias Block =
     { zone : Zone
-    , value : Value a
+    , value : Value
     }
 
 -- A block representing a zone in a probability distribution, to be laid
 -- out on a chart
 
-type alias ChartBlock a =
+type alias ChartBlock =
     { zone : Zone
-    , value : Value a
+    , value : Value
     , rect : Rect
     }
 
@@ -36,14 +36,14 @@ type alias ChartBlock a =
 
 -- Trim a list of zones, removing zero-height ones from the start and end
 
-trim : List (Block number) -> List (Block number)
+trim : List Block -> List Block
 trim blocks =
     trimFront blocks
         |> List.reverse
         |> trimFront
         |> List.reverse
 
-trimFront : List (Block number) -> List (Block number)
+trimFront : List Block -> List Block
 trimFront blocks =
     case blocks of
         [] ->
@@ -104,13 +104,13 @@ taperZoneWidth pc1 width2 pc2 =
 -- Mostly this will be done block, but a zone tapering off to infinity
 -- will be represented by several chart blocks.
 
-toChartBlock : Block Int -> List (Block Int) -> List (ChartBlock Int)
+toChartBlock : Block -> List Block -> List ChartBlock
 toChartBlock block blocks =
     []
 
 -- Convert a list of zone/value pairs into a range for a chart's x-axis
 
-toRange : List (Zone, PcValue) -> (Float, Float)
+toRange : List (Zone, Value) -> (Float, Float)
 toRange entries =
     entries
         |> List.map fst
