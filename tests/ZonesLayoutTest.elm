@@ -15,7 +15,6 @@ all =
     [ trimTest
     , taperZoneWidthTest
     , toChartBlockTest
-    , toRangeTest
     ]
 
 trimTest : Test
@@ -142,77 +141,3 @@ toChartBlockTest =
           (toChartBlock b5 [b0, b1, b2, b5])
 
         ]
-
-toRangeTest : Test
-toRangeTest =
-    suite "toRangeTest"
-
-    [ test "No entries should give default range" <|
-      assertEqual
-      (-1, 1)
-      (toRange [])
-
-    -- Zones which are all finite
-
-    , test "Single finite zone should give that range" <|
-      assertEqual
-      (-10, 6)
-      (toRange [(Zone -10 6, Exactly 80 [3,2])])
-
-    , test "Two finite zones should give full range" <|
-      assertEqual
-      (0, 21)
-      (toRange
-        [ (Zone 0 8, Maximum 40 [1,2])
-        , (Zone 8 21, Maximum 60 [3,1])
-        ]
-      )
-
-    , test "Three finite zones should give full range" <|
-      assertEqual
-      (-10, 10)
-      (toRange
-        [ (Zone -10 -2, Maximum 20 [0, 1])
-        , (Zone -2 1, Maximum 50 [3,1])
-        , (Zone 1 10, Exactly 30 [2])
-        ]
-      )
-
-    -- Zones from -inf to a finite number: Single zone
-
-    , test "Single (-inf, +ve) should give range reflecting round y-axis" <|
-      assertEqual
-      (-4, 4)
-      (toRange [(Zone -inf 4, Maximum 100 [1,2])])
-
-    , test "Single (-inf, -ve) should give range twice further to the left" <|
-      assertEqual
-      (-26, -13)
-      (toRange [(Zone -inf -13, Maximum 100 [0])])
-
-    , test "Single (-inf, 0) should give default min" <|
-      assertEqual
-      (-1, 0)
-      (toRange [(Zone -inf 0, Exactly 80 [2, 0])])
-
-    -- Zones from -inf to a finite number: Two zones
-
-    -- , test "Two zones (-inf, x) and (x, y) should be sized relative to their %ages and the taper-factor (1)" <|
-    --   assertEqual
-    --   (???, 10)
-    --   (toRange
-    --     [ (Zone -inf -2, Maximum 20 [0, 1])
-    --     , (Zone -2 10, Maximum 50 [3,1])
-    --     ]
-    --   )
-
-    -- Zones from -inf to a finite number: Three-plus zones
-    -- Zones from finite number to inf: Single zone
-    -- Zones from finite number to inf: Two zones
-    -- Zones from finite number to inf: Three-plus zones
-    -- Zones from -inf to inf: Single zone
-    -- Zones from -inf to inf: Two zones
-    -- Zones from -inf to inf: Three zones
-    -- Zones from -inf to inf: Four-plus zones
-
-    ]

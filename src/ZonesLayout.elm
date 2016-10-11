@@ -2,7 +2,6 @@ module ZonesLayout exposing
     ( Block, ChartBlock
     , trim, taperFactor, taperZoneWidth
     , toChartBlock
-    , toRange
     )
 
 -- Module to help work out the shapes needed to lay out and display
@@ -122,31 +121,3 @@ toChartBlock block blocks =
           }
       }
     ]
-
--- Convert a list of zone/value pairs into a range for a chart's x-axis
-
-toRange : List (Zone, Value) -> (Float, Float)
-toRange entries =
-    entries
-        |> List.map fst
-        |> minMax
-        |> fixMinusInf
-
-minMax : List Zone -> (Float, Float)
-minMax zones =
-    ( zones
-        |> List.head |> Maybe.map .from |> Maybe.withDefault -1
-    , zones |> List.reverse
-        |> List.head |> Maybe.map .to |> Maybe.withDefault 1
-    )
-
-fixMinusInf : (Float, Float) -> (Float, Float)
-fixMinusInf (min, max) =
-    if (min == -inf && max > 0) then
-        (-max, max)
-    else if (min == -inf && max < 0) then
-        (2 * max, max)
-    else if (min == -inf && max == 0) then
-        (-1, max)
-    else
-        (min, max)
