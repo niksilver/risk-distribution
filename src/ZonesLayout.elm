@@ -10,6 +10,7 @@ module ZonesLayout exposing
 import Zone exposing (inf, Zone)
 import ZoneDict exposing (Value (Exactly, Maximum, Contradiction))
 import ChartUtil exposing (Rect)
+import Util
 
 
 -- A block representing a zone in a probability distribution
@@ -105,19 +106,73 @@ taperZoneWidth pc1 width2 pc2 =
 
 toChartBlock : Block -> List Block -> List ChartBlock
 toChartBlock block blocks =
+    if (Zone.isFinite block.zone) then
+        [ addRectToBlock block ]
+    else
+        [ makeTaperingChartBlock block blocks ]
+
+-- Get the percent size of a Value
+
+percent : Value -> Int
+percent value =
+    case value of
+        Exactly p src -> p
+        Maximum p src -> p
+        Contradiction src -> -1
+
+-- Turn a finite Block into a ChartBlock by adding an appropriate Rect
+
+addRectToBlock : Block -> ChartBlock
+addRectToBlock block =
     let
-        pc value =
-            case value of
-                Exactly p src -> p
-                Maximum p src -> p
-                Contradiction src -> -1
+        from = block.zone.from
+        to = block.zone.to
+        pc = percent block.value
     in
-    [ { zone = block.zone
-      , value = block.value
-      , rect =
-          { left = block.zone.from
-          , right = block.zone.to
-          , height = block.value |> pc |> toFloat
-          }
-      }
-    ]
+        { zone = block.zone
+        , value = block.value
+        , rect =
+            { left = from
+            , right = to
+            , height = (toFloat pc) / (to - from)
+            }
+        }
+
+-- Given an infinite Block, make a ChartBlock that is one of those
+-- that makes the tapering.
+
+makeTaperingChartBlock : Block -> List Block -> ChartBlock
+makeTaperingChartBlock block blocks =
+    let
+        pc = percent block.value
+        neighbour =
+            case (findNextBlock block blocks) of
+                Just b -> b
+                Nothing -> block
+        nFrom = neighbour.zone.from
+        nTo = neighbour.zone.to
+        nWidth = nTo - nFrom
+        nPc = percent neighbour.value
+        width = taperZoneWidth pc nWidth nPc
+    in
+        { zone = block.zone
+        , value = block.value
+        , rect =
+            { left = nFrom - width
+            , right = nFrom
+            , height = (toFloat pc / width) / 2
+            }
+        }
+
+-- Find the block after the given one
+
+findNextBlock : Block -> List Block -> Maybe Block
+findNextBlock block blocks =
+    case blocks of
+        head :: tail ->
+            if (head == block) then
+                List.head tail
+            else
+                findNextBlock block tail
+        [] ->
+            Nothing

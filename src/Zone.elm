@@ -1,6 +1,6 @@
 module Zone exposing
     ( inf
-    , Zone, isSubzone
+    , Zone, isFinite, isSubzone
     , Relation (NoRelation, Before, OnEdgeOf, Inside), relativeTo, isInside
     , Change (Subst, Add, NoChange)
     , splitOne, split
@@ -17,6 +17,12 @@ inf = 1/0
 -- part of the distribution curve.
 
 type alias Zone = { from : Float, to : Float}
+
+-- Is a Zone finite?
+
+isFinite : Zone -> Bool
+isFinite zone =
+    Util.isFinite (zone.to - zone.from)
 
 -- See if a zone is within another. A zone is a subzone of itself.
 

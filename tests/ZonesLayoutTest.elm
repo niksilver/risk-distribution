@@ -121,23 +121,50 @@ toChartBlockTest =
         -- for the sake of the function, even though we expect them to
         -- be in actual use
 
-        b0 = Block (Zone -inf -4) (Exactly 25 [2])
+        b0 = Block (Zone -inf -4) (Exactly 25 [2])   -- From -inf
         b1 = Block (Zone -4 0) (Exactly 10 [1])
-        b2 = Block (Zone 0 1) (Exactly 5 [1, 0])
-        b3 = Block (Zone 1 2) (Maximum 0 [2, 1, 0])
-        b4 = Block (Zone 2 5) (Exactly 0 [0, 1])
-        b5 = Block (Zone 5 10) (Maximum 85 [2, 3])
+        b2 = Block (Zone 0 4) (Exactly 5 [1, 0])
+        b3 = Block (Zone 4 6) (Maximum 0 [2, 1, 0])  -- Zero height
+        b4 = Block (Zone 6 10) (Exactly 0 [0, 1])     -- Zero height
+        b5 = Block (Zone 10 20) (Maximum 85 [2, 3])
     in
         suite "toChartBlockTest"
 
-        [ test "ChartBlock for exact finite %age should have rect same as block" <|
+        [ test "ChartBlock for exact finite %age should have rect height spread over width" <|
           assertEqual
-          [ChartBlock (Zone 0 1) (Exactly 5 [1, 0]) (Rect 0 1 5)]
+          [ChartBlock (Zone 0 4) (Exactly 5 [1, 0]) (Rect 0 4 (5/4))]
           (toChartBlock b2 [b0, b1, b2])
 
-        , test "ChartBlock for maximum finite %age should have rect same as block" <|
+        , test "ChartBlock for maximum finite %age should have rect heigh spread over" <|
           assertEqual
-          [ChartBlock (Zone 5 10) (Maximum 85 [2, 3]) (Rect 5 10 85)]
+          [ChartBlock (Zone 10 20) (Maximum 85 [2, 3]) (Rect 10 20 (85/10))]
           (toChartBlock b5 [b0, b1, b2, b5])
+
+        , suite "For Block which runs from -inf and is next to a non-zero finite block"
+          -- We're looking at a block of size 25% tapering off to -inf
+          -- next to a block of 10% size and 4 wide (from -4 to 0)
+          -- (therefore its rect height is 10 / 4 = 2.5).
+          -- So for the tapering chart block its first rect (on the right)
+          -- should be half the 2.5 high, i.e. 1.25 high,
+          -- and its width should be 10 wide (because 10 * 1.25 is half
+          -- the total area of its 25% size).
+          -- Therefore its second rect should be 0.625 high (half again) and 20 wide
+          -- and its third block should be 0.3125 high and 20 wide, etc
+          -- for five blocks (because that's our taperFactor).
+
+          [ test "Last ChartBlock should be appropriate dimensions" <|
+            assertEqual
+            (Just
+                { zone = Zone -inf -4
+                , value = Exactly 25 [2]
+                , rect =
+                    { left = -4 - 10
+                    , right = -4
+                    , height = 1.25
+                    }
+                })
+            (toChartBlock b0 [ b0, b1, b2 ] |> List.reverse |> List.head)
+
+          ]
 
         ]

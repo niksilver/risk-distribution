@@ -8,6 +8,7 @@ all : Test
 all =
     suite "ZoneTest"
     [ infinityTest
+    , isFiniteTest
     , isSubzoneTest
     , isInsideTest
     , relativeToTest
@@ -45,6 +46,32 @@ infinityTest =
     , test "inf <= inf" <|
       assert
       (inf <= inf)
+    ]
+
+isFiniteTest : Test
+isFiniteTest =
+    suite "isFiniteTest"
+
+    [ test "0 to 1 should be finite" <|
+      assertEqual
+      True
+      (Zone 0 1 |> isFinite)
+
+    , test "-inf to 0 should not be finite" <|
+      assertEqual
+      False
+      (Zone -inf 0 |> isFinite)
+
+    , test "0 to inf should not be finite" <|
+      assertEqual
+      False
+      (Zone 0 inf |> isFinite)
+
+    , test "-inf to inf should not be finite" <|
+      assertEqual
+      False
+      (Zone -inf inf |> isFinite)
+
     ]
 
 isSubzoneTest : Test
