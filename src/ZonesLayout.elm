@@ -106,7 +106,22 @@ taperZoneWidth pc1 width2 pc2 =
 
 toChartBlock : Block -> List Block -> List ChartBlock
 toChartBlock block blocks =
-    []
+    let
+        pc value =
+            case value of
+                Exactly p src -> p
+                Maximum p src -> p
+                Contradiction src -> -1
+    in
+    [ { zone = block.zone
+      , value = block.value
+      , rect =
+          { left = block.zone.from
+          , right = block.zone.to
+          , height = block.value |> pc |> toFloat
+          }
+      }
+    ]
 
 -- Convert a list of zone/value pairs into a range for a chart's x-axis
 
