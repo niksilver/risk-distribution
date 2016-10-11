@@ -1,6 +1,8 @@
 module ZonesLayout exposing
-    ( Block
-    , trim, taperFactor, taperZoneWidth, toRange
+    ( Block, ChartBlock
+    , trim, taperFactor, taperZoneWidth
+    , toChartBlock
+    , toRange
     )
 
 -- Module to help work out the shapes needed to lay out and display
@@ -8,11 +10,23 @@ module ZonesLayout exposing
 
 import Zone exposing (inf, Zone)
 import ZoneDict exposing (Value (Exactly, Maximum, Contradiction), PcValue)
+import ChartUtil exposing (Rect)
 
+
+-- A block representing a zone in a probability distribution
 
 type alias Block a =
     { zone : Zone
     , value : Value a
+    }
+
+-- A block representing a zone in a probability distribution, to be laid
+-- out on a chart
+
+type alias ChartBlock a =
+    { zone : Zone
+    , value : Value a
+    , rect : Rect
     }
 
 -- Things to add:
@@ -85,6 +99,14 @@ taperZoneWidth pc1 width2 pc2 =
             if (pc2 == 0) then 10.0 else toFloat pc2
     in
         width2 * pc1' / pc2'
+
+-- Convert a block to one (or more) that can be laid out on a chart.
+-- Mostly this will be done block, but a zone tapering off to infinity
+-- will be represented by several chart blocks.
+
+toChartBlock : Block Int -> List (Block Int) -> List (ChartBlock Int)
+toChartBlock block blocks =
+    []
 
 -- Convert a list of zone/value pairs into a range for a chart's x-axis
 

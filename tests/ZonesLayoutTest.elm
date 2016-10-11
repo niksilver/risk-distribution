@@ -4,6 +4,7 @@ import ZonesLayout exposing (..)
 
 import Zone exposing (inf, Zone)
 import ZoneDict exposing (Value (Exactly, Maximum, Contradiction))
+import ChartUtil exposing (Rect)
 import Util
 
 import ElmTest exposing (..)
@@ -13,6 +14,7 @@ all =
     suite "ZoneLayoutTest"
     [ trimTest
     , taperZoneWidthTest
+    , toChartBlockTest
     , toRangeTest
     ]
 
@@ -112,6 +114,34 @@ taperZoneWidthTest =
       (taperZoneWidth 30 4 0 |> Util.isFinite)
 
     ]
+
+toChartBlockTest : Test
+toChartBlockTest =
+    let
+        -- When we list all these blocks they don't have to be contiguous
+        -- for the sake of the function, even though we expect them to
+        -- be in actual use
+
+        b0 = Block (Zone -inf -4) (Exactly 25 [2])
+        b1 = Block (Zone -4 0) (Exactly 10 [1])
+        b2 = Block (Zone 0 1) (Exactly 5 [1, 0])
+        b3 = Block (Zone 1 2) (Maximum 0 [2, 1, 0])
+        b4 = Block (Zone 2 5) (Exactly 0 [0, 1])
+        b5 = Block (Zone 5 10) (Maximum 85 [2, 3])
+    in
+        suite "toChartBlockTest"
+
+        [ test "ChartBlock for exact finite %age should have rect same as block" <|
+          assertEqual
+          [ChartBlock (Zone 0 1) (Exactly 5 [1, 0]) (Rect 0 1 5)]
+          (toChartBlock b2 [b0, b1, b2])
+
+        , test "ChartBlock for maximum finite %age should have rect same as block" <|
+          assertEqual
+          [ChartBlock (Zone 5 10) (Maximum 85 [2, 3]) (Rect 5 10 85)]
+          (toChartBlock b5 [b0, b1, b2, b5])
+
+        ]
 
 toRangeTest : Test
 toRangeTest =
