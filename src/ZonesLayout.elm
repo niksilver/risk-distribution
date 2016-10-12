@@ -137,10 +137,13 @@ toChartBlock : Block -> List Block -> List ChartBlock
 toChartBlock block blocks =
     if (Zone.isFinite block.zone) then
         [ addRectToBlock block ]
-    else
-        makeTaperingChartBlockList block blocks taperFactor
+    else if (block.zone.from == -inf) then
+        taperRange
+            |> List.map (makeLeftTaperingChartBlock block blocks)
             |> List.reverse
-
+    else
+        taperRange
+            |> List.map (makeRightTaperingChartBlock block blocks)
 
 -- Get the percent of a value, using a default
 
@@ -166,35 +169,26 @@ addRectToBlock block =
             }
         }
 
--- Make a series of tapering ChartBlock elements. I.e.
--- [ makeTaperingChartBlock block blocks 0
--- , makeTaperingChartBlock block blocks 1
--- , ...
--- ]
+-- Make list [0, 1, 2, ...] which has length `taperFactor`
 
-makeTaperingChartBlockList : Block -> List Block -> Int -> List ChartBlock
-makeTaperingChartBlockList block blocks count =
+taperRange : List Int
+taperRange =
     let
-        base = List.repeat count 0
-        range = List.indexedMap (\i elt -> i) base
-        blockFn = makeTaperingChartBlock block blocks
+        base = List.repeat taperFactor 0
     in
-        List.map blockFn range
+        List.indexedMap (\i elt -> i) base
 
--- Given an infinite Block, make a ChartBlock that is one of those
--- that makes the tapering.
+-- Given an infinite Block tapering to the left,
+-- make a ChartBlock that is one of those that makes the tapering.
 -- The index is which ChartBlock this is:
 -- idx = 0 means the tallest,
 -- idx = 1 means the second tallest, etc.
 
-makeTaperingChartBlock : Block -> List Block -> Int -> ChartBlock
-makeTaperingChartBlock block blocks idx =
+makeLeftTaperingChartBlock : Block -> List Block -> Int -> ChartBlock
+makeLeftTaperingChartBlock block blocks idx =
     let
         pc = percentWithDefault block.value
-        neighbour =
-            case (findNextBlock block blocks) of
-                Just b -> b
-                Nothing -> block
+        neighbour = taperComparator block blocks
         nFrom = neighbour.zone.from
         nTo = neighbour.zone.to
         nWidth = nTo - nFrom
@@ -211,15 +205,29 @@ makeTaperingChartBlock block blocks idx =
             }
         }
 
--- Find the block after the given one
+-- Given an infinite Block tapering to the right,
+-- make a ChartBlock that is one of those that makes the tapering.
+-- The index is which ChartBlock this is:
+-- idx = 0 means the tallest,
+-- idx = 1 means the second tallest, etc.
 
-findNextBlock : Block -> List Block -> Maybe Block
-findNextBlock block blocks =
-    case blocks of
-        head :: tail ->
-            if (head == block) then
-                List.head tail
-            else
-                findNextBlock block tail
-        [] ->
-            Nothing
+makeRightTaperingChartBlock : Block -> List Block -> Int -> ChartBlock
+makeRightTaperingChartBlock block blocks idx =
+    let
+        pc = percentWithDefault block.value
+        neighbour = taperComparator block blocks
+        nFrom = neighbour.zone.from
+        nTo = neighbour.zone.to
+        nWidth = nTo - nFrom
+        nPc = percentWithDefault neighbour.value
+        width = taperZoneWidth pc nWidth nPc
+        shrinkage = 2 ^ (idx + 1)
+    in
+        { zone = block.zone
+        , value = block.value
+        , rect =
+            { left = nTo + (idx * width)
+            , right = nTo + (idx * width) + width
+            , height = (toFloat pc / width) / shrinkage
+            }
+        }

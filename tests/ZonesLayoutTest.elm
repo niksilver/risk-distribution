@@ -187,6 +187,7 @@ toChartBlockTest =
         b3 = Block (Zone 4 6) (Maximum 0 [2, 1, 0])  -- Zero height
         b4 = Block (Zone 6 10) (Exactly 0 [0, 1])     -- Zero height
         b5 = Block (Zone 10 20) (Maximum 85 [2, 3])
+        b6 = Block (Zone 20 inf) (Maximum 17 [3, 0])  -- To inf
     in
         suite "toChartBlockTest"
 
@@ -264,6 +265,72 @@ toChartBlockTest =
             assertEqual
             taperFactor
             (toChartBlock b0 [ b0, b1, b2 ]
+                |> List.length
+            )
+
+          ]
+
+        , suite "For Block which runs to inf and is next to a non-zero finite block"
+          -- We're looking at a block of size 17% tapering off to inf
+          -- next to a block of 85% size and 10 wide (from 10 to 20)
+          -- (therefore its rect height is 85 / 10 = 8.5).
+          -- So for the tapering chart block its first rect (on the left)
+          -- should be half the 8.5 high, i.e. 4.25 high,
+          -- and its width should be 2 wide (because 2 * 4.25 is 8.5 which is
+          -- half the total area of its 17% size).
+          -- Therefore its second rect should be 2.125 high (half again) and 2 wide
+          -- and its third block should be 1.0625 high and 2 wide, etc
+          -- for five blocks (because that's our taperFactor).
+
+          [ test "First ChartBlock should be appropriate dimensions" <|
+            assertEqual
+            (Just
+                { zone = Zone 20 inf
+                , value = Maximum 17 [3, 0]
+                , rect =
+                    { left = 20
+                    , right = 20 + 2
+                    , height = 8.5 / 2
+                    }
+                })
+            (toChartBlock b6 [ b3, b4, b5, b6 ]
+                |> Util.ith 0
+            )
+
+          , test "Second ChartBlock should be appropriate dimensions" <|
+            assertEqual
+            (Just
+                { zone = Zone 20 inf
+                , value = Maximum 17 [3, 0]
+                , rect =
+                    { left = 20 + 2
+                    , right = 20 + 2*2
+                    , height = 8.5 / 4
+                    }
+                })
+            (toChartBlock b6 [ b3, b4, b5, b6 ]
+                |> Util.ith 1
+            )
+
+          , test "Third ChartBlock should be appropriate dimensions" <|
+            assertEqual
+            (Just
+                { zone = Zone 20 inf
+                , value = Maximum 17 [3, 0]
+                , rect =
+                    { left = 20 + 2*2
+                    , right = 20 + 3*2
+                    , height = 8.5 / 8
+                    }
+                })
+            (toChartBlock b6 [ b3, b4, b5, b6 ]
+                |> Util.ith 2
+            )
+
+          , test "There should be taperFactor ChartBlock elements" <|
+            assertEqual
+            taperFactor
+            (toChartBlock b6 [ b3, b4, b5, b6 ]
                 |> List.length
             )
 
