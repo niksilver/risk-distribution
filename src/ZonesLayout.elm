@@ -104,7 +104,7 @@ taperZoneWidth pc1 width2 pc2 =
 -- (which will be either the first or the last of them) pick the one
 -- (or make one up) which we imagine our tapering chart blocks will sit
 -- beside by means of comparison. We will use this to size the tapering
--- chart blocks appropriately. This assumes we are given a taperting
+-- chart blocks appropriately. This assumes we are given a tapering
 -- (i.e. infinite) block and the list of blocks is ordered correctly,
 -- otherwise the output of this is meaningless
 
