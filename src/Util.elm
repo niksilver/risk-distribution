@@ -7,7 +7,7 @@ module Util exposing
     , sliding
     , bracket, bracketMap
     , spliceOne, insert
-    , nth, indexOf
+    , ith, indexOf
     , dedupe
     , filteredExpand
     , toLetter
@@ -157,16 +157,16 @@ insert idx new orig =
         else
             orig
 
--- Find the nth item in a list, where 0 is for the first element
+-- Find the ith item in a list, where 0 is for the first element
 
-nth : Int -> List a -> Maybe a
-nth i xs =
+ith : Int -> List a -> Maybe a
+ith i xs =
     if (i == 0) then
         List.head xs
     else
         case List.tail xs of
             Nothing -> Nothing
-            Just tail -> nth (i-1) tail
+            Just tail -> ith (i-1) tail
 
 -- Find where an element is in a list
 

@@ -165,7 +165,7 @@ toChartBlockTest =
                 })
             (toChartBlock b0 [ b0, b1, b2 ]
                 |> List.reverse
-                |> Util.nth 0
+                |> Util.ith 0
             )
 
           , test "Second last ChartBlock should be appropriate dimensions" <|
@@ -181,7 +181,7 @@ toChartBlockTest =
                 })
             (toChartBlock b0 [ b0, b1, b2 ]
                 |> List.reverse
-                |> Util.nth 1
+                |> Util.ith 1
             )
 
           ]

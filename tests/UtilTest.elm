@@ -21,7 +21,7 @@ all =
     , bracketMapTest
     , spliceOneTest
     , insertTest
-    , nthTest
+    , ithTest
     , indexOfTest
     , dedupeTest
     , filteredExpandTest
@@ -403,34 +403,34 @@ insertTest =
 
     ]
 
-nthTest : Test
-nthTest =
-    suite "nthTest"
+ithTest : Test
+ithTest =
+    suite "ithTest"
 
     [ test "0th of a list is first item" <|
       assertEqual
       (Just 44)
-      (nth 0 [44, 55, 66])
+      (ith 0 [44, 55, 66])
 
     , test "2th of a list is third item" <|
       assertEqual
       (Just 66)
-      (nth 2 [44, 55, 66])
+      (ith 2 [44, 55, 66])
 
-    , test "When n too large on non-empty list we get nothing" <|
+    , test "When i too large on non-empty list we get nothing" <|
       assertEqual
       (Nothing)
-      (nth 3 [44, 55, 66])
+      (ith 3 [44, 55, 66])
 
-    , test "When n = 0 on empty list we get nothing" <|
+    , test "When i = 0 on empty list we get nothing" <|
       assertEqual
       (Nothing)
-      (nth 0 [])
+      (ith 0 [])
 
-    , test "When n < 0 on non-empty list we get nothing" <|
+    , test "When i < 0 on non-empty list we get nothing" <|
       assertEqual
       (Nothing)
-      (nth -1 [44, 55, 66])
+      (ith -1 [44, 55, 66])
 
     ]
 

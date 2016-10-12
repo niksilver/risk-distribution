@@ -142,7 +142,7 @@ applySubstToCoeffs idx new coeffs =
     let
         numZones = List.length new
     in
-        case (Util.nth idx coeffs) of
+        case (Util.ith idx coeffs) of
             Just c ->
                 Util.spliceOne idx (List.repeat numZones c) coeffs
             Nothing ->
