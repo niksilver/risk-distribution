@@ -160,10 +160,29 @@ toChartBlockTest =
                 , rect =
                     { left = -4 - 10
                     , right = -4
-                    , height = 1.25
+                    , height = 2.5 / 2
                     }
                 })
-            (toChartBlock b0 [ b0, b1, b2 ] |> List.reverse |> List.head)
+            (toChartBlock b0 [ b0, b1, b2 ]
+                |> List.reverse
+                |> Util.nth 0
+            )
+
+          , test "Second last ChartBlock should be appropriate dimensions" <|
+            assertEqual
+            (Just
+                { zone = Zone -inf -4
+                , value = Exactly 25 [2]
+                , rect =
+                    { left = -4 - 2*10
+                    , right = -4 - 10
+                    , height = 2.5 / 4
+                    }
+                })
+            (toChartBlock b0 [ b0, b1, b2 ]
+                |> List.reverse
+                |> Util.nth 1
+            )
 
           ]
 

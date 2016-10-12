@@ -109,7 +109,9 @@ toChartBlock block blocks =
     if (Zone.isFinite block.zone) then
         [ addRectToBlock block ]
     else
-        [ makeTaperingChartBlock block blocks ]
+        [ makeTaperingChartBlock block blocks 1
+        , makeTaperingChartBlock block blocks 0
+        ]
 
 -- Get the percent size of a Value
 
@@ -140,9 +142,12 @@ addRectToBlock block =
 
 -- Given an infinite Block, make a ChartBlock that is one of those
 -- that makes the tapering.
+-- The index is which ChartBlock this is:
+-- idx = 0 means the tallest,
+-- idx = 1 means the second tallest, etc.
 
-makeTaperingChartBlock : Block -> List Block -> ChartBlock
-makeTaperingChartBlock block blocks =
+makeTaperingChartBlock : Block -> List Block -> Int -> ChartBlock
+makeTaperingChartBlock block blocks idx =
     let
         pc = percent block.value
         neighbour =
@@ -154,13 +159,14 @@ makeTaperingChartBlock block blocks =
         nWidth = nTo - nFrom
         nPc = percent neighbour.value
         width = taperZoneWidth pc nWidth nPc
+        shrinkage = 2 ^ (idx + 1)
     in
         { zone = block.zone
         , value = block.value
         , rect =
-            { left = nFrom - width
-            , right = nFrom
-            , height = (toFloat pc / width) / 2
+            { left = nFrom - (idx * width) - width
+            , right = nFrom - (idx * width)
+            , height = (toFloat pc / width) / shrinkage
             }
         }
 
