@@ -109,7 +109,8 @@ toChartBlock block blocks =
     if (Zone.isFinite block.zone) then
         [ addRectToBlock block ]
     else
-        [ makeTaperingChartBlock block blocks 1
+        [ makeTaperingChartBlock block blocks 2
+        , makeTaperingChartBlock block blocks 1
         , makeTaperingChartBlock block blocks 0
         ]
 
