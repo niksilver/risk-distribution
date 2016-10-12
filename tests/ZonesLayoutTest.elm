@@ -200,6 +200,13 @@ toChartBlockTest =
                 |> Util.ith 2
             )
 
+          , test "There should be taperFactor ChartBlock elements" <|
+            assertEqual
+            taperFactor
+            (toChartBlock b0 [ b0, b1, b2 ]
+                |> List.length
+            )
+
           ]
 
         ]
