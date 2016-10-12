@@ -62,7 +62,7 @@ trimFront blocks =
 -- 1/2 height + 1/4 height + 1/8 height + ...
 -- The number of such rectangles we use in practice is this value
 
-taperFactor : Float
+taperFactor : Int
 taperFactor = 5
 
 -- Say we have two zones; the first is infinitely long, the second is
@@ -109,10 +109,8 @@ toChartBlock block blocks =
     if (Zone.isFinite block.zone) then
         [ addRectToBlock block ]
     else
-        [ makeTaperingChartBlock block blocks 2
-        , makeTaperingChartBlock block blocks 1
-        , makeTaperingChartBlock block blocks 0
-        ]
+        makeTaperingChartBlockList block blocks taperFactor
+            |> List.reverse
 
 -- Get the percent size of a Value
 
@@ -140,6 +138,21 @@ addRectToBlock block =
             , height = (toFloat pc) / (to - from)
             }
         }
+
+-- Make a series of tapering ChartBlock elements. I.e.
+-- [ makeTaperingChartBlock block blocks 0
+-- , makeTaperingChartBlock block blocks 1
+-- , ...
+-- ]
+
+makeTaperingChartBlockList : Block -> List Block -> Int -> List ChartBlock
+makeTaperingChartBlockList block blocks count =
+    let
+        base = List.repeat count 0
+        range = List.indexedMap (\i elt -> i) base
+        blockFn = makeTaperingChartBlock block blocks
+    in
+        List.map blockFn range
 
 -- Given an infinite Block, make a ChartBlock that is one of those
 -- that makes the tapering.
