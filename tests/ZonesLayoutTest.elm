@@ -129,6 +129,8 @@ taperComparatorTest =
         b4 = Block (Zone 6 10) (Exactly 0 [0, 1])    -- Zero height
         b5 = Block (Zone 10 20) (Maximum 85 [2, 3])
         b6 = Block (Zone 20 inf) (Maximum 15 [3, 0])  -- To inf
+
+        bCon = Block (Zone 10 20) (Contradiction [3, 1])
     in
         suite "taperComparatorTest"
 
@@ -167,6 +169,11 @@ taperComparatorTest =
           { zone = Zone 0 1, value = Exactly 1 [] }
           (taperComparator b6 [b0, b3, b4, b6])
 
+        , test "Comparator for a right taper should be sensible if it's preceeded by zeros and a Contradiction" <|
+          assertEqual
+          { zone = Zone 0 1, value = Exactly 1 [] }
+          (taperComparator b6 [bCon, b3, b4, b6])
+
         , test "Comparator for a right taper should be sensible if there's nothing else" <|
           assertEqual
           { zone = Zone 0 1, value = Exactly 1 [] }
@@ -188,6 +195,8 @@ toChartBlockTest =
         b4 = Block (Zone 6 10) (Exactly 0 [0, 1])     -- Zero height
         b5 = Block (Zone 10 20) (Maximum 85 [2, 3])
         b6 = Block (Zone 20 inf) (Maximum 17 [3, 0])  -- To inf
+
+        bCon = Block (Zone 10 20) (Contradiction [22, 33])
     in
         suite "toChartBlockTest"
 
@@ -200,6 +209,15 @@ toChartBlockTest =
           assertEqual
           [ChartBlock (Zone 10 20) (Maximum 85 [2, 3]) (Rect 10 20 (85/10))]
           (toChartBlock b5 [b0, b1, b2, b5])
+
+        , test "Among blocks with zeros and a Contradiction, an infinite Block gets rects of a sensible size" <|
+          assertEqual
+          [Ok True, Ok True, Ok True, Ok True, Ok True] -- Assumes taperFactor == 5
+          (toChartBlock b6 [bCon, b3, b4, b6]
+            |> List.map .rect
+            |> List.map .height
+            |> List.map (\h -> if h > 0 then Ok True else Err h)
+          )
 
         , suite "For Block which runs from -inf and is next to a non-zero finite block"
           -- We're looking at a block of size 25% tapering off to -inf

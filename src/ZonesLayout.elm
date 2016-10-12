@@ -117,12 +117,14 @@ taperComparator block blocks =
                 blocks
             else
                 List.reverse blocks
+        hasPercent block =
+            ZoneDict.percent block.value /= Nothing
         isNonZero block =
             ZoneDict.percent block.value /= Just 0
         isFinite block =
             Zone.isFinite block.zone
         isComparator b =
-            isNonZero b && isFinite b
+            isNonZero b && hasPercent b && isFinite b
         comparators =
             List.filter isComparator orderedBlocks
     in
@@ -145,7 +147,8 @@ toChartBlock block blocks =
         taperRange
             |> List.map (makeTaperingChartBlock block blocks 1)
 
--- Get the percent of a value, using a default
+-- Get the percent of a value, using a default if the value is
+-- a contradiction
 
 percentWithDefault : Value -> Int
 percentWithDefault value =
