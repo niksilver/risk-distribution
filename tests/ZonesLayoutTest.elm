@@ -14,6 +14,7 @@ all =
     suite "ZoneLayoutTest"
     [ trimTest
     , taperZoneWidthTest
+    , taperComparatorTest
     , toChartBlockTest
     ]
 
@@ -113,6 +114,65 @@ taperZoneWidthTest =
       (taperZoneWidth 30 4 0 |> Util.isFinite)
 
     ]
+
+taperComparatorTest : Test
+taperComparatorTest =
+    let
+        -- When we list all these blocks they don't have to be contiguous
+        -- for the sake of the function, even though we expect them to
+        -- be in actual use
+
+        b0 = Block (Zone -inf -4) (Exactly 25 [2])   -- From -inf
+        b1 = Block (Zone -4 0) (Exactly 10 [1])
+        b2 = Block (Zone 0 4) (Exactly 5 [1, 0])
+        b3 = Block (Zone 4 6) (Maximum 0 [2, 1, 0])  -- Zero height
+        b4 = Block (Zone 6 10) (Exactly 0 [0, 1])    -- Zero height
+        b5 = Block (Zone 10 20) (Maximum 85 [2, 3])
+        b6 = Block (Zone 20 inf) (Maximum 15 [3, 0])  -- To inf
+    in
+        suite "taperComparatorTest"
+
+        [ test "Comparator for a left taper should be next one if it's finite" <|
+          assertEqual
+          b1
+          (taperComparator b0 [b0, b1, b2, b3])
+
+        , test "Comparator for a left taper should be first finite one if next to a zero block" <|
+          assertEqual
+          b5
+          (taperComparator b0 [b0, b3, b4, b5])
+
+        , test "Comparator for a left taper should be sensible if it's followed by zeros and a right-taper" <|
+          assertEqual
+          { zone = Zone 0 1, value = Exactly 1 [] }
+          (taperComparator b0 [b0, b3, b4, b6])
+
+        , test "Comparator for a left taper should be sensible if there's nothing else" <|
+          assertEqual
+          { zone = Zone 0 1, value = Exactly 1 [] }
+          (taperComparator b0 [b0])
+
+        , test "Comparator for a right taper should be previous one if it's finite" <|
+          assertEqual
+          b5
+          (taperComparator b5 [b2, b5, b6])
+
+        , test "Comparator for a right taper should be last finite one if next to a zero block" <|
+          assertEqual
+          b2
+          (taperComparator b6 [b1, b2, b3, b4, b6])
+
+        , test "Comparator for a right taper should be sensible if it's preceeded by zeros and a right-taper" <|
+          assertEqual
+          { zone = Zone 0 1, value = Exactly 1 [] }
+          (taperComparator b6 [b0, b3, b4, b6])
+
+        , test "Comparator for a right taper should be sensible if there's nothing else" <|
+          assertEqual
+          { zone = Zone 0 1, value = Exactly 1 [] }
+          (taperComparator b6 [b6])
+
+        ]
 
 toChartBlockTest : Test
 toChartBlockTest =

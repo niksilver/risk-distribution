@@ -1,7 +1,7 @@
 module ZonesLayout exposing
     ( Block, ChartBlock
     , trim, taperFactor, taperZoneWidth
-    , toChartBlock
+    , taperComparator, toChartBlock
     )
 
 -- Module to help work out the shapes needed to lay out and display
@@ -100,6 +100,35 @@ taperZoneWidth pc1 width2 pc2 =
     in
         width2 * pc1' / pc2'
 
+-- Given a tapering block among an ordered list of blocks
+-- (which will be either the first or the last of them) pick the one
+-- (or make one up) which we imagine our tapering chart blocks will sit
+-- beside by means of comparison. We will use this to size the tapering
+-- chart blocks appropriately. This assumes we are given a taperting
+-- (i.e. infinite) block and the list of blocks is ordered correctly,
+-- otherwise the output of this is meaningless
+
+taperComparator : Block -> List Block -> Block
+taperComparator block blocks =
+    let
+        default = { zone = Zone 0 1, value = Exactly 1 [] }
+        orderedBlocks =
+            if (block.zone.from == -inf) then
+                blocks
+            else
+                List.reverse blocks
+        isNonZero block =
+            ZoneDict.percent block.value /= Just 0
+        isFinite block =
+            Zone.isFinite block.zone
+        isComparator b =
+            isNonZero b && isFinite b
+        comparators =
+            List.filter isComparator orderedBlocks
+    in
+        List.head comparators
+            |> Maybe.withDefault default
+
 -- Convert a block to one (or more) that can be laid out on a chart.
 -- Mostly this will be done block, but a zone tapering off to infinity
 -- will be represented by several chart blocks.
@@ -112,14 +141,12 @@ toChartBlock block blocks =
         makeTaperingChartBlockList block blocks taperFactor
             |> List.reverse
 
--- Get the percent size of a Value
 
-percent : Value -> Int
-percent value =
-    case value of
-        Exactly p src -> p
-        Maximum p src -> p
-        Contradiction src -> -1
+-- Get the percent of a value, using a default
+
+percentWithDefault : Value -> Int
+percentWithDefault value =
+    ZoneDict.percent value |> Maybe.withDefault -1
 
 -- Turn a finite Block into a ChartBlock by adding an appropriate Rect
 
@@ -128,7 +155,7 @@ addRectToBlock block =
     let
         from = block.zone.from
         to = block.zone.to
-        pc = percent block.value
+        pc = percentWithDefault block.value
     in
         { zone = block.zone
         , value = block.value
@@ -163,7 +190,7 @@ makeTaperingChartBlockList block blocks count =
 makeTaperingChartBlock : Block -> List Block -> Int -> ChartBlock
 makeTaperingChartBlock block blocks idx =
     let
-        pc = percent block.value
+        pc = percentWithDefault block.value
         neighbour =
             case (findNextBlock block blocks) of
                 Just b -> b
@@ -171,7 +198,7 @@ makeTaperingChartBlock block blocks idx =
         nFrom = neighbour.zone.from
         nTo = neighbour.zone.to
         nWidth = nTo - nFrom
-        nPc = percent neighbour.value
+        nPc = percentWithDefault neighbour.value
         width = taperZoneWidth pc nWidth nPc
         shrinkage = 2 ^ (idx + 1)
     in

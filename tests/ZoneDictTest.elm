@@ -11,7 +11,8 @@ import ElmTest exposing (..)
 all : Test
 all =
     suite "ZoneDictTest"
-    [ getEntriesTest
+    [ percentTest
+    , getEntriesTest
     , combineTest
     , rationaliseTest
     , fillAndToListTest
@@ -24,6 +25,27 @@ deriv coeffs pc src =
     Derivation (Constraint coeffs pc) src
 
 -- The tests...
+
+percentTest : Test
+percentTest =
+    suite "percentTest"
+
+    [ test "Percent of a Maximum should be just that value" <|
+      assertEqual
+      (Just 11)
+      (Maximum 11 [5, 6] |> percent)
+
+    , test "Percent of an Exactly should be just that value" <|
+      assertEqual
+      (Just 22)
+      (Exactly 22 [3, 2, 1] |> percent)
+
+    , test "Percent of a Contradiction should be Nothing" <|
+      assertEqual
+      Nothing
+      (Contradiction [0, 1] |> percent)
+
+    ]
 
 getEntriesTest : Test
 getEntriesTest =

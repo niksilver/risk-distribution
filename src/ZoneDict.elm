@@ -1,7 +1,7 @@
 module ZoneDict exposing
     ( ZoneDict
     , Value (Exactly, Maximum, Contradiction)
-    , getEntries, combine, rationalise
+    , percent, getEntries, combine, rationalise
     , fill, toList
     )
 
@@ -27,7 +27,15 @@ type Value
     | Maximum Int (List Int)
     | Contradiction (List Int)
 
-type alias PcValue = Value Int  -- Value for an integer percentage
+
+-- Get the percent size of a Value
+
+percent : Value -> Maybe Int
+percent value =
+    case value of
+        Exactly p src -> Just p
+        Maximum p src -> Just p
+        Contradiction src -> Nothing
 
 
 -- Get some entries for a ZoneDict.
