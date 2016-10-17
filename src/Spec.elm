@@ -5,7 +5,7 @@ module Spec exposing
     , bracketRects
     )
 
-import Block exposing (Rect)
+import Block exposing (Rect, ChartBlock)
 import Spline exposing (Pos)
 import Util
 
@@ -16,7 +16,7 @@ type alias Spec =
     { minX : Float
     , maxX : Float
     , maxY : Float
-    , rects : List Rect
+    , blocks : List ChartBlock
     }
 
 -- Dimensions for a viewBox

@@ -2,7 +2,9 @@ module SpecTest exposing (all)
 
 import Spec exposing (..)
 
-import Block exposing (Rect)
+import Zone exposing (Zone)
+import Value exposing (Value(..))
+import Block exposing (Rect, ChartBlock)
 import Spline exposing (Pos)
 
 import ElmTest exposing (..)
@@ -35,9 +37,15 @@ scaleXTest =
             { minX = 1
             , maxX = 5
             , maxY = 10
-            , rects =
-                [ { left = 1, right = 4, height = 8 }
-                , { left = 4, right = 5, height = 10 }
+            , blocks =
+                [ ChartBlock
+                    (Zone 1 4)
+                    (Exactly 8 [0, 1])
+                    { left = 1, right = 4, height = 8 }
+                , ChartBlock
+                    (Zone 4 5)
+                    (Exactly 10 [1])
+                    { left = 4, right = 5, height = 10 }
                 ]
             }
     in
@@ -75,9 +83,15 @@ scaleYTest =
             { minX = 1
             , maxX = 5
             , maxY = 10
-            , rects =
-                [ { left = 1, right = 4, height = 8 }
-                , { left = 4, right = 5, height = 10 }
+            , blocks =
+                [ ChartBlock
+                    (Zone 1 4)
+                    (Exactly 8 [1, 2])
+                    { left = 1, right = 4, height = 8 }
+                , ChartBlock
+                    (Zone 4 5)
+                    (Exactly 10 [2, 0])
+                    { left = 4, right = 5, height = 10 }
                 ]
             }
     in
@@ -116,9 +130,15 @@ transformXTest =
             { minX = 1
             , maxX = 5
             , maxY = 10
-            , rects =
-                [ { left = 1, right = 4, height = 8 }
-                , { left = 4, right = 5, height = 10 }
+            , blocks =
+                [ ChartBlock
+                    (Zone 1 4)
+                    (Exactly 8 [1, 2])
+                    { left = 1, right = 4, height = 8 }
+                , ChartBlock
+                    (Zone 4 5)
+                    (Exactly 10 [2, 0])
+                    { left = 4, right = 5, height = 10 }
                 ]
             }
     in
@@ -156,9 +176,15 @@ transformYTest =
             { minX = 1
             , maxX = 5
             , maxY = 10
-            , rects =
-                [ { left = 1, right = 4, height = 8 }
-                , { left = 4, right = 5, height = 10 }
+            , blocks =
+                [ ChartBlock
+                    (Zone 1 4)
+                    (Exactly 8 [1, 2])
+                    { left = 1, right = 4, height = 8 }
+                , ChartBlock
+                    (Zone 4 5)
+                    (Exactly 10 [2, 0])
+                    { left = 4, right = 5, height = 10 }
                 ]
             }
     in
