@@ -4,6 +4,7 @@ import ConstraintTest exposing (all)
 import DerivationTest exposing (all)
 import ErrorTest exposing (all)
 import ValueTest exposing (all)
+import ZoneDictTest exposing (all)
 import BlockTest exposing (all)
 import FactTest exposing (all)
 import SpecTest exposing (all)
@@ -25,6 +26,7 @@ main =
         , DerivationTest.all
         , ErrorTest.all
         , ValueTest.all
+        , ZoneDictTest.all
         , BlockTest.all
         , FactTest.all
         , SpecTest.all
