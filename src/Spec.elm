@@ -5,7 +5,6 @@ module Spec exposing
     , bracketRects
     )
 
-import Zone exposing (inf, Zone)
 import Block exposing (Rect)
 import Spline exposing (Pos)
 import Util

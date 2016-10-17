@@ -2,7 +2,6 @@ module SpecTest exposing (all)
 
 import Spec exposing (..)
 
-import Zone exposing (inf, Zone)
 import Block exposing (Rect)
 import Spline exposing (Pos)
 
