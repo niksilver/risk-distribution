@@ -36,11 +36,6 @@ type alias ChartBlock =
     , rect : Rect
     }
 
--- Things to add:
---   - Convert a finite zone to a rect
---   - Calculate the height of the tallest rect of an infinite zone
---   - Convert an infinite zone to a series of rects
-
 -- Trim a list of zones, removing zero-height ones from the start and end
 
 trim : List Block -> List Block
