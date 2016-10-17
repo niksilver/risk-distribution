@@ -6,7 +6,8 @@ module Chart exposing
 import FactList
 import Distribution as Dist
 import Axis exposing (Scale)
-import ChartUtil exposing (Rect, Spec, ViewDims, Transformer)
+import ChartUtil exposing (Spec, ViewDims, Transformer)
+import ZonesLayout exposing (Rect)
 import Path exposing (Path (Path), Instruction (M, L))
 import Spline exposing (Pos)
 import Util
@@ -62,7 +63,7 @@ layersToView layers =
     case (rawSpec layers) of
         Just spec -> view spec
         Nothing -> Svg.text ""
- 
+
 view : Spec -> Html x
 view spec =
     let
@@ -175,7 +176,7 @@ distCurve spec =
 
         curve
             |> addEndsOfDist yProportion
- 
+
 -- Translate to ChartUtil.curvePointsForRect, but taking a list
 -- of three rectangles instead of three separate Rect arguments
 
@@ -251,4 +252,3 @@ addEndsOfDist proportion points =
             ground point = Pos point.x 0
         in
             Util.bracketMap ground ground points
-

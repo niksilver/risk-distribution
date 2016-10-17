@@ -1,5 +1,5 @@
 module ChartUtil exposing
-    ( Rect, Spec, ViewDims, Transformer
+    ( Spec, ViewDims, Transformer
     , transformX, transformY, scaleX, scaleY, transformer
     , curvePointsForRect
     , bracketRects
@@ -7,17 +7,12 @@ module ChartUtil exposing
 
 import Zone exposing (inf, Zone)
 import ZoneDict exposing (Value (Exactly))
+import ZonesLayout exposing (Rect)
 import Spline exposing (Pos)
 import Util
 
 
 -- Specification for a chart
-
-type alias Rect =
-    { left : Float
-    , right : Float
-    , height : Float
-    }
 
 type alias Spec =
     { minX : Float

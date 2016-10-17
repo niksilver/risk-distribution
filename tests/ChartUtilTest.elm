@@ -4,6 +4,7 @@ import ChartUtil exposing (..)
 
 import Zone exposing (inf, Zone)
 import ZoneDict exposing (Value(..))
+import ZonesLayout exposing (Rect)
 import Spline exposing (Pos)
 
 import ElmTest exposing (..)

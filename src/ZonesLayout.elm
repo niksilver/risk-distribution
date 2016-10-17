@@ -1,5 +1,5 @@
 module ZonesLayout exposing
-    ( Block, ChartBlock
+    ( Block, Rect, ChartBlock
     , trim, taperFactor, taperZoneWidth
     , taperComparator, toChartBlock
     )
@@ -9,7 +9,6 @@ module ZonesLayout exposing
 
 import Zone exposing (inf, Zone)
 import ZoneDict exposing (Value (Exactly, Maximum, Contradiction))
-import ChartUtil exposing (Rect)
 import Util
 
 
@@ -18,6 +17,14 @@ import Util
 type alias Block =
     { zone : Zone
     , value : Value
+    }
+
+-- A rectangle on a chart
+
+type alias Rect =
+    { left : Float
+    , right : Float
+    , height : Float
     }
 
 -- A block representing a zone in a probability distribution, to be laid

@@ -4,7 +4,6 @@ import ZonesLayout exposing (..)
 
 import Zone exposing (inf, Zone)
 import ZoneDict exposing (Value (Exactly, Maximum, Contradiction))
-import ChartUtil exposing (Rect)
 import Util
 
 import ElmTest exposing (..)
