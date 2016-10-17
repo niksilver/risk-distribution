@@ -6,7 +6,7 @@ import ErrorTest exposing (all)
 import ZoneDictTest exposing (all)
 import BlockTest exposing (all)
 import FactTest exposing (all)
-import ChartUtilTest exposing (all)
+import SpecTest exposing (all)
 import ChartTest exposing (all)
 import UtilTest exposing (all)
 import AxisTest exposing (all)
@@ -27,7 +27,7 @@ main =
         , ZoneDictTest.all
         , BlockTest.all
         , FactTest.all
-        , ChartUtilTest.all
+        , SpecTest.all
         , ChartTest.all
         , UtilTest.all
         , AxisTest.all

@@ -6,7 +6,7 @@ module Chart exposing
 import FactList
 import Distribution as Dist
 import Axis exposing (Scale)
-import ChartUtil exposing (Spec, ViewDims, Transformer)
+import Spec exposing (Spec, ViewDims, Transformer)
 import Block exposing (Rect)
 import Path exposing (Path (Path), Instruction (M, L))
 import Spline exposing (Pos)
@@ -84,7 +84,7 @@ view spec =
             , maxX = scale.max
             , maxY = max spec.maxY curveMax
             }
-        transformer = ChartUtil.transformer viewDim scaledSpec
+        transformer = Spec.transformer viewDim scaledSpec
 
         viewBoxDim =
             "0 0 "
@@ -162,7 +162,7 @@ distCurve spec =
 
         curve =
             spec.rects
-                |> ChartUtil.bracketRects yProportion
+                |> Spec.bracketRects yProportion
                 |> Util.sliding 3
                 |> List.map curvePoints
                 |> List.concat
@@ -177,14 +177,14 @@ distCurve spec =
         curve
             |> addEndsOfDist yProportion
 
--- Translate to ChartUtil.curvePointsForRect, but taking a list
+-- Translate to Spec.curvePointsForRect, but taking a list
 -- of three rectangles instead of three separate Rect arguments
 
 curvePoints : List Rect -> List Pos
 curvePoints rects =
     case rects of
         prev :: rect :: next :: [] ->
-            ChartUtil.curvePointsForRect prev rect next
+            Spec.curvePointsForRect prev rect next
         _ ->
             []
 

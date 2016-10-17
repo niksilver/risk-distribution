@@ -1,6 +1,6 @@
 module Axis exposing (Scale, scale, viewXAxis)
 
-import ChartUtil exposing (Transformer)
+import Spec exposing (Transformer)
 
 import Svg exposing (Svg)
 import Svg.Attributes as SvgA
@@ -103,7 +103,7 @@ viewXAxisTicks' transformer scale x accum =
         viewXAxisTicks'
             transformer
             scale
-            (x + scale.step) 
+            (x + scale.step)
             (viewXAxisOneTick transformer scale x :: accum)
 
 viewXAxisOneTick : Transformer -> Scale -> Float -> Svg x
@@ -133,4 +133,3 @@ viewXAxisOneTick transformer scale x =
           [ Svg.text (toString x)
           ]
         ]
-

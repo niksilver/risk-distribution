@@ -1,6 +1,6 @@
-module ChartUtilTest exposing (all)
+module SpecTest exposing (all)
 
-import ChartUtil exposing (..)
+import Spec exposing (..)
 
 import Zone exposing (inf, Zone)
 import ZoneDict exposing (Value(..))
@@ -12,7 +12,7 @@ import ElmTest exposing (..)
 
 all : Test
 all =
-    suite "ChartUtilTest"
+    suite "SpecTest"
     [ scaleXTest
     , scaleYTest
     , transformXTest

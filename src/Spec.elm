@@ -1,4 +1,4 @@
-module ChartUtil exposing
+module Spec exposing
     ( Spec, ViewDims, Transformer
     , transformX, transformY, scaleX, scaleY, transformer
     , curvePointsForRect
