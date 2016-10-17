@@ -7,7 +7,7 @@ import FactList
 import Distribution as Dist
 import Axis exposing (Scale)
 import ChartUtil exposing (Spec, ViewDims, Transformer)
-import ZonesLayout exposing (Rect)
+import Block exposing (Rect)
 import Path exposing (Path (Path), Instruction (M, L))
 import Spline exposing (Pos)
 import Util

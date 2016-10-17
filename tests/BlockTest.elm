@@ -1,6 +1,6 @@
-module ZonesLayoutTest exposing (all)
+module BlockTest exposing (all)
 
-import ZonesLayout exposing (..)
+import Block exposing (..)
 
 import Zone exposing (inf, Zone)
 import ZoneDict exposing (Value (Exactly, Maximum, Contradiction))
@@ -10,7 +10,7 @@ import ElmTest exposing (..)
 
 all : Test
 all =
-    suite "ZoneLayoutTest"
+    suite "BlockTest"
     [ trimTest
     , taperZoneWidthTest
     , taperComparatorTest

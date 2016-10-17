@@ -1,4 +1,4 @@
-module ZonesLayout exposing
+module Block exposing
     ( Block, Rect, ChartBlock
     , trim, taperFactor, taperZoneWidth
     , taperComparator, toChartBlock
