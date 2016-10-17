@@ -132,12 +132,14 @@ taperComparator block blocks =
             |> Maybe.withDefault default
 
 -- Convert a block to one (or more) that can be laid out on a chart.
--- Mostly this will be done block, but a zone tapering off to infinity
+-- Mostly this will be one block, but a zone tapering off to infinity
 -- will be represented by several chart blocks.
 
 toChartBlock : Block -> List Block -> List ChartBlock
 toChartBlock block blocks =
-    if (Zone.isFinite block.zone) then
+    if (ZoneDict.percent block.value == Nothing) then
+        [ addZeroRectToBlock block ]
+    else if (Zone.isFinite block.zone) then
         [ addRectToBlock block ]
     else if (block.zone.from == -inf) then
         taperRange
@@ -146,6 +148,20 @@ toChartBlock block blocks =
     else
         taperRange
             |> List.map (makeTaperingChartBlock block blocks 1)
+
+-- Add a zero-height rect to a Block to make it a ChartBlock.
+-- Used when the Value of a Block is a Contradiction.
+
+addZeroRectToBlock : Block -> ChartBlock
+addZeroRectToBlock block =
+    { zone = block.zone
+    , value = block.value
+    , rect =
+        { left = block.zone.from
+        , right = block.zone.to
+        , height = 0
+        }
+    }
 
 -- Get the percent of a value, using a default if the value is
 -- a contradiction

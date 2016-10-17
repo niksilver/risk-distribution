@@ -205,7 +205,7 @@ toChartBlockTest =
           [ChartBlock (Zone 0 4) (Exactly 5 [1, 0]) (Rect 0 4 (5/4))]
           (toChartBlock b2 [b0, b1, b2])
 
-        , test "ChartBlock for maximum finite %age should have rect heigh spread over" <|
+        , test "ChartBlock for maximum finite %age should have rect height spread over width" <|
           assertEqual
           [ChartBlock (Zone 10 20) (Maximum 85 [2, 3]) (Rect 10 20 (85/10))]
           (toChartBlock b5 [b0, b1, b2, b5])
@@ -218,6 +218,11 @@ toChartBlockTest =
             |> List.map .height
             |> List.map (\h -> if h > 0 then Ok True else Err h)
           )
+
+        , test "Contradiction ChartBlock should generate Rect of zero height and same width" <|
+          assertEqual
+          [ChartBlock (Zone 10 20) (Contradiction [22, 33]) (Rect 10 20 0)]
+          (toChartBlock bCon [b0, b1, b2, bCon, b6])
 
         , suite "For Block which runs from -inf and is next to a non-zero finite block"
           -- We're looking at a block of size 25% tapering off to -inf
