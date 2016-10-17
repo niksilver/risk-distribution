@@ -6,7 +6,7 @@ module Spec exposing
     )
 
 import Zone exposing (inf, Zone)
-import ZoneDict exposing (Value (Exactly))
+import Value exposing (Value (Exactly))
 import Block exposing (Rect)
 import Spline exposing (Pos)
 import Util

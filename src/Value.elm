@@ -1,4 +1,4 @@
-module ZoneDict exposing
+module Value exposing
     ( ZoneDict
     , Value (Exactly, Maximum, Contradiction)
     , percent, getEntries, combine, rationalise

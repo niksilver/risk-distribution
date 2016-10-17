@@ -3,7 +3,7 @@ module BlockTest exposing (all)
 import Block exposing (..)
 
 import Zone exposing (inf, Zone)
-import ZoneDict exposing (Value (Exactly, Maximum, Contradiction))
+import Value exposing (Value (Exactly, Maximum, Contradiction))
 import Util
 
 import ElmTest exposing (..)

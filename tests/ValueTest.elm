@@ -1,6 +1,6 @@
-module ZoneDictTest exposing (all)
+module ValueTest exposing (all)
 
-import ZoneDict exposing (..)
+import Value exposing (..)
 
 import Zone exposing (inf, Zone)
 import Constraint exposing (Constraint)
@@ -10,7 +10,7 @@ import ElmTest exposing (..)
 
 all : Test
 all =
-    suite "ZoneDictTest"
+    suite "ValueTest"
     [ percentTest
     , getEntriesTest
     , combineTest

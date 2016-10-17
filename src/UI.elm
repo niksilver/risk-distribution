@@ -4,7 +4,7 @@ import Util exposing (singleton)
 import Zone exposing (Zone)
 import Constraint exposing (Segment)
 import Derivation exposing (Derivation)
-import ZoneDict
+import Value
 import FactList
 
 import Html exposing (Html, div, p, ul, li, text)
@@ -59,8 +59,8 @@ derivationsView derivations =
 
 valuesView : List Zone -> List Derivation -> Html Msg
 valuesView zones derivations =
-    ZoneDict.fill zones derivations
-        |> ZoneDict.toList
+    Value.fill zones derivations
+        |> Value.toList
         |> bulletListView toString
 
 bulletListView : (a -> String) -> List a -> Html Msg

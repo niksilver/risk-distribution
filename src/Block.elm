@@ -8,7 +8,7 @@ module Block exposing
 -- a probability curve, based on zones of various percentage values.
 
 import Zone exposing (inf, Zone)
-import ZoneDict exposing (Value (Exactly, Maximum, Contradiction))
+import Value exposing (Value (Exactly, Maximum, Contradiction))
 import Util
 
 
@@ -125,9 +125,9 @@ taperComparator block blocks =
             else
                 List.reverse blocks
         hasPercent block =
-            ZoneDict.percent block.value /= Nothing
+            Value.percent block.value /= Nothing
         isNonZero block =
-            ZoneDict.percent block.value /= Just 0
+            Value.percent block.value /= Just 0
         isFinite block =
             Zone.isFinite block.zone
         isComparator b =
@@ -144,7 +144,7 @@ taperComparator block blocks =
 
 toChartBlock : Block -> List Block -> List ChartBlock
 toChartBlock block blocks =
-    if (ZoneDict.percent block.value == Nothing) then
+    if (Value.percent block.value == Nothing) then
         [ addZeroRectToBlock block ]
     else if (Zone.isFinite block.zone) then
         [ addRectToBlock block ]
@@ -175,7 +175,7 @@ addZeroRectToBlock block =
 
 percentWithDefault : Value -> Int
 percentWithDefault value =
-    ZoneDict.percent value |> Maybe.withDefault -1
+    Value.percent value |> Maybe.withDefault -1
 
 -- Turn a finite Block into a ChartBlock by adding an appropriate Rect
 
