@@ -2,7 +2,8 @@ module SpecTest exposing (all)
 
 import Spec exposing (..)
 
-import Zone exposing (Zone)
+import Zone exposing (Zone, inf)
+import Constraint exposing (Segment)
 import Value exposing (Value(..))
 import Block exposing (Rect, ChartBlock)
 import Spline exposing (Pos)
@@ -13,7 +14,8 @@ import ElmTest exposing (..)
 all : Test
 all =
     suite "SpecTest"
-    [ scaleXTest
+    [ fromSegmentsTest
+    , scaleXTest
     , scaleYTest
     , transformXTest
     , transformYTest
@@ -21,6 +23,49 @@ all =
     , bracketRectsTest
     ]
 
+
+-- Helper functions
+
+removeSources : Spec -> Spec
+removeSources spec =
+    let
+        updateValue v =
+            case v of
+                Exactly pc _ -> Exactly pc []
+                Maximum pc _ -> Maximum pc []
+                Contradiction _ -> Contradiction []
+        updateChartBlock block =
+            { block | value = updateValue block.value }
+
+    in
+        { spec | blocks = List.map updateChartBlock spec.blocks }
+
+fromSegmentsTest : Test
+fromSegmentsTest =
+    suite "fromSegmentsTest"
+
+    [ test "For simple finite segments should give correct spec" <|
+      let
+        seg0 = Segment 100 (Zone 0 11)
+        seg1 = Segment  50 (Zone 2 7)
+        seg2 = Segment  80 (Zone 0 7)
+        spec = fromSegments [seg0, seg1, seg2]
+      in
+        assertEqual
+        ( Just
+            { minX = 0
+            , maxX = 11
+            , maxY = 15
+            , blocks =
+                [ ChartBlock (Zone 0 2)  (Exactly 30 []) (Rect 0 2 15)
+                , ChartBlock (Zone 2 7)  (Exactly 50 []) (Rect 2 7 10)
+                , ChartBlock (Zone 7 11) (Exactly 20 []) (Rect 7 11 5)
+                ]
+            }
+        )
+        (spec |> Maybe.map removeSources)
+
+    ]
 
 scaleXTest : Test
 scaleXTest =

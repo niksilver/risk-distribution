@@ -1,6 +1,6 @@
 module Chart exposing
     ( rawSpec
-    , layersToView, view
+    --, layersToView, view
     )
 
 import FactList
@@ -57,7 +57,7 @@ rawSpec layers =
             maxHeight
 
 -- View
-
+{-
 layersToView : List Dist.Layer -> Html x
 layersToView layers =
     case (rawSpec layers) of
@@ -100,6 +100,7 @@ view spec =
         , viewCurve transformer curve
         , Axis.viewXAxis transformer scale
         ]
+-}
 
 -- Render just the distribution area as blocks,
 -- given functions to transform and scale a given spec

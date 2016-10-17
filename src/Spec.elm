@@ -1,11 +1,15 @@
 module Spec exposing
     ( Spec, ViewDims, Transformer
+    , fromSegments
     , transformX, transformY, scaleX, scaleY, transformer
     , curvePointsForRect
     , bracketRects
     )
 
+import Constraint exposing (Segment)
+import Derivation
 import Block exposing (Rect, ChartBlock)
+import ZoneDict
 import Spline exposing (Pos)
 import Util
 
@@ -39,6 +43,46 @@ type alias Transformer =
     , scY : Float -> Float    -- Scale a y co-ordinate
     }
 
+
+-- Create a spec from some segments.
+-- It isn't scaled at all.
+-- Will produce Nothing if the input is an empty list
+
+fromSegments : List Segment -> Maybe Spec
+fromSegments segments =
+    let
+        dModel = Derivation.model segments
+        zones = dModel.zones
+        derivations = dModel.derivations
+        entries =
+            ZoneDict.fill zones derivations
+                |> ZoneDict.toList
+        toBlock (zone, value) =
+            { zone = zone, value = value }
+        blocks =
+            List.map toBlock entries
+                |> Block.trim
+        chartBlocks =
+            List.map (\b -> Block.toChartBlock b blocks) blocks
+                |> List.concat
+        maybeMinX =
+            chartBlocks |> List.map .rect |> List.map .left |> List.minimum
+        maybeMaxX =
+            chartBlocks |> List.map .rect |> List.map .right |> List.maximum
+        maybeMaxY =
+            chartBlocks |> List.map .rect |> List.map .height |> List.maximum
+        toSpec minX maxX maxY =
+            { minX = minX
+            , maxX = maxX
+            , maxY = maxY
+            , blocks = chartBlocks
+            }
+    in
+        Maybe.map3
+            toSpec
+            maybeMinX
+            maybeMaxX
+            maybeMaxY
 
 -- Scale a length on the x- or y-axis from a spec to a view box.
 
