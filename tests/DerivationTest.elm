@@ -140,6 +140,20 @@ deriveOnceTest =
         []
         (deriveOnce [der1] seed)
 
+    , test "If multiple coeffs sum to 0 then deriveOnce should infer that each zone is 0" <|
+      let
+        der1 = deriv [1, 1, 1] 80  [0]
+        seed = deriv [1, 0, 0] 80  [1]
+        -- Subtracting gives this...
+        res1 = deriv [0, 1, 1]  0  [0, 1]
+        -- ...these multiple coeffs of 0 mean we should also infer these...
+        res2 = deriv [0, 1, 0]  0  [0, 1]
+        res3 = deriv [0, 0, 1]  0  [0, 1]
+      in
+        assertEqual
+        [res1, res2, res3]
+        (deriveOnce [der1] seed)
+
     ]
 
 deriveAllTest : Test
@@ -205,6 +219,21 @@ deriveAllTest =
         [seed]
         (deriveAll [] seed)
 
+    , test "If a 0% is derived then all constituent zones should be 0%" <|
+      let
+        der0 = deriv [1, 1, 1, 1] 100  [0]
+        der1 = deriv [0, 1, 1, 0] 100  [1]
+        -- Subtracting should give...
+        res1 = deriv [1, 0, 0, 1]   0  [0, 1]
+        -- And this should yield...
+        res2 = deriv [1, 0, 0, 0]   0  [0, 1]
+        res3 = deriv [0, 0, 0, 1]   0  [0, 1]
+        --- ...and there will be some other results which we'll ignore
+      in
+        assertEqual
+        [der0, der1, res1, res2, res3]
+        (deriveAll [der0] der1 |> List.take 5)
+
     , test "deriveAll should terminate if there's an inconsistent 'between' derivation" <|
       -- This error derives from entering the following constraints:
       -- There's a 100% chance it's between 0 and 10  [1]
@@ -244,7 +273,7 @@ deriveAllTest =
         assertEqual
         (True, True)
         (deriveAll res2 der3
-            |> (\ds -> (List.length ds <= 10, containsContradiction ds))
+            |> (\ds -> (List.length ds <= 20, containsContradiction ds))
         )
 
     ]

@@ -56,8 +56,6 @@ subtract larger smaller =
 deriveOnce : List Derivation -> Derivation -> List Derivation
 deriveOnce derivations seed =
     let
-        w = derivations --|> Debug.log "Derivs"
-        x = seed --|> Debug.log "Seed"
         maybeMap d =
             if (seed.cons.coeffs == d.cons.coeffs) then
                 Nothing
@@ -68,7 +66,36 @@ deriveOnce derivations seed =
             else
                 Nothing
     in
-        List.filterMap maybeMap derivations --|> Debug.log "Result"
+        List.filterMap maybeMap derivations
+            |> List.map splitZeroPcCoeffs
+            |> List.concat
+
+splitZeroPcCoeffs : Derivation -> List Derivation
+splitZeroPcCoeffs deriv =
+    let
+        pc = deriv.cons.pc
+        coeffs = deriv.cons.coeffs
+        src = deriv.src
+        coeffCount = List.sum coeffs
+        length = List.length coeffs
+        -- Generate coeffs of the form [0, 0, c, 0, 0, 0]
+        -- where the c is at a given index
+        singletonCoeffs idx coeff =
+            List.concat
+                [ (List.repeat idx 0)
+                , [coeff]
+                , (List.repeat (length - idx - 1) 0)
+                ]
+        ifNonZero coeffs =
+            List.sum coeffs /= 0
+        restoreDeriv coeffs =
+            Derivation { coeffs = coeffs, pc = 0 } src
+    in
+        if (pc == 0 && coeffCount > 1) then
+            deriv ::
+                (List.indexedMap singletonCoeffs coeffs |> List.filter ifNonZero |> List.map restoreDeriv)
+        else
+            [ deriv ]
 
 -- Derive all the derivations we can from some existing ones by
 -- adding a new one... including the original ones.

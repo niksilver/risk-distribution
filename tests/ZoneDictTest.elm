@@ -102,7 +102,6 @@ getEntriesTest =
         [Zone 0 5, Zone 5 7, Zone 7 10]
         (deriv [0, 1, 1] 50 [1, 3])
       )
-
     ]
 
 fillAndToListTest : Test
