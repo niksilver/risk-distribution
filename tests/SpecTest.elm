@@ -15,6 +15,7 @@ all : Test
 all =
     suite "SpecTest"
     [ fromSegmentsTest
+    , rectsTest
     , scaleXTest
     , scaleYTest
     , transformXTest
@@ -39,6 +40,9 @@ removeSources spec =
 
     in
         { spec | blocks = List.map updateChartBlock spec.blocks }
+
+
+-- The tests...
 
 fromSegmentsTest : Test
 fromSegmentsTest =
@@ -65,6 +69,31 @@ fromSegmentsTest =
         )
         (spec |> Maybe.map removeSources)
 
+    ]
+
+rectsTest : Test
+rectsTest =
+    suite "rectsTest"
+
+    [ test "Should return rects for simple spec" <|
+      let
+        spec =
+          { minX = 0
+          , maxX = 11
+          , maxY = 15
+          , blocks =
+              [ ChartBlock (Zone 0 2)  (Exactly 30 []) (Rect 0 2 15)
+              , ChartBlock (Zone 2 7)  (Exactly 50 []) (Rect 2 7 10)
+              , ChartBlock (Zone 7 11) (Exactly 20 []) (Rect 7 11 5)
+              ]
+          }
+      in
+        assertEqual
+        [ Rect 0 2 15
+        , Rect 2 7 10
+        , Rect 7 11 5
+        ]
+        (rects spec)
     ]
 
 scaleXTest : Test

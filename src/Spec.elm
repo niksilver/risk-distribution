@@ -1,6 +1,6 @@
 module Spec exposing
     ( Spec, ViewDims, Transformer
-    , fromSegments
+    , fromSegments, rects
     , transformX, transformY, scaleX, scaleY, transformer
     , curvePointsForRect
     , bracketRects
@@ -83,6 +83,12 @@ fromSegments segments =
             maybeMinX
             maybeMaxX
             maybeMaxY
+
+-- Extract just the rects from a spec
+
+rects : Spec -> List Rect
+rects spec =
+    List.map .rect spec.blocks
 
 -- Scale a length on the x- or y-axis from a spec to a view box.
 

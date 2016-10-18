@@ -5,7 +5,9 @@ import Zone exposing (Zone)
 import Constraint exposing (Segment)
 import Derivation exposing (Derivation)
 import ZoneDict
+import Spec
 import FactList
+import Chart
 
 import Html exposing (Html, div, p, ul, li, text)
 
@@ -43,6 +45,7 @@ view model =
         --, zonesView dModel.zones
         --, derivationsView dModel.derivations
         , valuesView dModel.zones dModel.derivations
+        , chartView segments
         ]
 
 segmentsView : List Segment -> Html Msg
@@ -68,3 +71,11 @@ bulletListView trans xs =
     xs
         |> List.map (trans >> text >> singleton >> li [])
         |> ul []
+
+chartView : List Segment -> Html Msg
+chartView segments =
+    case (Spec.fromSegments segments) of
+        Just spec ->
+            Chart.view spec
+        Nothing ->
+            text "No chart"

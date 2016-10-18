@@ -1,7 +1,4 @@
-module Chart exposing
-    ( rawSpec
-    --, layersToView, view
-    )
+module Chart exposing (view)
 
 import FactList
 import Distribution as Dist
@@ -34,35 +31,7 @@ viewDim =
 
 -- Produce a scaled and positioned spec for the chart
 
--- First, a mechanism to get an unscaled spec.
--- The area of each rectangle will be its probability
-
-rawSpec : List Dist.Layer -> Maybe Spec
-rawSpec layers =
-    let
-        intervals = layers |> Dist.intervals |> Dist.sort
-        int2Rect int =
-            { left = int.lower
-            , right = int.upper
-            , height = int.prob / (int.upper - int.lower)
-            }
-        rects = List.map int2Rect intervals
-        maxHeight = List.map .height rects |> List.maximum
-        toSpec (minX, maxX) maxY =
-            { minX = minX, maxX = maxX, maxY = maxY, rects = rects }
-    in
-        Maybe.map2
-            toSpec
-            (Dist.range intervals)
-            maxHeight
-
 -- View
-{-
-layersToView : List Dist.Layer -> Html x
-layersToView layers =
-    case (rawSpec layers) of
-        Just spec -> view spec
-        Nothing -> Svg.text ""
 
 view : Spec -> Html x
 view spec =
@@ -100,7 +69,6 @@ view spec =
         , viewCurve transformer curve
         , Axis.viewXAxis transformer scale
         ]
--}
 
 -- Render just the distribution area as blocks,
 -- given functions to transform and scale a given spec
@@ -117,9 +85,10 @@ viewBlocks transformer spec =
             , SvgA.fill "rgb(82, 92, 227)"
             ]
             []
+        rects = Spec.rects spec
     in
         Svg.g []
-        (List.map draw spec.rects)
+        (List.map draw rects)
 
 
 -- Render the distribution as a curve,
@@ -151,6 +120,8 @@ distCurve spec =
         -- How far up the left/right rect the curve should start from
         yProportion = 0.0
 
+        rects = Spec.rects spec
+
         -- To create the path for distribution curve we take
         -- the initial set of rectangles in the chart spec and...
         -- Put pretend rectangles at the start and end to
@@ -162,12 +133,12 @@ distCurve spec =
         -- Squash the curve up if it falls below the x-axis
 
         curve =
-            spec.rects
+            rects
                 |> Spec.bracketRects yProportion
                 |> Util.sliding 3
                 |> List.map curvePoints
                 |> List.concat
-                |> addEndsOfSpline yProportion spec.rects
+                |> addEndsOfSpline yProportion rects
                 |> Spline.splines 20
                 |> squash
 
