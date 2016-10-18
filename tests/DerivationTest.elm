@@ -14,6 +14,7 @@ all =
     [ derivationToStringTest
     , subtractTest
     , deriveOnceTest
+    , zeroPcDerivationsTest
     , deriveAllTest
     , addSegmentTestForNewSegment
     , addSegmentTestForNewZone
@@ -153,6 +154,62 @@ deriveOnceTest =
         assertEqual
         [res1, res2, res3]
         (deriveOnce [der1] seed)
+
+    ]
+
+zeroPcDerivationsTest : Test
+zeroPcDerivationsTest =
+    suite "zeroPcDerivationsTest"
+
+    [ test "Trying to split no coeffs of 0% should give no nothing (although it makes no sense)" <|
+      let
+        der1 = deriv [] 0 [2]
+      in
+        assertEqual
+        []
+        (zeroPcDerivations der1)
+
+    , test "Trying to split no coeffs of >0% should give no nothing (although it makes no sense)" <|
+      let
+        der1 = deriv [] 10 [2]
+      in
+        assertEqual
+        []
+        (zeroPcDerivations der1)
+
+    , test "Trying to split a derivation of >0% should give no derivations" <|
+      let
+        der1 = deriv [0, 1, 1, 0] 10 [2]
+      in
+        assertEqual
+        []
+        (zeroPcDerivations der1)
+
+    , test "Trying to split a derivation of >0% and one zone should give no derivations" <|
+      let
+        der1 = deriv [0, 1, 0, 0] 10 [2]
+      in
+        assertEqual
+        []
+        (zeroPcDerivations der1)
+
+    , test "Trying to split a derivation of 0% and one zone should give no derivations" <|
+      let
+        der1 = deriv [0, 1, 0, 0] 0 [2]
+      in
+        assertEqual
+        []
+        (zeroPcDerivations der1)
+
+    , test "Trying to split a derivation of 0% over two zones should give new derivations" <|
+      let
+        der1 = deriv [0, 1, 1, 0] 0 [2]
+      in
+        assertEqual
+        [ deriv [0, 1, 0, 0] 0 [2]
+        , deriv [0, 0, 1, 0] 0 [2]
+        ]
+        (zeroPcDerivations der1)
 
     ]
 

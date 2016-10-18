@@ -2,7 +2,7 @@ module Derivation exposing
     ( Derivation, derivationToString
     , containsContradiction
     , subtract
-    , deriveOnce, deriveAll
+    , deriveOnce, zeroPcDerivations, deriveAll
     , Model
     , addSegment
     , model
@@ -65,13 +65,25 @@ deriveOnce derivations seed =
                 Just (subtract seed d)
             else
                 Nothing
+        subtractions =
+            List.filterMap maybeMap derivations
+        zeroPcDerivs =
+            List.map zeroPcDerivations subtractions |> List.concat
     in
-        List.filterMap maybeMap derivations
-            |> List.map splitZeroPcCoeffs
-            |> List.concat
+        List.append
+            subtractions
+            zeroPcDerivs
 
-splitZeroPcCoeffs : Derivation -> List Derivation
-splitZeroPcCoeffs deriv =
+-- For any derivation that has several zones combined to be 0%,
+-- create further derivations that tell us each individual zone
+-- is at 0%.
+-- E.g.
+-- Derivation of [ 0, 1, 1, 0 ] at 0% using sources [2, 1] will give
+-- Derivation of [ 0, 1, 0, 0 ] at 0% using sources [2, 1] and
+-- Derivation of [ 0, 0, 1, 0 ] at 0% using sources [2, 1]
+
+zeroPcDerivations : Derivation -> List Derivation
+zeroPcDerivations deriv =
     let
         pc = deriv.cons.pc
         coeffs = deriv.cons.coeffs
@@ -92,10 +104,9 @@ splitZeroPcCoeffs deriv =
             Derivation { coeffs = coeffs, pc = 0 } src
     in
         if (pc == 0 && coeffCount > 1) then
-            deriv ::
-                (List.indexedMap singletonCoeffs coeffs |> List.filter ifNonZero |> List.map restoreDeriv)
+            (List.indexedMap singletonCoeffs coeffs |> List.filter ifNonZero |> List.map restoreDeriv)
         else
-            [ deriv ]
+            []
 
 -- Derive all the derivations we can from some existing ones by
 -- adding a new one... including the original ones.
