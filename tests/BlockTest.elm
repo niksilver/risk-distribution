@@ -211,7 +211,7 @@ toChartBlockTest =
 
         , test "Among blocks with zeros and a Contradiction, an infinite Block gets rects of a sensible size" <|
           assertEqual
-          [Ok True, Ok True, Ok True, Ok True, Ok True] -- Assumes taperFactor == 5
+          [Ok True, Ok True, Ok True, Ok True, Ok True] -- Assumes taperBlocks == 5
           (toChartBlock b6 [bCon, b3, b4, b6]
             |> List.map .rect
             |> List.map .height
@@ -233,7 +233,7 @@ toChartBlockTest =
           -- the total area of its 25% size).
           -- Therefore its second rect should be 0.625 high (half again) and 20 wide
           -- and its third block should be 0.3125 high and 20 wide, etc
-          -- for five blocks (because that's our taperFactor).
+          -- for five blocks (because that's our taperBlocks).
 
           [ test "Last ChartBlock should be appropriate dimensions" <|
             assertEqual
@@ -283,9 +283,9 @@ toChartBlockTest =
                 |> Util.ith 2
             )
 
-          , test "There should be taperFactor ChartBlock elements" <|
+          , test "There should be taperBlocks ChartBlock elements" <|
             assertEqual
-            taperFactor
+            taperBlocks
             (toChartBlock b0 [ b0, b1, b2 ]
                 |> List.length
             )
@@ -302,7 +302,7 @@ toChartBlockTest =
           -- half the total area of its 17% size).
           -- Therefore its second rect should be 2.125 high (half again) and 2 wide
           -- and its third block should be 1.0625 high and 2 wide, etc
-          -- for five blocks (because that's our taperFactor).
+          -- for five blocks (because that's our taperBlocks).
 
           [ test "First ChartBlock should be appropriate dimensions" <|
             assertEqual
@@ -349,9 +349,9 @@ toChartBlockTest =
                 |> Util.ith 2
             )
 
-          , test "There should be taperFactor ChartBlock elements" <|
+          , test "There should be taperBlocks ChartBlock elements" <|
             assertEqual
-            taperFactor
+            taperBlocks
             (toChartBlock b6 [ b3, b4, b5, b6 ]
                 |> List.length
             )

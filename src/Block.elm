@@ -1,6 +1,6 @@
 module Block exposing
     ( Block, Rect, ChartBlock
-    , trim, taperFactor, taperZoneWidth
+    , trim, taperBlocks, taperZoneWidth
     , taperComparator, toChartBlock
     )
 
@@ -64,8 +64,8 @@ trimFront blocks =
 -- 1/2 height + 1/4 height + 1/8 height + ...
 -- The number of such rectangles we use in practice is this value
 
-taperFactor : Int
-taperFactor = 5
+taperBlocks : Int
+taperBlocks = 5
 
 -- Say we have two zones; the first is infinitely long, the second is
 -- finite, and both have a %age probability. We want to represent the
@@ -86,7 +86,7 @@ taperFactor = 5
 --                     So we rely on the fact that a rectangle equals
 -- 1/2 itself + 1/4 itself + 1/8 itself + ...
 -- And those are the rectangles we stack next to each other to get the
--- taper. We don't do this forever. We only do it taperFactor times, which
+-- taper. We don't do this forever. We only do it taperBlocks times, which
 -- we say is close enough. And our first (tallest) rectangle will be
 -- half the height of the neighbouring one, which means its width needs
 -- to be the same width but then scaled to the relative percentages (pc1/pc2).
@@ -190,12 +190,12 @@ addRectToBlock block =
             }
         }
 
--- Make list [0, 1, 2, ...] which has length `taperFactor`
+-- Make list [0, 1, 2, ...] which has length `taperBlocks`
 
 taperRange : List Int
 taperRange =
     let
-        base = List.repeat taperFactor 0
+        base = List.repeat taperBlocks 0
     in
         List.indexedMap (\i elt -> i) base
 
