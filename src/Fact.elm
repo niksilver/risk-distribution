@@ -25,6 +25,7 @@ import Json.Decode exposing (Decoder)
 import Zone exposing (inf, Zone)
 import Constraint exposing (Segment)
 
+
 -- Our model of a fact
 
 type Limit
@@ -45,6 +46,16 @@ type Msg
     | Upper String
     | ChangeLimit Limit
     | ConfirmText
+
+
+-- Constants
+
+atLeastString : String
+atLeastString = "more than"
+
+atMostString : String
+atMostString = "less than"
+
 
 -- Initial model
 
@@ -253,9 +264,9 @@ onChange =
     let
         strDecoder = Json.Decode.at ["target", "value"] Json.Decode.string
         toLimit str =
-            if str == "at most" then
+            if str == atMostString then
                 ChangeLimit AtMost
-            else if str == "at least" then
+            else if str == atLeastString then
                 ChangeLimit AtLeast
             else ChangeLimit Between
     in
@@ -278,10 +289,10 @@ limitControl model =
         ]
         [ option
             [ selected (limit == AtMost) ]
-            [ text "at most" ]
+            [ text atMostString ]
         , option
             [ selected (limit == AtLeast) ]
-            [ text "at least" ]
+            [ text atLeastString ]
         , option
             [ selected (limit == Between) ]
             [ text "between" ]
