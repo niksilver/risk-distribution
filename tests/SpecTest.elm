@@ -339,27 +339,27 @@ bracketRectsTest =
     [ test "Bracketing no rects should give no rects again" <|
       assertEqual
       []
-      (bracketRects 1.0 [])
+      (bracketRects [])
 
     , test "Bracketing three rects should give five rects total" <|
       assertEqual
       (5)
-      ( bracketRects 0.5 [Rect 0 1 6, Rect 1 4 7, Rect 4 5 8]
+      ( bracketRects [Rect 0 1 6, Rect 1 4 7, Rect 4 5 8]
           |> List.length
       )
 
-    , test "Bracketing three rects should give a proportional one at the front" <|
+    , test "Bracketing three rects should give a zero-height one at the front" <|
       assertEqual
-      (Just 3.0)
-      ( bracketRects 0.5 [Rect 0 1 6, Rect 1 4 7, Rect 4 5 8]
+      (Just 0)
+      ( bracketRects [Rect 0 1 6, Rect 1 4 7, Rect 4 5 8]
           |> List.map .height
           |> List.head
       )
 
-    , test "Bracketing three rects should give a proportional one at the end" <|
+    , test "Bracketing three rects should give a zero-height one at the end" <|
       assertEqual
-      (Just 4.0)
-      ( bracketRects 0.5 [Rect 0 1 6, Rect 1 4 7, Rect 4 5 8]
+      (Just 0)
+      ( bracketRects [Rect 0 1 6, Rect 1 4 7, Rect 4 5 8]
           |> List.map .height
           |> List.reverse
           |> List.head
@@ -367,15 +367,15 @@ bracketRectsTest =
 
     , test "Front-bracketing rect should have width equal to the original front rect" <|
       assertEqual
-      (Just (Rect -1 0 3.0))
-      ( bracketRects 0.5 [Rect 0 1 6, Rect 1 4 7, Rect 4 5 8]
+      (Just (Rect -1 0 0))
+      ( bracketRects [Rect 0 1 6, Rect 1 4 7, Rect 4 5 8]
           |> List.head
       )
 
     , test "End-bracketing rect should have width equal to the original end rect" <|
       assertEqual
-      (Just (Rect 6 8 4.0))
-      ( bracketRects 0.5 [Rect 0 1 6, Rect 1 4 7, Rect 4 6 8]
+      (Just (Rect 6 8 0))
+      ( bracketRects [Rect 0 1 6, Rect 1 4 7, Rect 4 6 8]
           |> List.reverse
           |> List.head
       )

@@ -146,29 +146,25 @@ curvePointsForRect prev rect next =
             (EQ, GT) -> [Pos rect.left height, Pos midRight height]
             (LT, EQ) -> [Pos midLeft height]
 
--- Take a list of rectangles and bracket it (one rect on the start and end).
--- Each new Rect should have a height which is the specified proportion
--- of its neighbour. E.g. A proportion of 0.5 means the new first Rect
--- will be half the height of the (original) first Rect and the new last
--- Rect will be half the height of the (original) last Rect.
+-- Take a list of rectangles and bracket it (one zero-height rect on the
+-- start and end).
 
 type End = Front | Back
 
-bracketRects : Float -> List Rect -> List Rect
-bracketRects proportion rects =
+bracketRects : List Rect -> List Rect
+bracketRects rects =
     Util.bracketMap
-        (bracketRects1 Front proportion)
-        (bracketRects1 Back proportion)
+        (bracketRects1 Front)
+        (bracketRects1 Back)
         rects
 
-bracketRects1 : End -> Float -> Rect -> Rect
-bracketRects1 end proportion rect =
+bracketRects1 : End -> Rect -> Rect
+bracketRects1 end rect =
     let
-        height = rect.height * proportion
         width = rect.right - rect.left
     in
         case end of
             Front ->
-                Rect (rect.left - width) rect.left height
+                Rect (rect.left - width) rect.left 0
             Back ->
-                Rect rect.right (rect.right + width) height
+                Rect rect.right (rect.right + width) 0

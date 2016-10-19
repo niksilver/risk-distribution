@@ -117,9 +117,6 @@ viewCurve transformer curve =
 distCurve : Spec -> List Pos
 distCurve spec =
     let
-        -- How far up the left/right rect the curve should start from
-        yProportion = 0.0
-
         rects = Spec.rects spec
 
         -- To create the path for distribution curve we take
@@ -131,23 +128,15 @@ distCurve spec =
         -- curve points accordingly;
         -- Join up the points with a spline.
         -- Squash the curve up if it falls below the x-axis
-
-        curve =
-            rects
-                |> Spec.bracketRects yProportion
-                |> Util.sliding 3
-                |> List.map curvePoints
-                |> List.concat
-                |> addEndsOfSpline yProportion rects
-                |> Spline.splines 20
-                |> squash
-
     in
-        -- Put vertical lines on the start and end of the spline so
-        -- that it starts and ends on the x-axis;
-
-        curve
-            |> addEndsOfDist yProportion
+        rects
+            |> Spec.bracketRects
+            |> Util.sliding 3
+            |> List.map curvePoints
+            |> List.concat
+            |> addEndsOfSpline rects
+            |> Spline.splines 20
+            |> squash
 
 -- Translate to Spec.curvePointsForRect, but taking a list
 -- of three rectangles instead of three separate Rect arguments
@@ -172,11 +161,11 @@ squash ps =
 
 -- Add end points to the distribution curve
 
-addEndsOfSpline : Float -> List Rect -> List Pos -> List Pos
-addEndsOfSpline proportion rects points =
+addEndsOfSpline : List Rect -> List Pos -> List Pos
+addEndsOfSpline rects points =
     points
-        |> addFrontOfSpline proportion rects
-        |> addBackOfSpline proportion rects
+        |> addFrontOfSpline rects
+        |> addBackOfSpline rects
 
 addPosIfDifferent : Pos -> List Pos -> List Pos
 addPosIfDifferent p ps =
@@ -185,42 +174,29 @@ addPosIfDifferent p ps =
     else
         p :: ps
 
-addFrontOfSpline : Float -> List Rect -> List Pos -> List Pos
-addFrontOfSpline proportion rects points =
+addFrontOfSpline : List Rect -> List Pos -> List Pos
+addFrontOfSpline rects points =
     let
         pos =
             case List.head rects of
                 Nothing ->
                     Pos 0 0
                 Just rect ->
-                    Pos rect.left (rect.height * proportion)
+                    Pos rect.left 0
     in
         addPosIfDifferent pos points
 
-addBackOfSpline : Float -> List Rect -> List Pos -> List Pos
-addBackOfSpline proportion rects points =
+addBackOfSpline : List Rect -> List Pos -> List Pos
+addBackOfSpline rects points =
     let
         pos =
             case (List.reverse rects |> List.head) of
                 Nothing ->
                     Pos 0 0
                 Just rect ->
-                    Pos rect.right (rect.height * proportion)
+                    Pos rect.right 0
     in
         points
             |> List.reverse
             |> addPosIfDifferent pos
             |> List.reverse
-
--- Add the front and back lines to a distribution spline
--- to ensure it starts and finishes on the x-axis
-
-addEndsOfDist : Float -> List Pos -> List Pos
-addEndsOfDist proportion points =
-    if (proportion == 0) then
-        points
-    else
-        let
-            ground point = Pos point.x 0
-        in
-            Util.bracketMap ground ground points
