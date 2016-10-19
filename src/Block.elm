@@ -209,20 +209,24 @@ makeTaperingChartBlock : Block -> List Block -> Int -> Int -> ChartBlock
 makeTaperingChartBlock block blocks dir idx =
     let
         pc = percentWithDefault block.value
+        bFrom = block.zone.from
+        bTo = block.zone.to
+
         neighbour = taperComparator block blocks
         nFrom = neighbour.zone.from
         nTo = neighbour.zone.to
         nWidth = nTo - nFrom
         nPc = percentWithDefault neighbour.value
+
         width = taperZoneWidth pc nWidth nPc
         shrinkage = 2 ^ (idx + 1)
         nearDistance = (idx * width)
         farDistance = (idx * width) + width
         (left, right) =
             if (dir == -1) then
-                (nFrom - farDistance, nFrom - nearDistance)
+                (bTo - farDistance, bTo - nearDistance)
             else
-                (nTo + nearDistance, nTo + farDistance)
+                (bFrom + nearDistance, bFrom + farDistance)
         height = (toFloat pc / width) / shrinkage
     in
         { zone = block.zone

@@ -358,6 +358,35 @@ toChartBlockTest =
 
           ]
 
+        , test "Block which runs from -inf and is next to a zero finite block, should be placed next to the zero block" <|
+          let
+            b0 = Block (Zone -inf 4) (Exactly 25 [2])
+            b1 = Block (Zone 4 15) (Exactly 0 [1])
+            b2 = Block (Zone 15 inf) (Exactly 75 [1, 0])
+          in
+            assertEqual
+            (Just 4)
+            (toChartBlock b0 [ b0, b1, b2 ]
+                |> List.reverse
+                |> List.head
+                |> Maybe.map .rect
+                |> Maybe.map .right
+            )
+
+        , test "Block which runs to inf and is next to a zero finite block, should be placed next to the zero block" <|
+          let
+            b0 = Block (Zone -inf 4) (Exactly 25 [2])
+            b1 = Block (Zone 4 15) (Exactly 0 [1])
+            b2 = Block (Zone 15 inf) (Exactly 75 [1, 0])
+          in
+            assertEqual
+            (Just 15)
+            (toChartBlock b2 [ b0, b1, b2 ]
+                |> List.head
+                |> Maybe.map .rect
+                |> Maybe.map .left
+            )
+
         -- There are other tests we might put in here, but currently
         -- we're confident this is robust
 
