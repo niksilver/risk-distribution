@@ -214,7 +214,8 @@ dedupe' equiv xs accum =
 --   - A seed
 -- We proceed like this:
 --   - Initialise the queue. Create a singleton list with just the seed.
---   - Filter the queue. Keep only elements that pass the pred function.
+--   - Filter the queue's head:
+--     - Drop the head repeatedly until it passes the pred function.
 --   - Extend the queue:
 --     - Apply fn to the original list and the head of the queue.
 --     - Put the returned list at the back of the queue.
@@ -249,7 +250,16 @@ filteredExpand fn pred xs seed =
 filteredExpand' : (List a -> a -> List a) -> (List a -> a -> Bool) -> List a -> List a -> List a
 filteredExpand' fn pred xs queue =
     let
-        filtQueue = List.filter (pred xs) queue
+        dropUntil q2 =
+            case q2 of
+                [] ->
+                    []
+                qHead :: qTail ->
+                    if (pred xs qHead) then
+                        q2
+                    else
+                        dropUntil qTail
+        filtQueue = dropUntil queue
         -- q x = List.length x |> toString
     in
         case filtQueue of

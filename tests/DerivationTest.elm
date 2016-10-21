@@ -333,24 +333,24 @@ deriveAllTest =
             |> (\ds -> (List.length ds <= 20, containsContradiction ds))
         )
 
-    -- , test "deriveAll should work quickly in this case (currently it takes ages)" <|
-    --   -- Problem possibly in time-consuming containsContradiction or findPair or findOtherFor
-    --   -- The filteredExpand queue goes up to 275 elements.
-    --   -- We end up with 127 derivations.
-    --   let
-    --     --              0 25 30 50 70  C inf
-    --     der0 = deriv [1, 1, 1, 1, 1, 1, 1] 100  [0]
-    --     der1 = deriv [0, 1, 1, 1, 1, 1, 0] 100  [1]
-    --     der2 = deriv [1, 1, 0, 0, 0, 0, 0]  50  [2]
-    --     der3 = deriv [0, 0, 0, 0, 1, 1, 1]  10  [3]
-    --     der4 = deriv [0, 0, 0, 1, 1, 0, 0]   0  [4]
-    --     res1 = deriveAll [der0] der1
-    --     res2 = deriveAll res1 der2
-    --     res3 = deriveAll res2 der3
-    --   in
-    --     assertEqual
-    --     0
-    --     (deriveAll res3 der4 |> List.length)
+    , test "deriveAll should work quickly in this case (currently it takes ages)" <|
+      -- Problem possibly in time-consuming containsContradiction or findPair or findOtherFor
+      -- The filteredExpand queue goes up to 275 elements.
+      -- We end up with 127 derivations.
+      let
+        --              0 25 30 50 70  C inf
+        der0 = deriv [1, 1, 1, 1, 1, 1, 1] 100  [0]
+        der1 = deriv [0, 1, 1, 1, 1, 1, 0] 100  [1]
+        der2 = deriv [1, 1, 0, 0, 0, 0, 0]  50  [2]
+        der3 = deriv [0, 0, 0, 0, 1, 1, 1]  10  [3]
+        der4 = deriv [0, 0, 0, 1, 1, 0, 0]   0  [4]
+        res1 = deriveAll [der0] der1
+        res2 = deriveAll res1 der2
+        res3 = deriveAll res2 der3
+      in
+        assertEqual
+        0
+        (deriveAll res3 der4 |> List.length)
 
     ]
 
