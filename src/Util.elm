@@ -212,16 +212,15 @@ dedupe' equiv xs accum =
 --     the contents of a list.
 --   - An initial list
 --   - A seed
--- We take the seed, and imagine it is at the head of a queue (actually, the
--- only element in the queue, currently).
--- We filter the queue according to the pred function.
--- We apply fn to the original list and the head of the queue.
--- We put the returned list at the back of the queue.
--- We put the head of the queue (the seed) onto the end of the original
--- list. Then we repeat the process from the filtering step
--- with the updated list and the updated head of the queue.
--- We repeat from the filtering step until the queue is empty.
--- Warning: This function may not terminate if you're not careful.
+-- We proceed like this:
+--   - Initialise the queue. Create a singleton list with just the seed.
+--   - Filter the queue. Keep only elements that pass the pred function.
+--   - Extend the queue:
+--     - Apply fn to the original list and the head of the queue.
+--     - Put the returned list at the back of the queue.
+--   - Put the head of the queue onto the end of the original list.
+--   - Repeat the process from the filtering step
+-- Warning: This function will not terminate if the queue never becomes [].
 --
 -- Example:
 -- fn multiplies all elements of the list by the given element,
@@ -251,6 +250,7 @@ filteredExpand' : (List a -> a -> List a) -> (List a -> a -> Bool) -> List a -> 
 filteredExpand' fn pred xs queue =
     let
         filtQueue = List.filter (pred xs) queue
+        -- q x = List.length x |> toString
     in
         case filtQueue of
             [] ->
@@ -260,6 +260,11 @@ filteredExpand' fn pred xs queue =
                     tail2 = fn xs seed
                     xs2 = List.append xs [seed]
                     queue2 = List.append tail tail2
+                    -- x =
+                    --     if List.length xs2 > 50 then
+                    --         Debug.log ("List " ++ q xs2 ++ ", q before " ++ q queue ++ ", q after " ++ q queue2) ""
+                    --     else
+                    --         ""
                 in
                     filteredExpand' fn pred xs2 queue2
 
