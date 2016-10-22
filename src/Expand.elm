@@ -1,6 +1,5 @@
 module Expand exposing
-    ( Check (Stop, Continue)
-    , expand, skipWhile
+    ( expand, skipWhile
     )
 
 -- Expand something in a controlled manner. We go in with
@@ -22,11 +21,9 @@ module Expand exposing
 --   - Update the data.
 --   - Repeat from the skipping step.
 
-type Check = Stop | Continue
-
 type alias Expanders a b =
     { skip : a -> b -> Bool
-    , stop : a -> b -> Check
+    , stop : a -> b -> Bool
     , grow : a -> b -> List b
     , update : a -> b -> a
     }
@@ -34,9 +31,21 @@ type alias Expanders a b =
 expand : a -> List b -> Expanders a b -> (a, Maybe b)
 expand data queue fns =
     let
-        queue2 = skipWhile (fns.skip data) queue
+        queue' = skipWhile (fns.skip data) queue
     in
-        (data, Nothing)
+        case queue' of
+            [] ->
+                (data, Nothing)
+            head :: tail ->
+                if (fns.stop data head) then
+                    (data, Nothing) -- Wrong! Write a test before correcting it!
+                else
+                    let
+                        queueEnd = fns.grow data head
+                        queue2 = List.append tail queueEnd
+                        data2 = fns.update data head
+                    in
+                        expand data2 queue2 fns
 
 -- Keep skipping items at the front of the queue until we're told not to
 -- (or the list is empty)

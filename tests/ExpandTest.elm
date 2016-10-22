@@ -21,7 +21,7 @@ expandTest =
         -- Skip the head of the queue if the last digit is already in the data list
         skip xs h = List.any (\x -> x % 10 == h % 10) xs
         -- Never stop using the stop check
-        stop xs h = Continue
+        stop xs h = False
         -- Grow the queue by multiplying each elt of the data with the queue head
         grow xs h = List.map (\x -> x * h) xs
         -- Update just by putting the head of the queue at the end of the data
