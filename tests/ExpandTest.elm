@@ -2,6 +2,8 @@ module ExpandTest exposing (all)
 
 import Expand exposing (..)
 
+import String
+
 import ElmTest exposing (..)
 
 
@@ -72,6 +74,28 @@ expandTest =
         -- [1, 7, 4, 5, 6] [12, 9, 7, 13, 10, 11]
         --     No skipping, but stop because 12 is too big
         -- which gives us our result
+
+    , test "Expansion should work when the data and queue are of different types" <|
+      let
+        -- Never skip the head of the queue
+        skip xs h = False
+        -- Stop if the data is 10 characters or more
+        stop xs h = String.length xs >= 10
+        -- Grow the queue by adding on the length of the data string squared
+        grow xs h = [ String.length xs ^ 2 ]
+        -- Update just by appending the queue head to the end of the data string
+        update xs h = xs ++ toString h
+      in
+        assertEqual
+        ("a0149162549", Just 81)
+        (expand "a" [0]
+            { skip = skip
+            , stop = stop
+            , grow = grow
+            , update = update
+            }
+        )
+
 
     ]
 
