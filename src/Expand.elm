@@ -38,7 +38,7 @@ expand data queue fns =
                 (data, Nothing)
             head :: tail ->
                 if (fns.stop data head) then
-                    (data, Nothing) -- Wrong! Write a test before correcting it!
+                    (data, Just head)
                 else
                     let
                         queueEnd = fns.grow data head

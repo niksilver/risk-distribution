@@ -31,7 +31,7 @@ expandTest =
         --     List.any (\x -> x % 10 == a % 10) xs |> not
       in
         assertEqual
-        ([4, 5, 3, 12, 48, 60, 36] ,Nothing)
+        ([4, 5, 3, 12, 48, 60, 36], Nothing)
         (expand [4, 5] [3]
             { skip = skip
             , stop = stop
@@ -39,7 +39,40 @@ expandTest =
             , update = update
             }
         )
-        -- (filteredExpand fn pred [4, 5] 3)
+
+    , test "Expansion should stop when we get to a problematic queue entry" <|
+      let
+        -- Skip the head of the queue if the last digit is already in the data list
+        skip xs h = List.any (\x -> x % 10 == h % 10) xs
+        -- Stop if the head of the queue is 10 or more
+        stop xs h = h >= 10
+        -- Grow the queue by adding each elt of the data with the queue head
+        grow xs h = List.map (\x -> x + h) xs
+        -- Update just by putting the head of the queue at the end of the data
+        update xs h = List.append xs [h]
+      in
+        assertEqual
+        ([1, 7, 4, 5, 6], Just 12)
+        (expand [1, 7] [4]
+            { skip = skip
+            , stop = stop
+            , grow = grow
+            , update = update
+            }
+        )
+        -- [1, 7] [4]
+        --     No skipping, and don't stop on the 4
+        --     Grow with: [5, 11]
+        -- [1, 7, 4] [5, 11]
+        --     No skipping, and don't stop on the 5
+        --     Grow with: [6, 12, 9]
+        -- [1, 7, 4, 5] [11, 6, 12, 9]
+        --     Skip 11 only, leaving [6, 12, 9]
+        --     Use the 6 to grow with: [7, 13, 10, 11]
+        -- [1, 7, 4, 5, 6] [12, 9, 7, 13, 10, 11]
+        --     No skipping, but stop because 12 is too big
+        -- which gives us our result
+
     ]
 
 skipWhileTest : Test
