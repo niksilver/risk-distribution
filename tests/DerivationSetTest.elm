@@ -14,6 +14,7 @@ all =
     [ sizeAndEmptyTest
     , sizeAndPutTest
     , isNewTest
+    , isContradictionTest
     ]
 
 
@@ -129,6 +130,55 @@ isNewTest =
             |> put der0
             |> put der1
             |> isNew der2
+      )
+
+    ]
+
+isContradictionTest : Test
+isContradictionTest =
+    suite "isContradictionTest"
+
+    [ test "A Derivation should not be a contradition to the empty set" <|
+      let
+        der0 = deriv [1, 0, 0, 1] 50 [2, 3]
+      in
+      assertEqual
+      (False)
+      (empty |> isContradiction der0)
+
+    , test "A Derivation should not be a contradition to a set which contains just itself" <|
+      let
+        der0 = deriv [1, 0, 0, 1] 50 [2, 3]
+      in
+      assertEqual
+      (False)
+      ( empty
+            |> put der0
+            |> isContradiction der0
+      )
+
+    , test "A Derivation should not be a contradition to a set which contains the same thing from other sources" <|
+      let
+        der0 = deriv [1, 0, 0, 1] 50 [2, 3]
+        der1 = deriv [1, 0, 0, 1] 50 [0]  -- The same thing but from different sources
+      in
+      assertEqual
+      (False)
+      ( empty
+            |> put der0
+            |> isContradiction der1
+      )
+
+    , test "A Derivation should be a contradition to a set which contains a different percentage for the same coeffs" <|
+      let
+        der0 = deriv [1, 0, 0, 1] 50 [2, 3]
+        der1 = deriv [1, 0, 0, 1] 45 [0]  -- Different percentage
+      in
+      assertEqual
+      (True)
+      ( empty
+            |> put der0
+            |> isContradiction der1
       )
 
     ]

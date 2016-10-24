@@ -1,9 +1,10 @@
 module DerivationSet exposing
     ( empty
     , size, put
-    , isNew
+    , isNew, isContradiction
     )
 
+import Constraint as Cons
 import Derivation exposing (Derivation)
 
 import Dict exposing (Dict)
@@ -44,3 +45,14 @@ put deriv dSet =
 isNew : Derivation -> DerivationSet -> Bool
 isNew deriv dSet =
     not( Dict.member (toKey deriv) dSet )
+
+-- A Derivation is a contradiction to a set if the set contains another
+-- Derivation which is the same coeffs but a different percentage
+
+isContradiction : Derivation -> DerivationSet -> Bool
+isContradiction deriv dSet =
+    case (Dict.get (toKey deriv) dSet) of
+        Nothing ->
+            False
+        Just der2 ->
+            Cons.isContradiction deriv.cons der2.cons
