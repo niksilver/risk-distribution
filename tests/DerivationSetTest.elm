@@ -14,6 +14,7 @@ all =
     [ sizeAndEmptyTest
     , sizeAndPutTest
     , isNewTest
+    , toReverseListTest
     , isContradictionTest
     , skipTest
     ]
@@ -131,6 +132,32 @@ isNewTest =
             |> put der0
             |> put der1
             |> isNew der2
+      )
+
+    ]
+
+toReverseListTest : Test
+toReverseListTest =
+    suite "toReverseListTest"
+
+    [ test "From empty set should give empty list" <|
+      assertEqual
+      []
+      (empty |> toReverseList)
+
+    , test "From 3 element set should give elements reversed" <|
+      let
+        der0 = deriv [1, 0, 0, 1] 50 [2, 3]
+        der1 = deriv [1, 0, 0, 1] 25 [1]
+        der2 = deriv [1, 0, 1, 1] 45 [0]
+      in
+      assertEqual
+      [der2, der1, der0]
+      ( empty
+            |> put der0
+            |> put der1
+            |> put der2
+            |> toReverseList
       )
 
     ]

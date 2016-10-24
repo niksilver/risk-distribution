@@ -1,8 +1,8 @@
 module DerivationSet exposing
     ( empty
     , size, put
-    , isNew, isContradiction
-    , skip
+    , isNew, toReverseList
+    , isContradiction, skip
     )
 
 import Constraint as Cons
@@ -16,7 +16,10 @@ import Dict exposing (Dict)
 -- We could use a list or a set, but this has simpler operations and
 -- is designed to be faster for largers sets.
 
-type alias DerivationSet = Dict String Derivation
+type alias DerivationSet =
+    { dict : Dict String Derivation
+    , list : List Derivation
+    }
 
 toKey : Derivation -> String
 toKey deriv =
@@ -26,32 +29,40 @@ toKey deriv =
 
 empty : DerivationSet
 empty =
-    Dict.empty
+    DerivationSet Dict.empty []
 
 -- How many derivations in the set?
 
 size : DerivationSet -> Int
 size dSet =
-    Dict.size dSet
+    Dict.size dSet.dict
 
 -- Put a derivation in the set. It will over-write an "equal" one if
 -- present
 
 put : Derivation -> DerivationSet -> DerivationSet
 put deriv dSet =
-    Dict.insert (toKey deriv) deriv dSet
+    { dict = Dict.insert (toKey deriv) deriv dSet.dict
+    , list = deriv :: dSet.list
+    }
 
 -- Is the given Derivation new to the set (judging by coeffs only)
 
 isNew : Derivation -> DerivationSet -> Bool
 isNew deriv dSet =
-    not( Dict.member (toKey deriv) dSet )
+    not( Dict.member (toKey deriv) dSet.dict )
+
+-- Get all the derivations out as a list, in reverse order that they went in
+
+toReverseList : DerivationSet -> List Derivation
+toReverseList dSet =
+    dSet.list
 
 -- Get a Derivation that is equal (same coeffs) as the one given
 
 get : Derivation -> DerivationSet -> Maybe Derivation
 get deriv dSet =
-    Dict.get (toKey deriv) dSet
+    Dict.get (toKey deriv) dSet.dict
 
 -- A Derivation is a contradiction to a set if the set contains another
 -- Derivation which is the same coeffs but a different percentage
