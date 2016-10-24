@@ -28,9 +28,6 @@ expandTest =
         grow xs h = List.map (\x -> x * h) xs
         -- Update just by putting the head of the queue at the end of the data
         update xs h = List.append xs [h]
-        -- fn prev a = List.map (\p -> p * a) prev
-        -- pred xs a =
-        --     List.any (\x -> x % 10 == a % 10) xs |> not
       in
         assertEqual
         ([4, 5, 3, 12, 48, 60, 36], Nothing)

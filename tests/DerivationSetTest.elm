@@ -15,6 +15,7 @@ all =
     , sizeAndPutTest
     , isNewTest
     , isContradictionTest
+    , skipTest
     ]
 
 
@@ -179,6 +180,70 @@ isContradictionTest =
       ( empty
             |> put der0
             |> isContradiction der1
+      )
+
+    ]
+
+skipTest : Test
+skipTest =
+    suite "skipTest"
+
+    [ test "Should not skip a Derivation given an empty set" <|
+      let
+        der0 = deriv [1, 0, 0, 1] 50 [2, 3]
+      in
+      assertEqual
+      (False)
+      ( empty
+            |> skip der0
+      )
+
+    , test "Should not skip a Derivation given an set of completely different ones" <|
+      let
+        der0 = deriv [1, 0, 0, 1] 50 [2, 3]
+        der1 = deriv [1, 1, 0, 0] 20 [0]
+        der2 = deriv [0, 0, 1, 1] 33 [1, 2]
+        der3 = deriv [1, 0, 0, 0] 10 [1]
+      in
+      assertEqual
+      (False)
+      ( empty
+            |> put der0
+            |> put der1
+            |> put der2
+            |> skip der3
+      )
+
+    , test "Should not skip a Derivation that's a contradition to one already there" <|
+      let
+        der0 = deriv [1, 0, 0, 1] 50 [2, 3]
+        der1 = deriv [1, 1, 0, 0] 20 [0]
+        der2 = deriv [0, 0, 1, 1] 33 [1, 2]
+        der3 = deriv [1, 1, 0, 0] 10 [1]  -- Contradicts der1
+      in
+      assertEqual
+      (False)
+      ( empty
+            |> put der0
+            |> put der1
+            |> put der2
+            |> skip der3
+      )
+
+    , test "Should skip a Derivation that's equal to one already there (even if different source)" <|
+      let
+        der0 = deriv [1, 0, 0, 1] 50 [2, 3]
+        der1 = deriv [1, 1, 0, 0] 20 [0]
+        der2 = deriv [0, 0, 1, 1] 33 [1, 2]
+        der3 = deriv [1, 1, 0, 0] 20 [1]  -- Same as der1, apart from the source
+      in
+      assertEqual
+      (True)
+      ( empty
+            |> put der0
+            |> put der1
+            |> put der2
+            |> skip der3
       )
 
     ]
