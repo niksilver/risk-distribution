@@ -1,6 +1,7 @@
 module DerivationSet exposing
     ( empty
     , size, put
+    , isNew
     )
 
 import Derivation exposing (Derivation)
@@ -37,3 +38,9 @@ size dSet =
 put : Derivation -> DerivationSet -> DerivationSet
 put deriv dSet =
     Dict.insert (toKey deriv) deriv dSet
+
+-- Is the given Derivation new to the set (judging by coeffs only)
+
+isNew : Derivation -> DerivationSet -> Bool
+isNew deriv dSet =
+    not( Dict.member (toKey deriv) dSet )

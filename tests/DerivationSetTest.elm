@@ -13,6 +13,7 @@ all =
     suite "DerivationSetTest"
     [ sizeAndEmptyTest
     , sizeAndPutTest
+    , isNewTest
     ]
 
 
@@ -75,6 +76,59 @@ sizeAndPutTest =
             |> put der0
             |> put der1
             |> size
+      )
+
+    ]
+
+isNewTest : Test
+isNewTest =
+    suite "isNewTest"
+
+    [ test "Any Derivation in an empty set should be new" <|
+      let
+        der0 = deriv [1, 0, 0, 1] 50 [2, 3]
+      in
+      assertEqual
+      (True)
+      ( empty
+            |> isNew der0
+      )
+
+    , test "A Derivation should be new if it's the only member of the set" <|
+      let
+        der0 = deriv [1, 0, 0, 1] 50 [2, 3]
+      in
+      assertEqual
+      (False)
+      ( empty
+            |> put der0
+            |> isNew der0
+      )
+
+    , test "A Derivation that's not in a non-empty set should be new" <|
+      let
+        der0 = deriv [1, 0, 0, 1] 50 [2, 3]
+        der1 = deriv [1, 0, 0, 1] 25 [1]
+      in
+      assertEqual
+      (False)
+      ( empty
+            |> put der0
+            |> isNew der1
+      )
+
+    , test "A Derivation that has the same coeffs as one in the set should not be new" <|
+      let
+        der0 = deriv [1, 0, 0, 1] 50 [2, 3]
+        der1 = deriv [1, 0, 0, 1] 25 [1]
+        der2 = deriv [1, 0, 0, 1] 45 [0]  -- Same coeffs as der0
+      in
+      assertEqual
+      (False)
+      ( empty
+            |> put der0
+            |> put der1
+            |> isNew der2
       )
 
     ]
