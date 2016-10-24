@@ -11,6 +11,7 @@ import SpecTest exposing (all)
 -- import ChartTest exposing (all) -- Needs to be restored!
 import UtilTest exposing (all)
 import ExpandTest exposing (all)
+import DerivationSetTest exposing (all)
 import AxisTest exposing (all)
 import PathTest exposing (all)
 import SplineTest exposing (all)
@@ -34,6 +35,7 @@ main =
         -- , ChartTest.all -- Needs to be restored!
         , UtilTest.all
         , ExpandTest.all
+        , DerivationSetTest.all
         , AxisTest.all
         , PathTest.all
         , SplineTest.all
