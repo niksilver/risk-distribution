@@ -380,71 +380,86 @@ deriveOnceTest =
         der2 = deriv [0, 1, 1] 55  [1]
         seed = deriv [0, 0, 1] 30  [2]
         -- This subtracting seed from the others should give these
-        -- But note they're derived from the bottom up
-        res1 = deriv [0, 1, 0] 25  [1, 2]
-        res2 = deriv [1, 1, 0] 70  [0, 2]
+        res1 = deriv [1, 1, 0] 70  [0, 2]
+        res2 = deriv [0, 1, 0] 25  [1, 2]
+        -- But they're derived from the bottom up so will come out in reverse order
 
         -- So our starter set is
         set = putList [der1, der2] empty
       in
         assertEqual
-        [res1, res2]
+        [res2, res1]
         (deriveOnce set seed)
---
---     , test "deriveOnce should work when the seed is the larger constraint, to be subtracted from" <|
---       let
---         der1 = deriv [0, 1, 1] 65  [0]
---         der2 = deriv [0, 1, 0] 20  [1]
---         seed = deriv [1, 1, 1] 80  [2]
---         -- Subtracting others from seed should give these...
---         res1 = deriv [1, 0, 0] 15  [2, 0]
---         res2 = deriv [1, 0, 1] 60  [2, 1]
---       in
---         assertEqual
---         [res1, res2]
---         (deriveOnce [der1, der2] seed)
---
---     , test "deriveOnce should skip constraint where it can't subtract" <|
---       let
---         der1 = deriv [0, 1, 1] 75  [0]
---         der2 = deriv [1, 1, 1] 90  [1]
---         seed = deriv [1, 1, 0] 30  [2]
---         -- Subtracting where we can should give this...
---         res1 = deriv [0, 0, 1] 60  [1, 2]
---       in
---         assertEqual
---         [res1]
---         (deriveOnce [der1, der2] seed)
---
---     , test "deriveOnce returns nothing if we're starting with no constraints" <|
---       let
---         seed = deriv [1, 1, 0] 30  [0]
---       in
---         assertEqual
---         []
---         (deriveOnce [] seed)
---
---     , test "deriveOnce will not derive all-zero coefficients if given different constraints with same coeffs" <|
---       let
---         der1 = deriv [0, 1, 1] 65  [0]
---         seed = deriv [0, 1, 1] 20  [1]
---       in
---         assertEqual
---         []
---         (deriveOnce [der1] seed)
---
---     , test "If multiple coeffs sum to 0 then deriveOnce should infer that each zone is 0" <|
---       let
---         der1 = deriv [1, 1, 1] 80  [0]
---         seed = deriv [1, 0, 0] 80  [1]
---         -- Subtracting gives this...
---         res1 = deriv [0, 1, 1]  0  [0, 1]
---         -- ...these multiple coeffs of 0 mean we should also infer these...
---         res2 = deriv [0, 1, 0]  0  [0, 1]
---         res3 = deriv [0, 0, 1]  0  [0, 1]
---       in
---         assertEqual
---         [res1, res2, res3]
---         (deriveOnce [der1] seed)
+
+    , test "deriveOnce should work when the seed is the larger constraint, to be subtracted from" <|
+      let
+        der1 = deriv [0, 1, 1] 65  [0]
+        der2 = deriv [0, 1, 0] 20  [1]
+        seed = deriv [1, 1, 1] 80  [2]
+        -- Subtracting others from seed should give these
+        -- But they're derived from the bottom up so will come out in reverse order
+        res1 = deriv [1, 0, 0] 15  [2, 0]
+        res2 = deriv [1, 0, 1] 60  [2, 1]
+
+        -- So our starter set is
+        set = putList [der1, der2] empty
+      in
+        assertEqual
+        [res2, res1]
+        (deriveOnce set seed)
+
+    , test "deriveOnce should skip constraint where it can't subtract" <|
+      let
+        der1 = deriv [0, 1, 1] 75  [0]
+        der2 = deriv [1, 1, 1] 90  [1]
+        seed = deriv [1, 1, 0] 30  [2]
+        -- Subtracting where we can should give this...
+        res1 = deriv [0, 0, 1] 60  [1, 2]
+
+        -- So our starter set is
+        set = putList [der1, der2] empty
+      in
+        assertEqual
+        [res1]
+        (deriveOnce set seed)
+
+    , test "deriveOnce returns nothing if we're starting with no constraints" <|
+      let
+        seed = deriv [1, 1, 0] 30  [0]
+      in
+        assertEqual
+        []
+        (deriveOnce empty seed)
+
+    , test "deriveOnce will not derive all-zero coefficients if given different constraints with same coeffs" <|
+      let
+        der1 = deriv [0, 1, 1] 65  [0]
+        seed = deriv [0, 1, 1] 20  [1]
+
+        -- So our starter set is
+        set = put der1 empty
+      in
+        assertEqual
+        []
+        (deriveOnce set seed)
+
+    , test "If multiple coeffs sum to 0 then deriveOnce should infer that each zone is 0" <|
+      let
+        der1 = deriv [1, 1, 1] 80  [0]
+        seed = deriv [1, 0, 0] 80  [1]
+        -- Subtracting gives this...
+        res1 = deriv [0, 1, 1]  0  [0, 1]
+        -- ...these multiple coeffs of 0 mean we should also infer these
+        -- which will come out in the right order
+        res2 = deriv [0, 1, 0]  0  [0, 1]
+        res3 = deriv [0, 0, 1]  0  [0, 1]
+        -- But they will come out in reverse order
+
+        -- So our starter set is
+        set = put der1 empty
+      in
+        assertEqual
+        [res1, res2, res3]
+        (deriveOnce set seed)
 
     ]
