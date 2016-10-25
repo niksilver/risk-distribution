@@ -3,11 +3,12 @@ module DerivationSet exposing
     , size, put, putList
     , isNew, toReverseList
     , isContradiction, skip
-    ,zeroPcDerivations, deriveOnce
+    ,zeroPcDerivations, deriveOnce, deriveAll
     )
 
 import Constraint as Cons
 import Derivation exposing (Derivation)
+import Expand
 
 import Dict exposing (Dict)
 
@@ -159,3 +160,32 @@ deriveOnce derivations seed =
         List.append
             subtractions
             zeroPcDerivs
+
+-- Derive all the derivations we can from some existing ones by
+-- adding a new one... including the original ones.
+
+deriveAll : DerivationSet -> Derivation -> DerivationSet
+deriveAll derivations seed =
+    Expand.expand
+        derivations
+        [ seed ]
+        { skip = (\xs h -> skip h xs)
+        , stop = (\xs h -> isContradiction h xs)
+        , grow = deriveOnce
+        , update = (\xs h -> put h xs)
+        }
+        |> fst
+    -- let
+    --     independent der1 der2 =
+    --         der1.cons.coeffs /= der2.cons.coeffs
+    --     independentToAll derivs der1 =
+    --         List.all (independent der1) derivs
+    --     addsFirstContradiction derivs der1 =
+    --         not (containsContradiction derivs)
+    --         && containsContradiction (der1 :: derivs)
+    --     pred derivs der1 =
+    --         ( addsFirstContradiction derivs der1
+    --         || independentToAll derivs der1
+    --         )
+    -- in
+    --     Util.filteredExpand deriveOnce pred derivations seed
