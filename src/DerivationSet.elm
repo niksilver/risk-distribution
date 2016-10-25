@@ -185,20 +185,6 @@ deriveAll derivations seed =
                 dSet
             Just contraDeriv ->
                 put contraDeriv dSet
-    -- let
-    --     independent der1 der2 =
-    --         der1.cons.coeffs /= der2.cons.coeffs
-    --     independentToAll derivs der1 =
-    --         List.all (independent der1) derivs
-    --     addsFirstContradiction derivs der1 =
-    --         not (containsContradiction derivs)
-    --         && containsContradiction (der1 :: derivs)
-    --     pred derivs der1 =
-    --         ( addsFirstContradiction derivs der1
-    --         || independentToAll derivs der1
-    --         )
-    -- in
-    --     Util.filteredExpand deriveOnce pred derivations seed
 
 -- See if the last derivation put into a derivation set is a contradiction
 -- of any of the others
