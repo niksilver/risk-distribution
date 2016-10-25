@@ -21,6 +21,7 @@ all =
     , zeroPcDerivationsTest
     , deriveOnceTest
     , deriveAllTest
+    , lastIsAContradictionTest
     ]
 
 
@@ -615,21 +616,11 @@ deriveAllTest =
         set = put der0 empty
         res1 = deriveAll set der1
         res2 = deriveAll res1 der2
-
-        -- Useful function
-        headIsAContradiction : List Derivation -> Bool
-        headIsAContradiction ders =
-            case ders of
-                [] ->
-                    False
-                dHead :: dTail ->
-                    List.any (\d -> Cons.isContradiction d.cons dHead.cons) ders
       in
         assertEqual
         (True, True)
         (deriveAll res2 der3
-            |> toReverseList
-            |> \ds -> (List.length ds <= 20, headIsAContradiction ds)
+            |> \ds -> ((toReverseList ds |> List.length) <= 20, lastIsAContradiction ds)
         )
 
     -- , test "deriveAll should work quickly in this case (currently it takes ages)" <|
@@ -650,5 +641,79 @@ deriveAllTest =
     --     assertEqual
     --     0
     --     (deriveAll res3 der4 |> List.length)
+
+    ]
+
+lastIsAContradictionTest : Test
+lastIsAContradictionTest =
+    suite "lastIsAContradictionTest"
+
+    [ test "Should be False for an empty derivation set" <|
+      assertEqual
+      (False)
+      (lastIsAContradiction empty)
+
+    , test "Should be False for an singleton derivation set" <|
+      let
+        der1 = deriv [0, 1, 1, 0] 10 [2]
+        set = put der1 empty
+      in
+        assertEqual
+        (False)
+        (lastIsAContradiction set)
+
+    , test "Should be False for a set with two different derivations" <|
+      let
+        der1 = deriv [0, 1, 1, 0] 10 [2]
+        der2 = deriv [1, 1, 1, 0] 20 [1]
+        set = putList [der1, der2] empty
+      in
+        assertEqual
+        (False)
+        (lastIsAContradiction set)
+
+    , test "Should be True if the last two in a set are contradictions" <|
+      let
+        der1 = deriv [0, 1, 1, 0] 10 [2]
+        der2 = deriv [1, 1, 1, 0] 20 [1]
+        der3 = deriv [1, 1, 1, 0] 30 [0, 1]
+        set = putList [der1, der2, der3] empty
+      in
+        assertEqual
+        (True)
+        (lastIsAContradiction set)
+
+    , test "Should be True if first and last in a set are contradictions" <|
+      let
+        der1 = deriv [1, 1, 1, 0] 20 [1]
+        der2 = deriv [0, 1, 1, 0] 10 [2]
+        der3 = deriv [1, 1, 1, 0] 30 [0, 1]
+        set = putList [der1, der2, der3] empty
+      in
+        assertEqual
+        (True)
+        (lastIsAContradiction set)
+
+    , test "Should be False if there are contradictions, but the last isn't one of them" <|
+      let
+        der1 = deriv [1, 1, 1, 0] 20 [1]
+        der2 = deriv [1, 1, 1, 0] 30 [0, 1]
+        der3 = deriv [0, 1, 1, 0] 10 [2]
+        set = putList [der1, der2, der3] empty
+      in
+        assertEqual
+        (False)
+        (lastIsAContradiction set)
+
+    , test "Should be False if the last two in a set are equal apart from their sources" <|
+      let
+        der1 = deriv [0, 1, 1, 0] 10 [2]
+        der2 = deriv [1, 1, 1, 0] 30 [1]
+        der3 = deriv [1, 1, 1, 0] 30 [0, 1]
+        set = putList [der1, der2, der3] empty
+      in
+        assertEqual
+        (False)
+        (lastIsAContradiction set)
 
     ]

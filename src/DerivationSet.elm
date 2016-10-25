@@ -3,7 +3,8 @@ module DerivationSet exposing
     , size, put, putList
     , isNew, toReverseList
     , isContradiction, skip
-    ,zeroPcDerivations, deriveOnce, deriveAll
+    , zeroPcDerivations, deriveOnce, deriveAll
+    , lastIsAContradiction
     )
 
 import Constraint as Cons
@@ -198,3 +199,14 @@ deriveAll derivations seed =
     --         )
     -- in
     --     Util.filteredExpand deriveOnce pred derivations seed
+
+-- See if the last derivation put into a derivation set is a contradiction
+-- of any of the others
+
+lastIsAContradiction : DerivationSet -> Bool
+lastIsAContradiction dSet =
+    case dSet.list of
+        [] ->
+            False
+        dHead :: dTail ->
+            List.any (\d -> Cons.isContradiction d.cons dHead.cons) dSet.list
