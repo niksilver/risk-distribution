@@ -163,18 +163,27 @@ deriveOnce derivations seed =
 
 -- Derive all the derivations we can from some existing ones by
 -- adding a new one... including the original ones.
+-- If we stopped due to a contradiction, then the last derivation
+-- added to the set will be that.
 
 deriveAll : DerivationSet -> Derivation -> DerivationSet
 deriveAll derivations seed =
-    Expand.expand
-        derivations
-        [ seed ]
-        { skip = (\xs h -> skip h xs)
-        , stop = (\xs h -> isContradiction h xs)
-        , grow = deriveOnce
-        , update = (\xs h -> put h xs)
-        }
-        |> fst
+    let
+        (dSet, maybeContra) =
+            Expand.expand
+                derivations
+                [ seed ]
+                { skip = (\xs h -> skip h xs)
+                , stop = (\xs h -> isContradiction h xs)
+                , grow = deriveOnce
+                , update = (\xs h -> put h xs)
+                }
+    in
+        case maybeContra of
+            Nothing ->
+                dSet
+            Just contraDeriv ->
+                put contraDeriv dSet
     -- let
     --     independent der1 der2 =
     --         der1.cons.coeffs /= der2.cons.coeffs

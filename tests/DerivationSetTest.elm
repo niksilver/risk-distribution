@@ -2,7 +2,7 @@ module DerivationSetTest exposing (all)
 
 import DerivationSet exposing (..)
 
-import Constraint exposing (Constraint)
+import Constraint as Cons exposing (Constraint)
 import Derivation exposing (Derivation)
 
 import ElmTest exposing (..)
@@ -492,104 +492,145 @@ deriveAllTest =
             |> List.reverse
         )
 
-    -- , test "deriveAll should work when the seed is the larger constraint, to be subtracted from" <|
-    --   let
-    --     der1 = deriv [0, 1, 1] 65  [0]
-    --     der2 = deriv [0, 1, 0] 20  [1]
-    --     seed = deriv [1, 1, 1] 80  [2]
-    --     -- This subtracting others from seed should give these...
-    --     res1 = deriv [1, 0, 0] 15  [2, 0]
-    --     res2 = deriv [1, 0, 1] 60  [2, 1]
-    --     -- Then subtracting these two gives...
-    --     res3 = deriv [0, 0, 1] 45  [2, 1, 2, 0]
-    --     -- And subtracting that from the seed gives
-    --     res4 = deriv [1, 1, 0] 35  [2, 2, 1, 2, 0]
-    --   in
-    --     assertEqual
-    --     [der1, der2, seed, res1, res2, res3, res4]
-    --     (deriveAll [der1, der2] seed)
-    --
-    -- , test "deriveAll should skip constraint where it can't subtract" <|
-    --   let
-    --     der1 = deriv [0, 1, 1] 75  [0]
-    --     der2 = deriv [1, 1, 1] 90  [1]
-    --     seed = deriv [1, 1, 0] 30  [2]
-    --     -- Subtracting where we can should give this...
-    --     res1 = deriv [0, 0, 1] 60  [1, 2]
-    --     -- And that should in turn give this...
-    --     res2 = deriv [0, 1, 0] 15  [0, 1, 2]
-    --     -- And from that we can derive these...
-    --     res3 = deriv [1, 0, 1] 75  [1, 0, 1, 2]
-    --     res4 = deriv [1, 0, 0] 15  [2, 0, 1, 2]
-    --   in
-    --     assertEqual
-    --     [der1, der2, seed, res1, res2, res3, res4]
-    --     (deriveAll [der1, der2] seed)
-    --
-    -- , test "deriveAll returns just the seed if we're starting with no constraints" <|
-    --   let
-    --     seed = deriv [1, 1, 0] 30  [0]
-    --   in
-    --     assertEqual
-    --     [seed]
-    --     (deriveAll [] seed)
-    --
-    -- , test "If a 0% is derived then all constituent zones should be 0%" <|
-    --   let
-    --     der0 = deriv [1, 1, 1, 1] 100  [0]
-    --     der1 = deriv [0, 1, 1, 0] 100  [1]
-    --     -- Subtracting should give...
-    --     res1 = deriv [1, 0, 0, 1]   0  [0, 1]
-    --     -- And this should yield...
-    --     res2 = deriv [1, 0, 0, 0]   0  [0, 1]
-    --     res3 = deriv [0, 0, 0, 1]   0  [0, 1]
-    --     --- ...and there will be some other results which we'll ignore
-    --   in
-    --     assertEqual
-    --     [der0, der1, res1, res2, res3]
-    --     (deriveAll [der0] der1 |> List.take 5)
-    --
-    -- , test "deriveAll should terminate if there's an inconsistent 'between' derivation" <|
-    --   -- This error derives from entering the following constraints:
-    --   -- There's a 100% chance it's between 0 and 10  [1]
-    --   -- There's a  50% chance it's between 2 and 8   [2]
-    --   -- There's a  40% chance it's between 2 and 8   [3]
-    --   -- (Plus the implicit 100% chance it's between -inf and inf)
-    --   -- So the zones are: -inf to 0,  0 to 2,  2 to 8,  8 to 10,  10 to inf
-    --   let
-    --     der0 = deriv [1, 1, 1, 1, 1] 100  [0]
-    --     der1 = deriv [0, 1, 1, 1, 0] 100  [1]
-    --     der2 = deriv [0, 0, 1, 0, 0]  50  [2]
-    --     der3 = deriv [0, 0, 1, 0, 0]  40  [3]
-    --     res1 = deriveAll [der0] der1
-    --     res2 = deriveAll res1 der2
-    --   in
-    --     assertEqual
-    --     False
-    --     (deriveAll res2 der3 |> List.isEmpty)
-    --
-    -- , test ("If there's an inconsistent 'between' derivation "
-    --     ++ "deriveAll shouldn't generate excessive derivations "
-    --     ++ "but should include at least one contradiction") <|
-    --   -- This error derives from entering the following constraints:
-    --   -- There's a 100% chance it's between 0 and 10  [1]
-    --   -- There's a  50% chance it's between 2 and 8   [2]
-    --   -- There's a  40% chance it's between 2 and 8   [3]
-    --   -- (Plus the implicit 100% chance it's between -inf and inf)
-    --   -- So the zones are: -inf to 0,  0 to 2,  2 to 8,  8 to 10,  10 to inf
-    --   let
-    --     der0 = deriv [1, 1, 1, 1, 1] 100  [0]
-    --     der1 = deriv [0, 1, 1, 1, 0] 100  [1]
-    --     der2 = deriv [0, 0, 1, 0, 0]  50  [2]
-    --     der3 = deriv [0, 0, 1, 0, 0]  40  [3]
-    --     res1 = deriveAll [der0] der1
-    --     res2 = deriveAll res1 der2
-    --   in
-    --     assertEqual
-    --     (True, True)
-    --     (deriveAll res2 der3
-    --         |> (\ds -> (List.length ds <= 20, containsContradiction ds))
-    --     )
+    , test "deriveAll should work when the seed is the larger constraint, to be subtracted from" <|
+      let
+        der1 = deriv [0, 1, 1] 65  [0]
+        der2 = deriv [0, 1, 0] 20  [1]
+        seed = deriv [1, 1, 1] 80  [2]
+        -- This subtracting others from seed should give these (reversed)...
+        res1 = deriv [1, 0, 0] 15  [2, 0]
+        res2 = deriv [1, 0, 1] 60  [2, 1]
+        -- Then subtracting these two gives...
+        res3 = deriv [0, 0, 1] 45  [2, 1, 2, 0]
+        -- And subtracting that from the seed gives
+        res4 = deriv [1, 1, 0] 35  [2, 2, 1, 2, 0]
+
+        -- Our starter set is...
+        set = putList [der1, der2] empty
+      in
+        assertEqual
+        [der1, der2, seed, res2, res1, res3, res4]
+        (deriveAll set seed
+            |> toReverseList
+            |> List.reverse
+        )
+
+    , test "deriveAll should skip constraint where it can't subtract" <|
+      let
+        der1 = deriv [0, 1, 1] 75  [0]
+        der2 = deriv [1, 1, 1] 90  [1]
+        seed = deriv [1, 1, 0] 30  [2]
+        -- Subtracting where we can should give this...
+        res1 = deriv [0, 0, 1] 60  [1, 2]
+        -- And that should in turn give this...
+        res2 = deriv [0, 1, 0] 15  [0, 1, 2]
+        -- And from that we can derive these (in reverse)...
+        res3 = deriv [1, 0, 1] 75  [1, 0, 1, 2]
+        res4 = deriv [1, 0, 0] 15  [2, 0, 1, 2]
+
+        -- Our starter set is...
+        set = putList [der1, der2] empty
+      in
+        assertEqual
+        [der1, der2, seed, res1, res2, res4, res3]
+        (deriveAll set seed
+            |> toReverseList
+            |> List.reverse
+        )
+
+    , test "deriveAll returns just the seed if we're starting with no constraints" <|
+      let
+        seed = deriv [1, 1, 0] 30  [0]
+      in
+        assertEqual
+        [seed]
+        (deriveAll empty seed
+            |> toReverseList
+            |> List.reverse
+        )
+
+    , test "If a 0% is derived then all constituent zones should be 0%" <|
+      let
+        der0 = deriv [1, 1, 1, 1] 100  [0]
+        der1 = deriv [0, 1, 1, 0] 100  [1]
+        -- Subtracting should give...
+        res1 = deriv [1, 0, 0, 1]   0  [0, 1]
+        -- And this should yield this (not reversed, because they're 0% extractions from the above)...
+        res2 = deriv [1, 0, 0, 0]   0  [0, 1]
+        res3 = deriv [0, 0, 0, 1]   0  [0, 1]
+        --- ...and there will be some other results which we'll ignore
+
+        -- Our starter set is...
+        set = put der0 empty
+      in
+        assertEqual
+        [der0, der1, res1, res2, res3]
+        (deriveAll set der1
+            |> toReverseList
+            |> List.reverse
+            |> List.take 5
+        )
+
+    , test "deriveAll should terminate if there's an inconsistent 'between' derivation" <|
+      -- This error derives from entering the following constraints:
+      -- There's a 100% chance it's between 0 and 10  [1]
+      -- There's a  50% chance it's between 2 and 8   [2]
+      -- There's a  40% chance it's between 2 and 8   [3]
+      -- (Plus the implicit 100% chance it's between -inf and inf)
+      -- So the zones are: -inf to 0,  0 to 2,  2 to 8,  8 to 10,  10 to inf
+      let
+        der0 = deriv [1, 1, 1, 1, 1] 100  [0]
+        der1 = deriv [0, 1, 1, 1, 0] 100  [1]
+        der2 = deriv [0, 0, 1, 0, 0]  50  [2]
+        der3 = deriv [0, 0, 1, 0, 0]  40  [3]
+
+        -- Our starter set is...
+        set = put der0 empty
+        res1 = deriveAll set der1
+        res2 = deriveAll res1 der2
+      in
+        assertEqual
+        False
+        (deriveAll res2 der3
+            |> toReverseList
+            |> List.isEmpty
+        )
+
+    , test ("If there's an inconsistent 'between' derivation "
+        ++ "deriveAll shouldn't generate excessive derivations "
+        ++ "and the last one should be a contradiction") <|
+      -- This error derives from entering the following constraints:
+      -- There's a 100% chance it's between 0 and 10  [1]
+      -- There's a  50% chance it's between 2 and 8   [2]
+      -- There's a  40% chance it's between 2 and 8   [3]
+      -- (Plus the implicit 100% chance it's between -inf and inf)
+      -- So the zones are: -inf to 0,  0 to 2,  2 to 8,  8 to 10,  10 to inf
+      let
+        der0 = deriv [1, 1, 1, 1, 1] 100  [0]
+        der1 = deriv [0, 1, 1, 1, 0] 100  [1]
+        der2 = deriv [0, 0, 1, 0, 0]  50  [2]
+        der3 = deriv [0, 0, 1, 0, 0]  40  [3]
+
+        -- Our starter set is...
+        set = put der0 empty
+        res1 = deriveAll set der1
+        res2 = deriveAll res1 der2
+
+        -- Useful function
+        headIsAContradiction : List Derivation -> Bool
+        headIsAContradiction ders =
+            case ders of
+                [] ->
+                    False
+                dHead :: dTail ->
+                    List.any (\d -> Cons.isContradiction d.cons dHead.cons) ders
+      in
+        assertEqual
+        (True, True)
+        (deriveAll res2 der3
+            |> toReverseList
+            |> \ds -> (List.length ds <= 20, headIsAContradiction ds)
+        )
 
     -- , test "deriveAll should work quickly in this case (currently it takes ages)" <|
     --   -- Problem possibly in time-consuming containsContradiction or findPair or findOtherFor
