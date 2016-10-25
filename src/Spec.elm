@@ -8,6 +8,7 @@ module Spec exposing
 
 import Constraint exposing (Segment)
 import Derivation
+import DerivationScheme
 import Block exposing (Rect, ChartBlock)
 import ZoneDict
 import Spline exposing (Pos)
@@ -51,9 +52,9 @@ type alias Transformer =
 fromSegments : List Segment -> Maybe Spec
 fromSegments segments =
     let
-        dModel = Derivation.model segments
-        zones = dModel.zones
-        derivations = dModel.derivations
+        dScheme = DerivationScheme.scheme segments
+        zones = dScheme.zones
+        derivations = dScheme.derivations
         entries =
             ZoneDict.fill zones derivations
                 |> ZoneDict.toList

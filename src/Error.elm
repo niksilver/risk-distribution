@@ -4,7 +4,8 @@ module Error exposing
     )
 
 import Zone exposing (Zone)
-import Derivation exposing (Derivation, Model)
+import Derivation exposing (Derivation)
+import DerivationScheme exposing (Scheme)
 import Util
 
 import Dict
@@ -15,27 +16,27 @@ type Error
     -- Two or more zones have different percentages via different derivations
     | Contradiction { zones : List Zone, pcs : List Int, src : List Int }
 
--- Find all the errors in a model
+-- Find all the errors in a scheme
 
-find : Model -> List Error
-find model =
+find : Scheme -> List Error
+find scheme =
     List.append
-        (findNegative model)
-        (findContradiction model)
+        (findNegative scheme)
+        (findContradiction scheme)
 
-findNegative : Model -> List Error
-findNegative model =
+findNegative : Scheme -> List Error
+findNegative scheme =
     let
         isNeg deriv =
             deriv.cons.pc < 0
         derivToErr deriv =
             Negative
-                { zones = relevantZones model.zones deriv.cons.coeffs
+                { zones = relevantZones scheme.zones deriv.cons.coeffs
                 , pc = deriv.cons.pc
                 , src = deriv.src
                 }
     in
-        model.derivations
+        scheme.derivations
             |> List.filter isNeg
             |> List.map derivToErr
 
@@ -45,8 +46,8 @@ relevantZones zones coeffs =
         |> List.filter (\zc -> snd zc == 1)
         |> List.map fst
 
-findContradiction : Model -> List Error
-findContradiction model =
+findContradiction : Scheme -> List Error
+findContradiction scheme =
     let
         -- The equivalence/discriminator between two derivations which
         -- may contradict
@@ -67,7 +68,7 @@ findContradiction model =
         -- Get groups of derivations that contradict
         getContradictingDerivs : List (List Derivation)
         getContradictingDerivs =
-            Util.groupBy discriminator model.derivations
+            Util.groupBy discriminator scheme.derivations
                 |> Dict.values
                 |> List.map dedupeByPc
                 |> List.filter lengthTwoOrMore
@@ -85,7 +86,7 @@ findContradiction model =
         derivsToErr : List Derivation -> Error
         derivsToErr derivs =
             Contradiction
-                { zones = relevantZones model.zones (someCoeffs derivs)
+                { zones = relevantZones scheme.zones (someCoeffs derivs)
                 , pcs = List.map (.cons >> .pc) derivs
                 , src = List.map (.src) derivs |> List.concat
                 }

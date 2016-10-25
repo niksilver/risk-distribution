@@ -4,6 +4,7 @@ import Util exposing (singleton)
 import Zone exposing (Zone)
 import Constraint exposing (Segment)
 import Derivation exposing (Derivation)
+import DerivationScheme exposing (Scheme)
 import ZoneDict
 import Spec
 import FactList
@@ -37,15 +38,15 @@ view : Model -> Html Msg
 view model =
     let
         segments = FactList.segments model
-        dModel = Derivation.model segments
+        dScheme = DerivationScheme.scheme segments
     in
         div []
         [ FactList.view model
         , chartView segments
-        --, segmentsView dModel.segments
-        --, zonesView dModel.zones
-        --, derivationsView dModel.derivations
-        , valuesView dModel.zones dModel.derivations
+        --, segmentsView dScheme.segments
+        --, zonesView dScheme.zones
+        --, derivationsView dScheme.derivations
+        , valuesView dScheme.zones dScheme.derivations
         ]
 
 segmentsView : List Segment -> Html Msg
