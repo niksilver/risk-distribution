@@ -12,6 +12,7 @@ import SpecTest exposing (all)
 import UtilTest exposing (all)
 import ExpandTest exposing (all)
 import DerivationSetTest exposing (all)
+import DerivationSchemeTest exposing (all)
 import AxisTest exposing (all)
 import PathTest exposing (all)
 import SplineTest exposing (all)
@@ -36,6 +37,7 @@ main =
         , UtilTest.all
         , ExpandTest.all
         , DerivationSetTest.all
+        , DerivationSchemeTest.all
         , AxisTest.all
         , PathTest.all
         , SplineTest.all

@@ -21,6 +21,7 @@ all =
     , zeroPcDerivationsTest
     , deriveOnceTest
     , deriveAllTest
+    , deriveAllWithListsTest
     , lastIsAContradictionTest
     ]
 
@@ -644,6 +645,29 @@ deriveAllTest =
         assertEqual
         (127)
         (deriveAll res3 der4 |> size)
+
+    ]
+
+deriveAllWithListsTest : Test
+deriveAllWithListsTest =
+    suite "deriveAllWithListsTest"
+
+    [ test "Basic derivation with lists should work" <|
+      let
+        der1 = deriv [0, 1, 1] 75  [0]
+        der2 = deriv [1, 1, 1] 90  [1]
+        seed = deriv [1, 1, 0] 30  [2]
+        -- Subtracting where we can should give this...
+        res1 = deriv [0, 0, 1] 60  [1, 2]
+        -- And that should in turn give this...
+        res2 = deriv [0, 1, 0] 15  [0, 1, 2]
+        -- And from that we can derive these (in reverse)...
+        res3 = deriv [1, 0, 1] 75  [1, 0, 1, 2]
+        res4 = deriv [1, 0, 0] 15  [2, 0, 1, 2]
+      in
+        assertEqual
+        [der1, der2, seed, res1, res2, res4, res3]
+        (deriveAllWithLists [der1, der2] seed)
 
     ]
 

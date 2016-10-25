@@ -3,7 +3,8 @@ module DerivationSet exposing
     , size, put, putList
     , isNew, toReverseList
     , isContradiction, skip
-    , zeroPcDerivations, deriveOnce, deriveAll
+    , zeroPcDerivations
+    , deriveOnce, deriveAll, deriveAllWithLists
     , lastIsAContradiction
     )
 
@@ -185,6 +186,19 @@ deriveAll derivations seed =
                 dSet
             Just contraDeriv ->
                 put contraDeriv dSet
+
+-- Like deriveAll, but instead of a set we provide a list of derivations
+-- that go into the set (in order), and we return a correctly-ordered
+-- list at the end
+
+deriveAllWithLists : List Derivation -> Derivation -> List Derivation
+deriveAllWithLists derivs seed =
+    let
+        dSet = putList derivs empty
+    in
+        deriveAll dSet seed
+            |> toReverseList
+            |> List.reverse
 
 -- See if the last derivation put into a derivation set is a contradiction
 -- of any of the others
