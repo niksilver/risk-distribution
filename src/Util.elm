@@ -2,7 +2,7 @@ module Util exposing
     ( isFinite
     , singleton
     , none
-    , find, findPair
+    , find
     , groupBy
     , sliding
     , bracket, bracketMap
@@ -46,16 +46,6 @@ find pred xs =
             case (pred head) of
                 Just v -> Just v
                 Nothing -> find pred tail
-
--- See if a pair of elements in a list match a given criterion
-
-findPair : (a -> a -> Maybe b) -> List a -> Maybe b
-findPair fn xs =
-    let
-        findOtherFor x =
-            find (fn x) xs
-    in
-        find findOtherFor xs
 
 -- Group elements by a discriminator function.
 -- E.g. grouping [54, 6, 14] by "last digit" will give

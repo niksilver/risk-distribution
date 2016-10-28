@@ -4,7 +4,7 @@ module Constraint exposing
     , isSubcoeff
     , applyToCoeffs
     , constraint, subtract
-    , isContradiction, containsContradiction
+    , isContradiction
     )
 
 import Util
@@ -174,18 +174,3 @@ isContradiction : Constraint -> Constraint -> Bool
 isContradiction cons1 cons2 =
     cons1.coeffs == cons2.coeffs
         && cons1.pc /= cons2.pc
-
--- Does a list of constraints contain a contradiction?
-
-containsContradiction : List Constraint -> Bool
-containsContradiction conss =
-    let
-        contra cons1 cons2 =
-            if (isContradiction cons1 cons2) then
-                Just ()
-            else
-                Nothing
-    in
-        case (Util.findPair contra conss) of
-            Just () -> True
-            Nothing -> False

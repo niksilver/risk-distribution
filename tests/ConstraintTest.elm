@@ -17,7 +17,6 @@ all =
     , isSubcoeffTest
     , subtractTest
     , isContradictionTest
-    , containsContradictionTest
     ]
 
 constraintToStringTest : Test
@@ -309,47 +308,3 @@ isContradictionTest =
       )
 
     ]
-
-containsContradictionTest : Test
-containsContradictionTest =
-    let
-        cons1 = Constraint [0, 0, 0, 1] 20
-        cons2 = Constraint [0, 0, 1, 0] 25
-        cons3 = Constraint [0, 1, 1, 0] 30
-        cons4 = Constraint [1, 1, 1, 0] 35
-        consX = Constraint [1, 1, 0, 0] 40  -- Only these two contradict
-        consY = Constraint [1, 1, 0, 0] 45  -- Only these two contradict
-    in
-        suite "containsContradictionTest"
-
-        [ test "Empty list contains no contradictions" <|
-          assertEqual
-          False
-          (containsContradiction [])
-
-        , test "Singleton contains no contradictions" <|
-          assertEqual
-          False
-          (containsContradiction [cons1])
-
-        , test "Constraints with different coefficients have no contradictions" <|
-          assertEqual
-          False
-          (containsContradiction [cons1, cons2, cons3, cons4])
-
-        , test "List with duplicated constraints has no contradictions" <|
-          assertEqual
-          False
-          (containsContradiction [cons1, cons2, cons1, cons3])
-
-        , test "Constraints single contradiction has contradiction" <|
-          assertEqual
-          True
-          (containsContradiction [cons1, cons2, consX, consY])
-
-        , test "Constraints single, separated, contradiction has contradiction" <|
-          assertEqual
-          True
-          (containsContradiction [cons1, consX, cons3, consY])
-
-        ]
