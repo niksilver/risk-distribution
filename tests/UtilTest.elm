@@ -13,7 +13,7 @@ all =
     [ isFiniteTest
     , singletonTest
     , noneTest
-    -- , findTest
+    , findTest
     , groupByTest
     , slidingTest
     , bracketTest
