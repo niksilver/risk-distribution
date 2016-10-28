@@ -80,10 +80,10 @@ scheme segments =
         List.foldl scheme' initial (baseSegment :: segments)
 
 scheme' : Segment -> Scheme -> Scheme
-scheme' segment mod =
+scheme' segment sch =
     let
-        srcId = List.length mod.segments
-        scheme2 = addSegment segment mod
+        srcId = List.length sch.segments
+        scheme2 = addSegment segment sch
         cons = Cons.constraint segment scheme2.zones
         deriv = Derivation cons [srcId]
     in

@@ -111,7 +111,7 @@ constraintToStringLHS coeffs =
             |> List.map outputIdxCoeff
             |> String.concat
 
--- Coeffivient A is a subcoefficient of B if they're the same length
+-- Coefficient A is a subcoefficient of B if they're the same length
 -- and every non-zero in A has the same non-zero in B.
 
 isSubcoeff : List Int -> List Int -> Bool
