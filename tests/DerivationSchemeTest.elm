@@ -14,7 +14,8 @@ all =
     suite "DerivationSchemeTest"
     [ addSegmentTestForNewSegment -- Deprecate!
     , addForSegmentsTest
-    , addSegmentTestForNewZone
+    , addSegmentTestForNewZone -- Deprecate!
+    , addOneForZonesTest
     , addSegmentTestForNewVariables
     , schemeTest
     ]
@@ -103,6 +104,7 @@ addForSegmentsTest =
 
     ]
 
+-- Deprecate!
 addSegmentTestForNewZone : Test
 addSegmentTestForNewZone =
     suite "addSegmentTestForNewZone"
@@ -202,6 +204,108 @@ addSegmentTestForNewZone =
           assertEqual
           [zone1, zone2, zone3]
           (addSegment seg scheme |> .zones)
+
+    ]
+
+addOneForZonesTest : Test
+addOneForZonesTest =
+    suite "addOneForZonesTest"
+
+    [ test "Adding segment that splits one zone with its 'from' should work" <|
+      let
+          zone1 = Zone 0 10
+          zone2 = Zone 10 20
+          zone3 = Zone 20 30
+          seg = Segment 40 (Zone 25 30)
+          scheme = Scheme [] [zone1, zone2, zone3] []
+      in
+          assertEqual
+          [zone1, zone2, Zone 20 25, Zone 25 30]
+          (addOneForZones seg scheme)
+
+    , test "Adding segment that splits one zone with its 'to' should work" <|
+      let
+          zone1 = Zone 0 10
+          zone2 = Zone 10 20
+          zone3 = Zone 20 30
+          seg = Segment 40 (Zone 10 15)
+          scheme = Scheme [] [zone1, zone2, zone3] []
+      in
+          assertEqual
+          [zone1, Zone 10 15, Zone 15 20, zone3]
+          (addOneForZones seg scheme)
+
+    , test "Adding segment that splits one zone into three should work" <|
+      let
+          zone1 = Zone 0 10
+          zone2 = Zone 10 20
+          zone3 = Zone 20 30
+          seg = Segment 40 (Zone 5 6)
+          scheme = Scheme [] [zone1, zone2, zone3] []
+      in
+          assertEqual
+          [Zone 0 5, Zone 5 6, Zone 6 10, zone2, zone3]
+          (addOneForZones seg scheme)
+
+    , test "Adding segment that splits two neighbouring zones should work" <|
+      let
+          zone1 = Zone 0 10
+          zone2 = Zone 10 20
+          zone3 = Zone 20 30
+          seg = Segment 50 (Zone 15 25)
+          scheme = Scheme [] [zone1, zone2, zone3] []
+      in
+          assertEqual
+          [zone1, Zone 10 15, Zone 15 20, Zone 20 25, Zone 25 30]
+          (addOneForZones seg scheme)
+
+    , test "Adding segment that splits two distant zones should work" <|
+      let
+          zone1 = Zone 0 10
+          zone2 = Zone 10 20
+          zone3 = Zone 20 30
+          seg = Segment 65 (Zone 9 21)
+          scheme = Scheme [] [zone1, zone2, zone3] []
+      in
+          assertEqual
+          [Zone 0 9, Zone 9 10, zone2, Zone 20 21, Zone 21 30]
+          (addOneForZones seg scheme)
+
+    , test "Adding segment that is outside zones should add it" <|
+      let
+          zone1 = Zone 0 10
+          zone2 = Zone 10 20
+          zone3 = Zone 20 30
+          seg = Segment 40 (Zone 30 40)
+          scheme = Scheme [] [zone1, zone2, zone3] []
+      in
+          assertEqual
+          [zone1, zone2, zone3, Zone 30 40]
+          (addOneForZones seg scheme)
+
+    , test "Adding segment that spans gaps and splits a zone should add multiple zones" <|
+      let
+          zone1 = Zone 0 10
+          zone2 = Zone 10 20
+          zone3 = Zone 30 40
+          seg = Segment 40 (Zone -2 31)
+          scheme = Scheme [] [zone1, zone2, zone3] []
+      in
+          assertEqual
+          [Zone -2 0, zone1, zone2, Zone 20 30, Zone 30 31, Zone 31 40]
+          (addOneForZones seg scheme)
+
+    , test "Adding segment that splits no zones should not change zones" <|
+      let
+          zone1 = Zone 0 10
+          zone2 = Zone 10 20
+          zone3 = Zone 20 30
+          seg = Segment 40 (Zone 10 30)
+          scheme = Scheme [] [zone1, zone2, zone3] []
+      in
+          assertEqual
+          [zone1, zone2, zone3]
+          (addOneForZones seg scheme)
 
     ]
 
