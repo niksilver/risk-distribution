@@ -1,7 +1,7 @@
 module DerivationScheme exposing
     ( Scheme
     , addSegment
-    , addForSegments, addOneForZones
+    , addForSegments, addOneForZones, addForZones
     , scheme
     )
 
@@ -45,6 +45,16 @@ addOneForZones seg scheme =
     in
         List.foldl Zone.apply zones changes
 
+-- Given a scheme, add some new segment and derive the resulting zones
+-- that would go into an updated scheme.
+
+addForZones: List Segment -> Scheme -> List Zone
+addForZones segs scheme =
+    let
+        newZones = List.map .zone segs
+        currentZones = scheme.zones
+    in
+        Zone.integrate newZones currentZones
 
 -- Given a scheme, add a new segment, and adjust the zones and derivations
 -- accordingly

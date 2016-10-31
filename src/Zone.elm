@@ -6,6 +6,7 @@ module Zone exposing
     , splitOne, split
     , overlayOnce, overlay
     , apply
+    , integrate
     )
 
 import Util
@@ -203,3 +204,16 @@ apply change zones =
             Util.spliceOne idx new zones
         NoChange ->
             zones
+
+-- Integrate some zones into a list of existing zones
+
+integrate : List Zone -> List Zone -> List Zone
+integrate newZones currentZones =
+    List.foldl integrateOne currentZones newZones
+
+integrateOne : Zone -> List Zone -> List Zone
+integrateOne new currentZones =
+    let
+        change = overlay new currentZones
+    in
+        List.foldl apply currentZones change

@@ -22,6 +22,7 @@ all =
     , overlayOnceTestForRemainderWithNoChange
     , overlayTest
     , applyTest
+    , integrateTest
     ]
 
 infinityTest : Test
@@ -628,5 +629,31 @@ applyTest =
       assertEqual
       [Zone 0 10, Zone 10 20, Zone 20 30]
       (apply NoChange [Zone 0 10, Zone 10 20, Zone 20 30])
+
+    ]
+
+integrateTest : Test
+integrateTest =
+    suite "integrateTest"
+
+    [ test "Integrating no zones should make no changes" <|
+      assertEqual
+      [Zone 0 10, Zone 10 20, Zone 20 30]
+      (integrate [] [Zone 0 10, Zone 10 20, Zone 20 30])
+
+    , test "Integrating one zone in the middle should work" <|
+      assertEqual
+      [Zone 0 5, Zone 5 10, Zone 10 15, Zone 15 20, Zone 20 30]
+      (integrate [Zone 5 15] [Zone 0 10, Zone 10 20, Zone 20 30])
+
+    , test "Integrating two zones should work" <|
+      assertEqual
+      [Zone -10 0, Zone 0 5, Zone 5 10, Zone 10 15, Zone 15 20, Zone 20 30]
+      (integrate [Zone -10 0, Zone 5 15] [Zone 0 10, Zone 10 20, Zone 20 30])
+
+    , test "Integrating two zones out of order should work" <|
+      assertEqual
+      [Zone -10 0, Zone 0 5, Zone 5 10, Zone 10 15, Zone 15 20, Zone 20 30]
+      (integrate [Zone 5 15, Zone -10 0] [Zone 0 10, Zone 10 20, Zone 20 30])
 
     ]
