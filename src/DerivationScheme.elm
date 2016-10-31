@@ -1,6 +1,7 @@
 module DerivationScheme exposing
     ( Scheme
     , addSegment
+    , addForSegments
     , scheme
     )
 
@@ -24,6 +25,15 @@ type alias Scheme =
     , zones : List Zone
     , derivations : List Derivation
     }
+
+
+-- Given a scheme, add new segments and derive the resulting segments
+-- that would go into an updated scheme.
+
+addForSegments: List Segment -> Scheme -> List Segment
+addForSegments segs scheme =
+    List.append scheme.segments segs
+
 
 -- Given a scheme, add a new segment, and adjust the zones and derivations
 -- accordingly

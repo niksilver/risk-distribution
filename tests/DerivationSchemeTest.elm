@@ -12,7 +12,8 @@ import ElmTest exposing (..)
 all : Test
 all =
     suite "DerivationSchemeTest"
-    [ addSegmentTestForNewSegment
+    [ addSegmentTestForNewSegment -- Deprecate!
+    , addForSegmentsTest
     , addSegmentTestForNewZone
     , addSegmentTestForNewVariables
     , schemeTest
@@ -28,6 +29,7 @@ deriv coeffs pc src =
 
 -- The tests...
 
+-- Deprecate!
 addSegmentTestForNewSegment : Test
 addSegmentTestForNewSegment =
     suite "addSegmentTestForNewSegment"
@@ -51,6 +53,53 @@ addSegmentTestForNewSegment =
           assertEqual
           [ seg1, seg2, segNew ]
           (addSegment segNew scheme |> .segments)
+
+    ]
+
+addForSegmentsTest : Test
+addForSegmentsTest =
+    suite "addForSegmentsTest"
+
+    [ test "Adding first segment should add it okay" <|
+      let
+          segment = Segment 40 (Zone -inf 0)
+          scheme = Scheme [] [] []
+      in
+          assertEqual
+          [ segment ]
+          (addForSegments [segment] scheme)
+
+    , test "Adding third segment should add it to the end of segment list" <|
+      let
+          segNew = Segment 40 (Zone -inf 0)
+          seg1 = Segment 50 (Zone -10 10)
+          seg2 = Segment 100 (Zone -inf inf)
+          scheme = Scheme [seg1, seg2] [] []
+      in
+          assertEqual
+          [ seg1, seg2, segNew ]
+          (addForSegments [segNew] scheme)
+
+    , test "Adding no segments should change nothing" <|
+      let
+          seg1 = Segment 50 (Zone -10 10)
+          seg2 = Segment 100 (Zone -inf inf)
+          scheme = Scheme [seg1, seg2] [] []
+      in
+          assertEqual
+          [ seg1, seg2 ]
+          (addForSegments [] scheme)
+
+    , test "Adding multiple segments should add them to the end of segment list" <|
+      let
+          segNew1 = Segment 40 (Zone -inf 0)
+          segNew2 = Segment 100 (Zone -inf inf)
+          seg1 = Segment 50 (Zone -10 10)
+          scheme = Scheme [seg1] [] []
+      in
+          assertEqual
+          [ seg1, segNew1, segNew2 ]
+          (addForSegments [segNew1, segNew2] scheme)
 
     ]
 
