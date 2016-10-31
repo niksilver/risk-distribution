@@ -1,7 +1,7 @@
 module DerivationScheme exposing
     ( Scheme
     , addSegment
-    , addForSegments, addOneForZones, addForZones
+    , addForSegments, addForZones
     , derivations
     , scheme
     )
@@ -34,17 +34,6 @@ type alias Scheme =
 addForSegments: List Segment -> Scheme -> List Segment
 addForSegments segs scheme =
     List.append scheme.segments segs
-
--- Given a scheme, add one new segment and derive the resulting zones
--- that would go into an updated scheme.
-
-addOneForZones: Segment -> Scheme -> List Zone
-addOneForZones seg scheme =
-    let
-        zones = scheme.zones
-        changes = Zone.overlay seg.zone zones
-    in
-        List.foldl Zone.apply zones changes
 
 -- Given a scheme, add some new segment and derive the resulting zones
 -- that would go into an updated scheme.
