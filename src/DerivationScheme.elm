@@ -2,6 +2,7 @@ module DerivationScheme exposing
     ( Scheme
     , addSegment
     , addForSegments, addOneForZones, addForZones
+    , derivations
     , scheme
     )
 
@@ -99,6 +100,19 @@ applyAllToCoeffs changes derivation =
             | coeffs = List.foldl Cons.applyToCoeffs constraint.coeffs changes
             }
         }
+
+-- Given some segments and corresponding zones,
+-- work out the corresponding derivations
+
+derivations : List Segment -> List Zone -> List Derivation
+derivations segs zones =
+    let
+        deriv idx seg =
+            { cons = Cons.constraint seg zones
+            , src = [idx]
+            }
+    in
+        List.indexedMap deriv segs
 
 -- Build a scheme from segments.
 -- The base segment will be added at the start, before those given.

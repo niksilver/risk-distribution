@@ -16,7 +16,8 @@ all =
     , addForSegmentsTest
     , addSegmentTestForNewZone -- Deprecate!
     , addForZonesTest
-    , addSegmentTestForNewVariables
+    , addSegmentTestForNewVariables -- Deprecate!
+    , derivationsTest
     , schemeTest
     ]
 
@@ -339,6 +340,7 @@ addForZonesTest =
 
     ]
 
+-- Deprecate!
 addSegmentTestForNewVariables : Test
 addSegmentTestForNewVariables =
     suite "addSegmentTestForNewVariables"
@@ -415,6 +417,41 @@ addSegmentTestForNewVariables =
           assertEqual
           [der1, der2, der3]
           (addSegment seg scheme |> .derivations)
+
+    ]
+
+derivationsTest : Test
+derivationsTest =
+    suite "addForDerivationsTest"
+
+    [ test "No segments or zones should yield no derivations" <|
+      assertEqual
+      []
+      (derivations [] [])
+
+    , test "One segment and zone should yield one derivation with correct source" <|
+      let
+          seg1 = Segment 75 (Zone 0 10)
+          zone1 = Zone 0 10
+          der1 = deriv [1] 75 [0]
+      in
+          assertEqual
+          [der1]
+          (derivations [seg1] [zone1])
+
+    , test "Two segments and some zones should yield correct derivations with correct sources" <|
+      let
+          seg1 = Segment 75 (Zone 0 10)
+          seg2 = Segment 50 (Zone 5 15)
+          zone1 = Zone 0 5
+          zone2 = Zone 5 10
+          zone3 = Zone 10 15
+          der1 = deriv [1, 1, 0] 75 [0]
+          der2 = deriv [0, 1, 1] 50 [1]
+      in
+          assertEqual
+          [der1, der2]
+          (derivations [seg1, seg2] [zone1, zone2, zone3])
 
     ]
 
