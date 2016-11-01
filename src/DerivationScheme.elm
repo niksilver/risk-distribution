@@ -112,12 +112,12 @@ scheme segments =
         segments2 = baseSegment :: segments
         newZones = List.map .zone segments2
         zones = Zone.integrate newZones []
-        derFn a b = DerivationSet.deriveAllWithLists b a
-        derivs = derivations segments2 zones
+        derFn seed derivs = DerivationSet.deriveAllWithLists derivs seed
+        seeds = derivations segments2 zones
     in
         { segments = segments2
         , zones = zones
-        , derivations = List.foldl derFn [] derivs
+        , derivations = List.foldl derFn [] seeds
         }
 
 scheme' : Segment -> Scheme -> Scheme
