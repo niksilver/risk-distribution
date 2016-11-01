@@ -1,15 +1,11 @@
 module DerivationScheme exposing
     ( Scheme
-    , addSegment
     , addForSegments, addForZones
     , derivations
     , scheme
     )
 
-import Zone exposing
-    ( Zone
-    , Change (Subst, Add, NoChange)
-    )
+import Zone exposing (Zone)
 import Constraint as Cons exposing (Segment, baseSegment)
 import Derivation exposing (Derivation)
 import DerivationSet
@@ -46,50 +42,6 @@ addForZones segs scheme =
     in
         Zone.integrate newZones currentZones
 
--- Given a scheme, add a new segment, and adjust the zones and derivations
--- accordingly
-
-addSegment : Segment -> Scheme -> Scheme
-addSegment seg scheme =
-    let
-        zones = scheme.zones
-        changes = Zone.overlay seg.zone zones
-    in
-        scheme
-            |> addSegmentJustSegment seg
-            |> addSegmentJustZones changes
-            |> addSegmentJustDerivations changes
-
-addSegmentJustSegment : Segment -> Scheme -> Scheme
-addSegmentJustSegment seg scheme =
-    { scheme
-    | segments = List.concat [scheme.segments, [seg]]
-    }
-
-addSegmentJustZones : List Change -> Scheme -> Scheme
-addSegmentJustZones changes scheme =
-    { scheme
-    | zones  = List.foldl Zone.apply scheme.zones changes
-    }
-
-addSegmentJustDerivations : List Change -> Scheme -> Scheme
-addSegmentJustDerivations changes scheme =
-    { scheme
-    | derivations = List.map (applyAllToCoeffs changes) scheme.derivations
-    }
-
-applyAllToCoeffs : List Change -> Derivation -> Derivation
-applyAllToCoeffs changes derivation =
-    let
-        constraint = derivation.cons
-    in
-        { derivation
-        | cons =
-            { constraint
-            | coeffs = List.foldl Cons.applyToCoeffs constraint.coeffs changes
-            }
-        }
-
 -- Given some segments and corresponding zones,
 -- work out the corresponding derivations
 
@@ -118,16 +70,4 @@ scheme segments =
         { segments = segments2
         , zones = zones
         , derivations = List.foldl derFn [] seeds
-        }
-
-scheme' : Segment -> Scheme -> Scheme
-scheme' segment sch =
-    let
-        srcId = List.length sch.segments
-        scheme2 = addSegment segment sch
-        cons = Cons.constraint segment scheme2.zones
-        deriv = Derivation cons [srcId]
-    in
-        { scheme2
-        | derivations = DerivationSet.deriveAllWithLists scheme2.derivations deriv
         }
