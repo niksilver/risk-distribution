@@ -109,9 +109,16 @@ derivations segs zones =
 scheme : List Segment -> Scheme
 scheme segments =
     let
-        initial = Scheme [] [] []
+        segments2 = baseSegment :: segments
+        newZones = List.map .zone segments2
+        zones = Zone.integrate newZones []
+        derFn a b = DerivationSet.deriveAllWithLists b a
+        derivs = derivations segments2 zones
     in
-        List.foldl scheme' initial (baseSegment :: segments)
+        { segments = segments2
+        , zones = zones
+        , derivations = List.foldl derFn [] derivs
+        }
 
 scheme' : Segment -> Scheme -> Scheme
 scheme' segment sch =
