@@ -12,7 +12,6 @@ all : Test
 all =
     suite "ConstraintTest"
     [ constraintToStringTest
-    , applyToCoeffsTest
     , constraintTest
     , isSubcoeffTest
     , subtractTest
@@ -74,102 +73,6 @@ constraintToStringTest =
 --     a + b + c = ..
       "        c = 4"
       (Constraint [0, 0, 1] 4 |> constraintToString)
-
-    ]
-
-applyToCoeffsTest : Test
-applyToCoeffsTest =
-    suite "applyToCoeffsTest"
-
-    [ test "Applying Add at the start should work" <|
-      assertEqual
-      [0, 1, 1]
-      (applyToCoeffs (Add 0 (Zone -10 0)) [1, 1])
-
-    , test "Applying Add at the start of an empty list should work" <|
-      assertEqual
-      [0]
-      (applyToCoeffs (Add 0 (Zone -10 0)) [])
-
-    , test "Applying Add in the middle should work" <|
-      assertEqual
-      [1, 0, 1, 1]
-      (applyToCoeffs (Add 1 (Zone 10 15)) [1, 1, 1])
-
-    , test "Applying Add at the end should work" <|
-      assertEqual
-      [1, 1, 1, 0]
-      (applyToCoeffs (Add 3 (Zone 30 40)) [1, 1, 1])
-
-    , test "Applying Add at a negative point should have no effect" <|
-      assertEqual
-      [1, 0, 1]
-      (applyToCoeffs (Add -1 (Zone 30 40)) [1, 0, 1])
-
-    , test "Applying Add beyond the end should have no effect" <|
-      assertEqual
-      [1, 0, 1]
-      (applyToCoeffs (Add 4 (Zone 30 40)) [1, 0, 1])
-
-      , test "Applying Subst two at the start for coeff 0 should work" <|
-      assertEqual
-      [0, 0, 1]
-      (applyToCoeffs (Subst 0 [Zone 0 5, Zone 5 10]) [0, 1])
-
-      , test "Applying Subst two at the start for coeff 1 should work" <|
-      assertEqual
-      [1, 1, 0]
-      (applyToCoeffs (Subst 0 [Zone 0 5, Zone 5 10]) [1, 0])
-
-      , test "Applying Subst three at the start for coeff 1 should work" <|
-      assertEqual
-      [1, 1, 1, 0]
-      (applyToCoeffs (Subst 0 [Zone 0 5, Zone 5 10, Zone 10 15]) [1, 0])
-
-    , test "Applying Subst at index 0 of an empty list should have no effect" <|
-      assertEqual
-      []
-      (applyToCoeffs (Subst 0 [Zone 0 5, Zone 5 10]) [])
-
-    , test "Applying Subst two in the middle for coeff 0 should work" <|
-      assertEqual
-      [1, 0, 0, 1]
-      (applyToCoeffs (Subst 1 [Zone 10 15, Zone 15 20]) [1, 0, 1])
-
-    , test "Applying Subst two in the middle for coeff 1 should work" <|
-      assertEqual
-      [0, 1, 1, 0]
-      (applyToCoeffs (Subst 1 [Zone 10 15, Zone 15 20]) [0, 1, 0])
-
-    , test "Applying Subst three in the middle for coeff 0 should work" <|
-      assertEqual
-      [1, 0, 0, 0, 1]
-      (applyToCoeffs (Subst 1 [Zone 10 15, Zone 15 20, Zone 20 25]) [1, 0, 1])
-
-    , test "Applying Subst three in the middle for coeff 1 should work" <|
-      assertEqual
-      [0, 1, 1, 1, 0]
-      (applyToCoeffs (Subst 1 [Zone 10 15, Zone 15 20, Zone 20 25]) [0, 1, 0])
-
-    , test "Applying Subst at the end should work" <|
-      assertEqual
-      [1, 0, 1, 1]
-      (applyToCoeffs (Subst 2 [Zone 20 25, Zone 25 30]) [1, 0, 1])
-
-    , test "Applying Subst at a negative point should have no effect" <|
-      assertEqual
-      [1, 1, 0]
-      (applyToCoeffs (Subst -1 [Zone -10 -5, Zone -5 0]) [1, 1, 0])
-
-    , test "Applying Subst beyond the end should have no effect" <|
-      assertEqual
-      [0, 1, 1]
-      (applyToCoeffs (Subst 3 [Zone 30 35, Zone 35 40]) [0, 1, 1])
-
-    , test "Applying NoChange should have no effect" <|
-      assertEqual
-      [0, 1, 1]
-      (applyToCoeffs NoChange [0, 1, 1])
 
     ]
 
