@@ -5,7 +5,7 @@ module DerivationScheme exposing
     )
 
 import Zone exposing (Zone)
-import Constraint as Cons exposing (Segment, baseSegment)
+import Segment exposing (Segment, baseSegment)
 import Derivation exposing (Derivation)
 import DerivationSet
 
@@ -30,7 +30,7 @@ derivations : List Segment -> List Zone -> List Derivation
 derivations segs zones =
     let
         deriv idx seg =
-            { cons = Cons.constraint seg zones
+            { cons = Segment.constraint seg zones
             , src = [idx]
             }
     in

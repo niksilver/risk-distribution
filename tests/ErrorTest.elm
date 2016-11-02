@@ -2,7 +2,8 @@ module ErrorTest exposing (all)
 
 import Error exposing (..)
 import Zone exposing (Zone)
-import Constraint exposing (Segment, Constraint)
+import Constraint exposing (Constraint)
+import Segment exposing (Segment)
 import Derivation exposing (Derivation)
 
 import ElmTest exposing (..)

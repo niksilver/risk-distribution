@@ -3,11 +3,12 @@ module Derivation exposing
     , subtract
     )
 
+import Segment exposing (Segment, baseSegment)
+import Constraint as Cons exposing (Constraint)
 import Zone exposing
     ( Zone
     , Change (Subst, Add, NoChange)
     )
-import Constraint as Cons exposing (Segment, baseSegment, Constraint)
 import Util
 
 import String

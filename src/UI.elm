@@ -2,7 +2,7 @@ module UI exposing (Model, Msg, init, view, update)
 
 import Util exposing (singleton)
 import Zone exposing (Zone)
-import Constraint exposing (Segment)
+import Segment exposing (Segment)
 import Derivation exposing (Derivation)
 import DerivationScheme exposing (Scheme)
 import ZoneDict

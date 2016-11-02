@@ -2,8 +2,9 @@ module DerivationTest exposing (all)
 
 import Derivation exposing (..)
 
+import Segment exposing (Segment)
+import Constraint as Cons exposing (Constraint)
 import Zone exposing (inf, Zone)
-import Constraint as Cons exposing (Segment, Constraint)
 
 import ElmTest exposing (..)
 

@@ -3,7 +3,7 @@ module SpecTest exposing (all)
 import Spec exposing (..)
 
 import Zone exposing (Zone, inf)
-import Constraint exposing (Segment)
+import Segment exposing (Segment)
 import Value exposing (Value(..))
 import Block exposing (Rect, ChartBlock)
 import Spline exposing (Pos)

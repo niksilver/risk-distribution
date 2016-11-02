@@ -3,7 +3,8 @@ module DerivationSchemeTest exposing (all)
 import DerivationScheme exposing (..)
 
 import Zone exposing (inf, Zone)
-import Constraint as Cons exposing (Segment, Constraint)
+import Constraint as Cons exposing (Constraint)
+import Segment exposing (Segment)
 import Derivation exposing (Derivation)
 
 import ElmTest exposing (..)
@@ -69,7 +70,7 @@ schemeTest =
       let
         expected =
             { segments =
-                [ Cons.baseSegment ]
+                [ Segment.baseSegment ]
             , zones =
                 [ Zone -inf inf ]
             , derivations =
@@ -88,7 +89,7 @@ schemeTest =
         seg3 = Segment 5 (Zone 15 inf)
         expected =
             { segments =
-                [ Cons.baseSegment, seg1, seg2, seg3 ]
+                [ Segment.baseSegment, seg1, seg2, seg3 ]
             , zones =
                 [ Zone -inf 0, Zone 0 5, Zone 5 15, Zone 15 inf ]
             -- Some of the derivations will be reversed, so we'll use a concat

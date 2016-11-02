@@ -1,6 +1,7 @@
 import DistributionTest exposing (all)
 import ZoneTest exposing (all)
 import ConstraintTest exposing (all)
+import SegmentTest exposing (all)
 import DerivationTest exposing (all)
 import ErrorTest exposing (all)
 import ValueTest exposing (all)
@@ -26,6 +27,7 @@ main =
         [ DistributionTest.all
         , ZoneTest.all
         , ConstraintTest.all
+        , SegmentTest.all
         , DerivationTest.all
         , ErrorTest.all
         , ValueTest.all

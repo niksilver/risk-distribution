@@ -7,7 +7,7 @@ import Html.App as App
 
 import Fact exposing (Limit (AtLeast, AtMost, Between))
 import Zone exposing (inf, Zone)
-import Constraint exposing (Segment)
+import Segment exposing (Segment)
 
 
 type alias Model =

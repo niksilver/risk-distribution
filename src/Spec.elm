@@ -6,7 +6,7 @@ module Spec exposing
     , bracketRects
     )
 
-import Constraint exposing (Segment)
+import Segment exposing (Segment)
 import Derivation
 import DerivationScheme
 import Block exposing (Rect, ChartBlock)
