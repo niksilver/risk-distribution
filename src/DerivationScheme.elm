@@ -5,7 +5,7 @@ module DerivationScheme exposing
     )
 
 import Zone exposing (Zone)
-import Segment exposing (Segment, baseSegment)
+import Segment exposing (Segment)
 import Derivation exposing (Derivation)
 import DerivationSet
 
@@ -42,7 +42,7 @@ derivations segs zones =
 scheme : List Segment -> Scheme
 scheme segments =
     let
-        segments2 = baseSegment :: segments
+        segments2 = Segment.base :: segments
         newZones = List.map .zone segments2
         zones = Zone.integrate newZones []
         derFn seed derivs = DerivationSet.deriveAllWithLists derivs seed

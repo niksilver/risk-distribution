@@ -3,7 +3,7 @@ module Derivation exposing
     , subtract
     )
 
-import Segment exposing (Segment, baseSegment)
+import Segment exposing (Segment)
 import Constraint as Cons exposing (Constraint)
 import Zone exposing
     ( Zone

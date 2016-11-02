@@ -1,4 +1,4 @@
-module Segment exposing (Segment, baseSegment, constraint)
+module Segment exposing (Segment, base, constraint)
 
 import Constraint exposing (Constraint)
 import Zone exposing (Zone, inf)
@@ -15,8 +15,8 @@ type alias Segment =
 
 -- A segment saying everything must add up to 100%
 
-baseSegment : Segment
-baseSegment =
+base : Segment
+base =
     Segment 100 (Zone -inf inf)
 
 -- Create a Constraint describing a segment, and given our total list

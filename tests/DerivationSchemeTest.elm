@@ -70,7 +70,7 @@ schemeTest =
       let
         expected =
             { segments =
-                [ Segment.baseSegment ]
+                [ Segment.base ]
             , zones =
                 [ Zone -inf inf ]
             , derivations =
@@ -89,7 +89,7 @@ schemeTest =
         seg3 = Segment 5 (Zone 15 inf)
         expected =
             { segments =
-                [ Segment.baseSegment, seg1, seg2, seg3 ]
+                [ Segment.base, seg1, seg2, seg3 ]
             , zones =
                 [ Zone -inf 0, Zone 0 5, Zone 5 15, Zone 15 inf ]
             -- Some of the derivations will be reversed, so we'll use a concat
