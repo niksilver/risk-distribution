@@ -3,6 +3,7 @@ module Fact exposing
     , Limit (AtLeast, AtMost, Between)
     , Msg (ProbPerc, Lower, Upper, ChangeLimit, ConfirmText)
     , init, segment, update, view
+    , changed
     )
 
 -- A statement describing the probability of some value range
@@ -307,3 +308,25 @@ okayView =
     , onClick ConfirmText
     ]
     [ text "Okay" ]
+
+
+-- Has the text changed from the underlying data?
+
+changed : Model -> Bool
+changed model =
+    probPercChanged model
+    || lowerChanged model
+
+probPercChanged model =
+    case (String.toInt model.text.probPerc) of
+        Err _ ->
+            True
+        Ok probPc ->
+            probPc /= model.data.pc
+
+lowerChanged model =
+    case (String.toFloat model.text.lower) of
+        Err _ ->
+            True
+        Ok lower ->
+            lower /= model.data.zone.from

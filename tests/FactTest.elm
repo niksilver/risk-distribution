@@ -16,6 +16,7 @@ all =
     , updateTestForUpper
     , updateTestForChangeLimit
     , updateTestForConfirmText
+    , changedTest
     ]
 
 initTest : Test
@@ -320,6 +321,72 @@ updateTestForConfirmText =
         , data = Segment 40 (Zone 10 50)
         }
             |> update ConfirmText
+      )
+
+    ]
+
+changedTest : Test
+changedTest =
+    suite "changedTest"
+
+    [ test "A consistent AtLeast fact should not be seen as changed" <|
+      assertEqual
+      (False)
+      ( { text = { probPerc = "50", limit = AtLeast, lower = "0", upper = "" }
+        , data = Segment 50 (Zone 0 inf)
+        }
+
+            |> changed
+      )
+
+    , test "A consistent AtLeast fact with upper text should not be seen as changed" <|
+      assertEqual
+      (False)
+      ( { text = { probPerc = "10", limit = AtLeast, lower = "0", upper = "x" }
+        , data = Segment 10 (Zone 0 inf)
+        }
+
+            |> changed
+      )
+
+    , test "An AtLeast fact with changed prob should be seen as changed" <|
+      assertEqual
+      (True)
+      ( { text = { probPerc = "10", limit = AtLeast, lower = "0", upper = "" }
+        , data = Segment 50 (Zone 0 inf)
+        }
+
+            |> changed
+      )
+
+    , test "An AtLeast fact with changed lower text should be seen as changed" <|
+      assertEqual
+      (True)
+      ( { text = { probPerc = "15", limit = AtLeast, lower = "5", upper = "" }
+        , data = Segment 15 (Zone 0 inf)
+        }
+
+            |> changed
+      )
+
+    , test "An AtLeast fact with bad lower text should be seen as changed" <|
+      assertEqual
+      (True)
+      ( { text = { probPerc = "15", limit = AtLeast, lower = " 5", upper = "" }
+        , data = Segment 15 (Zone 5 inf)
+        }
+
+            |> changed
+      )
+
+    , test "An AtLeast fact with bad prob text should be seen as changed" <|
+      assertEqual
+      (True)
+      ( { text = { probPerc = "_15", limit = AtLeast, lower = "5", upper = "" }
+        , data = Segment 15 (Zone 5 inf)
+        }
+
+            |> changed
       )
 
     ]
