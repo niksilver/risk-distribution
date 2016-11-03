@@ -81,14 +81,16 @@ viewBlocks transformer spec =
             case chBlock.value of
                 Exactly _ _ ->
                     drawExactly transformer chBlock.rect
-                Maximum _ _ ->
-                    drawMaximum transformer chBlock.rect
+                Maximum pc _ ->
+                    drawMaximum transformer chBlock.rect pc
                 _ ->
                     Svg.svg [] []
     in
-        Svg.g []
+        Svg.g
+        []
         (List.map draw spec.blocks)
 
+drawExactly : Transformer -> Rect -> Svg x
 drawExactly transformer rect =
     Svg.rect
     [ SvgA.x (rect.left |> transformer.trX |> toString)
@@ -99,14 +101,16 @@ drawExactly transformer rect =
     ]
     []
 
-drawMaximum transformer rect =
+drawMaximum : Transformer -> Rect -> Int -> Svg x
+drawMaximum transformer rect pc =
     let
         x1 = rect.left |> transformer.trX
         x2 = rect.right |> transformer.trX
         -- To calculate the y value, the 0th y value is at the full height,
-        -- the 1th y value is half of that, the 2th is half of that, etc.
+        -- the 1th y value is is bit over half of that, the 2th is a bit over
+        -- half of that, etc.
         y idx =
-            rect.height / (2 ^ idx) |> transformer.trY
+            rect.height / (1.5 ^ toFloat idx) |> transformer.trY
         drawLine idx =
             Svg.line
             [ SvgA.x1 (x1 |> toString)
@@ -116,7 +120,7 @@ drawMaximum transformer rect =
             , SvgA.stroke "rgb(128, 128, 0)"
             ]
             []
-        indexCount = 4
+        indexCount = max 3 (pc |> toFloat |> sqrt |> round)
         indices = [0..indexCount]
     in
         Svg.g
