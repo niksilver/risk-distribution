@@ -81,6 +81,8 @@ viewBlocks transformer spec =
             case chBlock.value of
                 Exactly _ _ ->
                     drawExactly transformer chBlock.rect
+                Maximum _ _ ->
+                    drawMaximum transformer chBlock.rect
                 _ ->
                     Svg.svg [] []
     in
@@ -96,6 +98,30 @@ drawExactly transformer rect =
     , SvgA.fill "rgb(82, 92, 227)"
     ]
     []
+
+drawMaximum transformer rect =
+    let
+        x1 = rect.left |> transformer.trX
+        x2 = rect.right |> transformer.trX
+        -- To calculate the y value, the 0th y value is at the full height,
+        -- the 1th y value is half of that, the 2th is half of that, etc.
+        y idx =
+            rect.height / (2 ^ idx) |> transformer.trY
+        drawLine idx =
+            Svg.line
+            [ SvgA.x1 (x1 |> toString)
+            , SvgA.y1 (y idx |> toString)
+            , SvgA.x2 (x2 |> toString)
+            , SvgA.y2 (y idx |> toString)
+            , SvgA.stroke "rgb(128, 128, 0)"
+            ]
+            []
+        indexCount = 4
+        indices = [0..indexCount]
+    in
+        Svg.g
+        []
+        (List.map drawLine indices)
 
 -- Render the distribution as a curve,
 -- given functions to transform and the curve itself
