@@ -25,6 +25,7 @@ import Json.Decode exposing (Decoder)
 
 import Zone exposing (inf, Zone)
 import Segment exposing (Segment)
+import Util
 
 
 -- Our model of a fact
@@ -314,9 +315,28 @@ okayView =
 
 changed : Model -> Bool
 changed model =
-    probPercChanged model
-    || lowerChanged model
+    let
+        lowerFinite = Util.isFinite model.data.zone.from
+        upperFinite = Util.isFinite model.data.zone.to
+    in
+        case (lowerFinite, upperFinite) of
+            (True, False) ->
+                probPercChanged model
+                    || lowerChanged model
+                    || model.text.limit /= AtLeast
+            (False, True) ->
+                probPercChanged model
+                    || upperChanged model
+                    || model.text.limit /= AtMost
+            (True, True) ->
+                probPercChanged model
+                    || upperChanged model
+                    || lowerChanged model
+                    || model.text.limit /= Between
+            _ ->
+                False
 
+probPercChanged : Model -> Bool
 probPercChanged model =
     case (String.toInt model.text.probPerc) of
         Err _ ->
@@ -324,9 +344,18 @@ probPercChanged model =
         Ok probPc ->
             probPc /= model.data.pc
 
+lowerChanged : Model -> Bool
 lowerChanged model =
     case (String.toFloat model.text.lower) of
         Err _ ->
             True
         Ok lower ->
             lower /= model.data.zone.from
+
+upperChanged : Model -> Bool
+upperChanged model =
+    case (String.toFloat model.text.upper) of
+        Err _ ->
+            True
+        Ok upper ->
+            upper /= model.data.zone.to

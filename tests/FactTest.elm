@@ -16,7 +16,9 @@ all =
     , updateTestForUpper
     , updateTestForChangeLimit
     , updateTestForConfirmText
-    , changedTest
+    , changedTestForLowerBound
+    , changedTestForUpperBound
+    , changedTestForLowerAndUpperBound
     ]
 
 initTest : Test
@@ -325,9 +327,9 @@ updateTestForConfirmText =
 
     ]
 
-changedTest : Test
-changedTest =
-    suite "changedTest"
+changedTestForLowerBound : Test
+changedTestForLowerBound =
+    suite "changedTestForLowerBound"
 
     [ test "A consistent AtLeast fact should not be seen as changed" <|
       assertEqual
@@ -335,17 +337,24 @@ changedTest =
       ( { text = { probPerc = "50", limit = AtLeast, lower = "0", upper = "" }
         , data = Segment 50 (Zone 0 inf)
         }
-
             |> changed
       )
 
-    , test "A consistent AtLeast fact with upper text should not be seen as changed" <|
+    , test "A consistent AtLeast fact with bad upper text should not be seen as changed" <|
       assertEqual
       (False)
       ( { text = { probPerc = "10", limit = AtLeast, lower = "0", upper = "x" }
         , data = Segment 10 (Zone 0 inf)
         }
+            |> changed
+      )
 
+    , test "A consistent AtLeast fact with some upper value should not be seen as changed" <|
+      assertEqual
+      (False)
+      ( { text = { probPerc = "10", limit = AtLeast, lower = "0", upper = "1" }
+        , data = Segment 10 (Zone 0 inf)
+        }
             |> changed
       )
 
@@ -355,7 +364,6 @@ changedTest =
       ( { text = { probPerc = "10", limit = AtLeast, lower = "0", upper = "" }
         , data = Segment 50 (Zone 0 inf)
         }
-
             |> changed
       )
 
@@ -365,7 +373,6 @@ changedTest =
       ( { text = { probPerc = "15", limit = AtLeast, lower = "5", upper = "" }
         , data = Segment 15 (Zone 0 inf)
         }
-
             |> changed
       )
 
@@ -375,7 +382,6 @@ changedTest =
       ( { text = { probPerc = "15", limit = AtLeast, lower = " 5", upper = "" }
         , data = Segment 15 (Zone 5 inf)
         }
-
             |> changed
       )
 
@@ -385,8 +391,200 @@ changedTest =
       ( { text = { probPerc = "_15", limit = AtLeast, lower = "5", upper = "" }
         , data = Segment 15 (Zone 5 inf)
         }
-
             |> changed
       )
+
+    , test "An AtLeast fact with AtMost limit should be seen as changed" <|
+      assertEqual
+      (True)
+      ( { text = { probPerc = "15", limit = AtMost, lower = "10", upper = "" }
+        , data = Segment 15 (Zone 10 inf)
+        }
+            |> changed
+      )
+
+    , test "An AtLeast fact with Between limit should be seen as changed" <|
+      assertEqual
+      (True)
+      ( { text = { probPerc = "15", limit = Between, lower = "10", upper = "" }
+        , data = Segment 15 (Zone 10 inf)
+        }
+            |> changed
+      )
+
+    ]
+
+changedTestForUpperBound : Test
+changedTestForUpperBound =
+    suite "changedTestForUpperBound"
+
+    [ test "A consistent AtMost fact should not be seen as changed" <|
+      assertEqual
+      (False)
+      ( { text = { probPerc = "15", limit = AtMost, lower = "", upper = "20" }
+        , data = Segment 15 (Zone -inf 20)
+        }
+            |> changed
+      )
+
+    , test "A consistent AtMost fact with bad lower text should not be seen as changed" <|
+      assertEqual
+      (False)
+      ( { text = { probPerc = "15", limit = AtMost, lower = "x", upper = "20" }
+        , data = Segment 15 (Zone -inf 20)
+        }
+            |> changed
+      )
+
+    , test "A consistent AtMost fact with some lower value should not be seen as changed" <|
+      assertEqual
+      (False)
+      ( { text = { probPerc = "15", limit = AtMost, lower = "10", upper = "20" }
+        , data = Segment 15 (Zone -inf 20)
+        }
+            |> changed
+      )
+
+    , test "An AtMost fact with different prob value should be seen as changed" <|
+      assertEqual
+      (True)
+      ( { text = { probPerc = "44", limit = AtMost, lower = "", upper = "20" }
+        , data = Segment 15 (Zone -inf 20)
+        }
+            |> changed
+      )
+
+    , test "An AtMost fact with bad prob text should be seen as changed" <|
+      assertEqual
+      (True)
+      ( { text = { probPerc = "", limit = AtMost, lower = "", upper = "20" }
+        , data = Segment 15 (Zone -inf 20)
+        }
+            |> changed
+      )
+
+    , test "An AtMost fact with different upper value should be seen as changed" <|
+      assertEqual
+      (True)
+      ( { text = { probPerc = "15", limit = AtMost, lower = "", upper = "35" }
+        , data = Segment 15 (Zone -inf 20)
+        }
+            |> changed
+      )
+
+    , test "An AtMost fact with bad upper text should be seen as changed" <|
+      assertEqual
+      (True)
+      ( { text = { probPerc = "15", limit = AtMost, lower = "", upper = "x" }
+        , data = Segment 15 (Zone -inf 20)
+        }
+            |> changed
+      )
+
+    , test "An AtMost fact with AtLeast limit should be seen as changed" <|
+      assertEqual
+      (True)
+      ( { text = { probPerc = "15", limit = AtLeast, lower = "", upper = "20" }
+        , data = Segment 15 (Zone -inf 20)
+        }
+            |> changed
+      )
+
+    , test "An AtMost fact with Between limit should be seen as changed" <|
+      assertEqual
+      (True)
+      ( { text = { probPerc = "15", limit = Between, lower = "", upper = "20" }
+        , data = Segment 15 (Zone -inf 20)
+        }
+            |> changed
+      )
+
+    ]
+
+changedTestForLowerAndUpperBound : Test
+changedTestForLowerAndUpperBound =
+    suite "changedTestForLowerAndUpperBound"
+
+    [ test "A consistent wholly bound fact should not be seen as changed" <|
+      assertEqual
+      (False)
+      ( { text = { probPerc = "50", limit = Between, lower = "10", upper = "20" }
+        , data = Segment 50 (Zone 10 20)
+        }
+            |> changed
+      )
+
+    , test "A wholly bound fact with bad prob text should be seen as changed" <|
+      assertEqual
+      (True)
+      ( { text = { probPerc = "", limit = Between, lower = "10", upper = "20" }
+        , data = Segment 50 (Zone 10 20)
+        }
+            |> changed
+      )
+
+    , test "A wholly bound fact with different prob value should be seen as changed" <|
+      assertEqual
+      (True)
+      ( { text = { probPerc = "33", limit = Between, lower = "10", upper = "20" }
+        , data = Segment 50 (Zone 10 20)
+        }
+            |> changed
+      )
+
+    , test "A wholly bound fact with bad lower text should be seen as changed" <|
+      assertEqual
+      (True)
+      ( { text = { probPerc = "50", limit = Between, lower = "", upper = "20" }
+        , data = Segment 50 (Zone 10 20)
+        }
+            |> changed
+      )
+
+    , test "A wholly bound fact with different lower value should be seen as changed" <|
+      assertEqual
+      (True)
+      ( { text = { probPerc = "50", limit = Between, lower = "12", upper = "20" }
+        , data = Segment 50 (Zone 10 20)
+        }
+            |> changed
+      )
+
+    , test "A wholly bound fact with bad upper text should be seen as changed" <|
+      assertEqual
+      (True)
+      ( { text = { probPerc = "50", limit = Between, lower = "10", upper = "x" }
+        , data = Segment 50 (Zone 10 20)
+        }
+            |> changed
+      )
+
+    , test "A wholly bound fact with different upper value should be seen as changed" <|
+      assertEqual
+      (True)
+      ( { text = { probPerc = "50", limit = Between, lower = "10", upper = "25" }
+        , data = Segment 50 (Zone 10 20)
+        }
+            |> changed
+      )
+
+    , test "A wholly bound fact with AtLeast limit should be seen as changed" <|
+      assertEqual
+      (True)
+      ( { text = { probPerc = "50", limit = AtLeast, lower = "10", upper = "20" }
+        , data = Segment 50 (Zone 10 20)
+        }
+            |> changed
+      )
+
+    , test "A wholly bound fact with AtMost limit should be seen as changed" <|
+      assertEqual
+      (True)
+      ( { text = { probPerc = "50", limit = AtMost, lower = "10", upper = "20" }
+        , data = Segment 50 (Zone 10 20)
+        }
+            |> changed
+      )
+
 
     ]
