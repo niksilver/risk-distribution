@@ -65,7 +65,7 @@ trimFront blocks =
 -- The number of such rectangles we use in practice is this value
 
 taperBlocks : Int
-taperBlocks = 5
+taperBlocks = 8
 
 -- Say we have two zones; the first is infinitely long, the second is
 -- finite, and both have a %age probability. We want to represent the

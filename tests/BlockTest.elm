@@ -211,11 +211,12 @@ toChartBlockTest =
 
         , test "Among blocks with zeros and a Contradiction, an infinite Block gets rects of a sensible size" <|
           assertEqual
-          [Ok True, Ok True, Ok True, Ok True, Ok True] -- Assumes taperBlocks == 5
+          [Ok True, Ok True, Ok True, Ok True, Ok True] -- Assumes taperBlocks >= 5
           (toChartBlock b6 [bCon, b3, b4, b6]
             |> List.map .rect
             |> List.map .height
             |> List.map (\h -> if h > 0 then Ok True else Err h)
+            |> List.take 5
           )
 
         , test "Contradiction ChartBlock should generate Rect of zero height and same width" <|
