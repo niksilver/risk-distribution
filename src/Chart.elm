@@ -67,7 +67,7 @@ view spec =
         , SvgA.viewBox viewBoxDim
         ]
         [ viewBlocks transformer scaledSpec
-        , viewCurve transformer curve
+        --, viewCurve transformer curve
         , Axis.viewXAxis transformer scale
         ]
 
@@ -97,7 +97,7 @@ drawExactly transformer rect =
     , SvgA.y (rect.height |> transformer.trY |> toString)
     , SvgA.width (rect.right - rect.left |> transformer.scX |> toString)
     , SvgA.height (rect.height |> transformer.scY |> toString)
-    , SvgA.fill "rgb(82, 92, 227)"
+    , SvgA.fill "rgb(82, 92, 190)"
     ]
     []
 

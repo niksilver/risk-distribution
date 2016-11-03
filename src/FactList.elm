@@ -28,10 +28,7 @@ init =
     { next = 2
     , iFacts =
         [ { id = 0
-          , fact = Fact.init (Segment 100 (Zone 0 inf))
-          }
-        , { id = 1
-          , fact = Fact.init (Segment 100 (Zone -inf 10))
+          , fact = Fact.init (Segment 100 (Zone 0 10))
           }
         ]
     }
