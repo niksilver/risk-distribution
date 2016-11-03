@@ -5,6 +5,7 @@ import Distribution as Dist
 import Axis exposing (Scale)
 import Spec exposing (Spec, ViewDims, Transformer)
 import Block exposing (Rect)
+import Value exposing (Value (Exactly, Maximum, Contradiction))
 import Path exposing (Path (Path), Instruction (M, L))
 import Spline exposing (Pos)
 import Util
@@ -76,20 +77,25 @@ view spec =
 viewBlocks : Transformer -> Spec -> Svg x
 viewBlocks transformer spec =
     let
-        draw rect =
-            Svg.rect
-            [ SvgA.x (rect.left |> transformer.trX |> toString)
-            , SvgA.y (rect.height |> transformer.trY |> toString)
-            , SvgA.width (rect.right - rect.left |> transformer.scX |> toString)
-            , SvgA.height (rect.height |> transformer.scY |> toString)
-            , SvgA.fill "rgb(82, 92, 227)"
-            ]
-            []
-        rects = Spec.rects spec
+        draw chBlock =
+            case chBlock.value of
+                Exactly _ _ ->
+                    drawExactly transformer chBlock.rect
+                _ ->
+                    Svg.svg [] []
     in
         Svg.g []
-        (List.map draw rects)
+        (List.map draw spec.blocks)
 
+drawExactly transformer rect =
+    Svg.rect
+    [ SvgA.x (rect.left |> transformer.trX |> toString)
+    , SvgA.y (rect.height |> transformer.trY |> toString)
+    , SvgA.width (rect.right - rect.left |> transformer.scX |> toString)
+    , SvgA.height (rect.height |> transformer.scY |> toString)
+    , SvgA.fill "rgb(82, 92, 227)"
+    ]
+    []
 
 -- Render the distribution as a curve,
 -- given functions to transform and the curve itself
