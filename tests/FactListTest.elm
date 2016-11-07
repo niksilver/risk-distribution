@@ -12,14 +12,14 @@ import ElmTest exposing (..)
 all : Test
 all =
     suite "FactListTest"
-    [ beingEditedTest
+    [ changedTest
     ]
 
-beingEditedTest : Test
-beingEditedTest =
-    suite "beingEditedTest"
+changedTest : Test
+changedTest =
+    suite "changedTest"
 
-    [ test "If all facts' text match their data then nothing is being edited" <|
+    [ test "If all facts' text match their data then nothing is being changed" <|
       assertEqual
       (Nothing)
       ( { next = 2
@@ -33,10 +33,10 @@ beingEditedTest =
             ]
         }
 
-        |> beingEdited
+        |> changed
       )
 
-    , test "If the last fact's text doesn't match its data then it is being edited" <|
+    , test "If the last fact's text doesn't match its data then it is being changed" <|
       assertEqual
       (Just 23)
       ( { next = 2
@@ -56,7 +56,7 @@ beingEditedTest =
             ]
         }
 
-        |> beingEdited
+        |> changed
       )
 
     ]

@@ -1,7 +1,7 @@
 module FactList exposing
     ( Model, Msg
     , init
-    , segments, beingEdited
+    , segments, changed
     , update, view
     )
 
@@ -49,19 +49,19 @@ segments model =
         |> List.map Fact.segment
 
 
--- Work out which Fact, if any, is being edited (and so we should disable
+-- Work out which Fact, if any, is being changed (and so we should disable
 -- the others)
 
-beingEdited : Model -> Maybe Int
-beingEdited model =
+changed : Model -> Maybe Int
+changed model =
     let
-        idOfEdit iFact =
+        idOfChange iFact =
             if (Fact.changed iFact.fact) then
                 Just iFact.id
             else
                 Nothing
     in
-        Util.find idOfEdit model.iFacts
+        Util.find idOfChange model.iFacts
 
 
 -- Updates
