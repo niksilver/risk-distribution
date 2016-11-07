@@ -121,26 +121,35 @@ removeFact removeId model =
 
 view : Model -> Html Msg
 view model =
-    ol []
-        (List.append
-            (List.map removableFactView model.iFacts)
-            [ p [] [ addView ]
-            ]
-        )
+    let
+        changingFact = changed model
+    in
+        ol []
+            (List.append
+                (List.map (removableFactView changingFact) model.iFacts)
+                [ p [] [ addView ]
+                ]
+            )
 
-removableFactView : IndexedFact -> Html Msg
-removableFactView iFact =
+removableFactView : Maybe Int -> IndexedFact -> Html Msg
+removableFactView changingFact iFact =
     li
     [ class "form-inline"
     , style [ ("padding-top", "0.5em"), ("padding-bottom", "0.5em") ]
     ]
-    [ factView iFact
+    [ factView iFact changingFact
     , removeView iFact
     ]
 
-factView : IndexedFact -> Html Msg
-factView { id, fact } =
-    App.map (ToFact id) (Fact.view fact)
+factView : IndexedFact -> Maybe Int -> Html Msg
+factView { id, fact } changingFact =
+    let
+        enable =
+            case changingFact of
+                Nothing -> True
+                Just chId -> id == chId
+    in
+        App.map (ToFact id) (Fact.view fact enable)
 
 removeView : IndexedFact -> Html Msg
 removeView { id, fact } =

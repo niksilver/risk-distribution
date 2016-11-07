@@ -18,7 +18,7 @@ import Html exposing
 import Html.Attributes exposing
     ( href
     , class, style, id
-    , type', value, placeholder, for, selected
+    , type', value, disabled, placeholder, for, selected
     )
 import Html.Events exposing (onInput, onClick, on)
 import Json.Decode exposing (Decoder)
@@ -174,11 +174,11 @@ updateText model =
 
 -- Rendering a fact
 
-view : Model -> Html Msg
-view model =
+view : Model -> Bool -> Html Msg
+view model enabled =
         span []
         [ "There is a " |> text
-        , probBox model
+        , probBox model enabled
         , "% chance that it's " |> text
         , limitControl model
         , " " |> text
@@ -191,6 +191,7 @@ type alias TextBoxSpec =
     , label : String
     , width : String
     , value : String
+    , enabled : Bool
     , mapping : (String -> Msg)
     }
 
@@ -208,18 +209,20 @@ textBox spec =
         , class "form-control"
         , style [ ("width", spec.width), ("text-align", "right") ]
         , value spec.value
+        , disabled (not spec.enabled)
         , onInput spec.mapping
         ]
         []
     ]
 
-probBox : Model -> Html Msg
-probBox model =
+probBox : Model -> Bool -> Html Msg
+probBox model enabled =
     textBox
         { id = "probPerc"
         , label = "Percentage"
         , width = "5em"
         , value = model.text.probPerc
+        , enabled = enabled
         , mapping = ProbPerc
         }
 
@@ -248,6 +251,7 @@ lowerBox lower =
         , label = "Value"
         , width = "7em"
         , value = lower
+        , enabled = True
         , mapping = Lower
         }
 
@@ -258,6 +262,7 @@ upperBox upper =
         , label = "Value"
         , width = "7em"
         , value = upper
+        , enabled = True
         , mapping = Upper
         }
 
