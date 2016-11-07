@@ -8,6 +8,7 @@ import ValueTest exposing (all)
 import ZoneDictTest exposing (all)
 import BlockTest exposing (all)
 import FactTest exposing (all)
+import FactListTest exposing (all)
 import SpecTest exposing (all)
 import UtilTest exposing (all)
 import ExpandTest exposing (all)
@@ -33,6 +34,7 @@ main =
         , ZoneDictTest.all
         , BlockTest.all
         , FactTest.all
+        , FactListTest.all
         , SpecTest.all
         , UtilTest.all
         , ExpandTest.all

@@ -1,4 +1,9 @@
-module FactList exposing (Model, Msg, init, segments, update, view)
+module FactList exposing
+    ( Model, Msg
+    , init
+    , segments, beingEdited
+    , update, view
+    )
 
 import Html exposing (Html, p, ol, li, button, text)
 import Html.Attributes exposing (style, class, type')
@@ -8,6 +13,7 @@ import Html.App as App
 import Fact exposing (Limit (AtLeast, AtMost, Between))
 import Zone exposing (inf, Zone)
 import Segment exposing (Segment)
+import Util
 
 
 type alias Model =
@@ -41,6 +47,21 @@ segments model =
     model.iFacts
         |> List.map .fact
         |> List.map Fact.segment
+
+
+-- Work out which Fact, if any, is being edited (and so we should disable
+-- the others)
+
+beingEdited : Model -> Maybe Int
+beingEdited model =
+    let
+        idOfEdit iFact =
+            if (Fact.changed iFact.fact) then
+                Just iFact.id
+            else
+                Nothing
+    in
+        Util.find idOfEdit model.iFacts
 
 
 -- Updates
