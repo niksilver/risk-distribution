@@ -180,10 +180,10 @@ view model enabled =
         [ "There is a " |> text
         , probBox model enabled
         , "% chance that it's " |> text
-        , limitControl model
+        , limitControl model enabled
         , " " |> text
-        , valueBoxes model
-        , okayView
+        , valueBoxes model enabled
+        , okayView enabled
         ]
 
 type alias TextBoxSpec =
@@ -226,43 +226,43 @@ probBox model enabled =
         , mapping = ProbPerc
         }
 
-valueBoxes : Model -> Html Msg
-valueBoxes model =
+valueBoxes : Model -> Bool -> Html Msg
+valueBoxes model enabled =
     let
         span' =
             span [ style [ ("display", "inline-block"), ("width", "19em") ]]
     in
         case model.text.limit of
             AtLeast ->
-                span' [ lowerBox model.text.lower ]
+                span' [ lowerBox model.text.lower enabled ]
             AtMost ->
-                span' [ upperBox model.text.upper ]
+                span' [ upperBox model.text.upper enabled ]
             Between ->
                 span'
-                    [ lowerBox model.text.lower
+                    [ lowerBox model.text.lower enabled
                     , " and " |> text
-                    , upperBox model.text.upper
+                    , upperBox model.text.upper enabled
                     ]
 
-lowerBox : String -> Html Msg
-lowerBox lower =
+lowerBox : String -> Bool -> Html Msg
+lowerBox lower enabled =
     textBox
         { id = "lower"
         , label = "Value"
         , width = "7em"
         , value = lower
-        , enabled = True
+        , enabled = enabled
         , mapping = Lower
         }
 
-upperBox : String -> Html Msg
-upperBox upper =
+upperBox : String -> Bool -> Html Msg
+upperBox upper enabled =
     textBox
         { id = "upper"
         , label = "Value"
         , width = "7em"
         , value = upper
-        , enabled = True
+        , enabled = enabled
         , mapping = Upper
         }
 
@@ -279,8 +279,8 @@ onChange =
     in
         on "change" (Json.Decode.map toLimit strDecoder)
 
-limitControl : Model -> Html Msg
-limitControl model =
+limitControl : Model -> Bool -> Html Msg
+limitControl model enabled =
     let
         limit =
             if (model.data.zone.to == inf) then
@@ -292,6 +292,7 @@ limitControl model =
     in
         select
         [ class "form-control"
+        , disabled (not enabled)
         , onChange
         ]
         [ option
@@ -305,12 +306,13 @@ limitControl model =
             [ text "between" ]
         ]
 
-okayView : Html Msg
-okayView =
+okayView : Bool -> Html Msg
+okayView enabled =
     button
     [ class "btn btn-default"
     , type' "button"
     , style [ ("margin-left", "1em") ]
+    , disabled (not enabled)
     , onClick ConfirmText
     ]
     [ text "Okay" ]

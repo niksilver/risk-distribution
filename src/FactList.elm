@@ -6,7 +6,7 @@ module FactList exposing
     )
 
 import Html exposing (Html, p, ol, li, button, text)
-import Html.Attributes exposing (style, class, type')
+import Html.Attributes exposing (disabled, style, class, type')
 import Html.Events exposing (onClick)
 import Html.App as App
 
@@ -123,11 +123,12 @@ view : Model -> Html Msg
 view model =
     let
         changingFact = changed model
+        somethingChanging = (changingFact /= Nothing)
     in
         ol []
             (List.append
                 (List.map (removableFactView changingFact) model.iFacts)
-                [ p [] [ addView ]
+                [ p [] [ addView somethingChanging ]
                 ]
             )
 
@@ -138,35 +139,45 @@ removableFactView changingFact iFact =
     , style [ ("padding-top", "0.5em"), ("padding-bottom", "0.5em") ]
     ]
     [ factView iFact changingFact
-    , removeView iFact
+    , removeView iFact changingFact
     ]
+
+-- Should we enable a specific fact, given that (maybe) some fact is changing?
+
+shouldEnable : Int -> Maybe Int -> Bool
+shouldEnable id changingFact =
+    case changingFact of
+        Nothing -> True
+        Just chId -> id == chId
 
 factView : IndexedFact -> Maybe Int -> Html Msg
 factView { id, fact } changingFact =
     let
-        enable =
-            case changingFact of
-                Nothing -> True
-                Just chId -> id == chId
+        enable = shouldEnable id changingFact
     in
         App.map (ToFact id) (Fact.view fact enable)
 
-removeView : IndexedFact -> Html Msg
-removeView { id, fact } =
+removeView : IndexedFact -> Maybe Int -> Html Msg
+removeView { id, fact } changingFact =
+    let
+        disable = shouldEnable id changingFact |> not
+    in
+        button
+        [ class "btn btn-default"
+        , type' "button"
+        , style [ ("margin-left", "1em") ]
+        , disabled disable
+        , onClick (Remove id)
+        ]
+        [ text "Remove" ]
+
+
+addView : Bool -> Html Msg
+addView somethingChanging =
     button
     [ class "btn btn-default"
     , type' "button"
-    , style [ ("margin-left", "1em") ]
-    , onClick (Remove id)
-    ]
-    [ text "Remove" ]
-
-
-addView : Html Msg
-addView =
-    button
-    [ class "btn btn-default"
-    , type' "button"
+    , disabled somethingChanging
     , onClick Add
     ]
     [ text "Add" ]
