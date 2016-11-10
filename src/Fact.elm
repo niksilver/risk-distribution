@@ -296,30 +296,21 @@ onChange =
 
 limitControl : Model -> Bool -> Html Msg
 limitControl model enabled =
-    let
-        limit =
-            if (model.data.zone.to == inf) then
-                AtLeast
-            else if (model.data.zone.from == -inf) then
-                AtMost
-            else
-                Between
-    in
-        select
-        [ class "form-control"
-        , disabled (not enabled)
-        , onChange
-        ]
-        [ option
-            [ selected (limit == AtMost) ]
-            [ text atMostString ]
-        , option
-            [ selected (limit == AtLeast) ]
-            [ text atLeastString ]
-        , option
-            [ selected (limit == Between) ]
-            [ text "between" ]
-        ]
+    select
+    [ class "form-control"
+    , disabled (not enabled)
+    , onChange
+    ]
+    [ option
+        [ selected (model.text.limit == AtMost) ]
+        [ text atMostString ]
+    , option
+        [ selected (model.text.limit == AtLeast) ]
+        [ text atLeastString ]
+    , option
+        [ selected (model.text.limit == Between) ]
+        [ text "between" ]
+    ]
 
 okayView : Model -> Html Msg
 okayView model =
