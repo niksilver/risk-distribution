@@ -185,7 +185,8 @@ updateText model =
             _ ->
                 model
 
--- Rendering a fact
+-- Rendering a fact.
+-- We may need to render it as disabled
 
 view : Model -> Bool -> Html Msg
 view model enabled =
@@ -196,7 +197,7 @@ view model enabled =
         , limitControl model enabled
         , " " |> text
         , valueBoxes model enabled
-        , okayView enabled
+        , okayView model
         , resetView model
         ]
 
@@ -320,16 +321,19 @@ limitControl model enabled =
             [ text "between" ]
         ]
 
-okayView : Bool -> Html Msg
-okayView enabled =
-    button
-    [ class "btn btn-default"
-    , type' "button"
-    , style [ ("margin-left", "1em") ]
-    , disabled (not enabled)
-    , onClick ConfirmText
-    ]
-    [ text "Okay" ]
+okayView : Model -> Html Msg
+okayView model =
+    let
+        enabled = changed model
+    in
+        button
+        [ class "btn btn-default"
+        , type' "button"
+        , style [ ("margin-left", "1em") ]
+        , disabled (not enabled)
+        , onClick ConfirmText
+        ]
+        [ text "Okay" ]
 
 resetView : Model -> Html Msg
 resetView model =
