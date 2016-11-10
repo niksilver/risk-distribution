@@ -1,7 +1,7 @@
 module Fact exposing
     ( Model
     , Limit (AtLeast, AtMost, Between)
-    , Msg (ProbPerc, Lower, Upper, ChangeLimit, ConfirmText)
+    , Msg (ProbPerc, Lower, Upper, ChangeLimit, ConfirmText, ResetText)
     , init, segment, reset
     , update, view
     , changed
@@ -49,6 +49,7 @@ type Msg
     | Upper String
     | ChangeLimit Limit
     | ConfirmText
+    | ResetText
 
 
 -- Constants
@@ -127,6 +128,8 @@ update msg model =
             updateLimit limit model
         ConfirmText ->
             updateText model
+        ResetText ->
+            reset model
 
 updateProbPerc : String -> Model -> Model
 updateProbPerc str model =
@@ -208,6 +211,7 @@ view model enabled =
         , " " |> text
         , valueBoxes model enabled
         , okayView enabled
+        , resetView model
         ]
 
 type alias TextBoxSpec =
@@ -340,6 +344,20 @@ okayView enabled =
     , onClick ConfirmText
     ]
     [ text "Okay" ]
+
+resetView : Model -> Html Msg
+resetView model =
+    let
+        enabled = changed model
+    in
+        button
+        [ class "btn btn-default"
+        , type' "button"
+        , style [ ("margin-left", "1em") ]
+        , disabled (not enabled)
+        , onClick ResetText
+        ]
+        [ text "Reset" ]
 
 
 -- Has the text changed from the underlying data?
