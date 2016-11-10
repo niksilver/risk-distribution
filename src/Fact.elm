@@ -64,24 +64,10 @@ atMostString = "less than"
 -- Initial model
 
 init : Segment -> Model
-init y =
-    let
-        toString2 num =
-            if (num == inf || num == -inf) then "" else toString num
-        limit' =
-            if (y.zone.from == -inf) then
-                AtMost
-            else if (y.zone.to == inf) then
-                AtLeast
-            else Between
-    in
-        { text =
-            { probPerc = y.pc |> toString
-            , limit = limit'
-            , lower = y.zone.from |> toString2
-            , upper = y.zone.to |> toString2
-            }
-        , data = y
+init segment =
+    reset
+        { text = { probPerc = "", limit = Between, lower = "", upper = "" }
+        , data = segment
         }
 
 -- Extract the segment
