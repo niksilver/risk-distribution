@@ -2,7 +2,8 @@ module Fact exposing
     ( Model
     , Limit (AtLeast, AtMost, Between)
     , Msg (ProbPerc, Lower, Upper, ChangeLimit, ConfirmText)
-    , init, segment, update, view
+    , init, segment, reset
+    , update, view
     , changed
     )
 
@@ -87,6 +88,29 @@ init y =
 segment : Model -> Segment
 segment =
     .data
+
+-- Reset the text in a fact to match the data
+
+reset : Model -> Model
+reset model =
+    let
+        zone = model.data.zone
+        (limit, lower, upper) =
+            if (zone.from == -inf) then
+                (AtMost, "", toString zone.to)
+            else if (zone.to == inf) then
+                (AtLeast, toString zone.from, "")
+            else
+                (Between, toString zone.from, toString zone.to)
+    in
+        { model
+        | text =
+            { probPerc = toString model.data.pc
+            , limit = limit
+            , lower = lower
+            , upper = upper
+            }
+        }
 
 -- Updating the model
 

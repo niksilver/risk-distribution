@@ -16,6 +16,7 @@ all =
     , updateTestForUpper
     , updateTestForChangeLimit
     , updateTestForConfirmText
+    , resetTest
     , changedTestForLowerBound
     , changedTestForUpperBound
     , changedTestForLowerAndUpperBound
@@ -323,6 +324,56 @@ updateTestForConfirmText =
         , data = Segment 40 (Zone 10 50)
         }
             |> update ConfirmText
+      )
+
+    ]
+
+resetTest : Test
+resetTest =
+    suite "resetTest"
+
+    [ test "Resetting unchanged fact should keep it the same" <|
+      assertEqual
+      { text = { probPerc = "40", limit = Between, lower = "10", upper = "50" }
+      , data = Segment 40 (Zone 10 50)
+      }
+      ( { text = { probPerc = "40", limit = Between, lower = "10", upper = "50" }
+        , data = Segment 40 (Zone 10 50)
+        }
+            |> reset
+      )
+
+    , test "Resetting Between fact when all text is changed should reset all fields" <|
+      assertEqual
+      { text = { probPerc = "50", limit = Between, lower = "0", upper = "2000" }
+      , data = Segment 50 (Zone 0 2000)
+      }
+      ( { text = { probPerc = "", limit = AtLeast, lower = "", upper = "" }
+        , data = Segment 50 (Zone 0 2000)
+        }
+            |> reset
+      )
+
+    , test "Resetting AtLeast fact when all text is changed should change all, and upper should be empty" <|
+      assertEqual
+      { text = { probPerc = "10", limit = AtLeast, lower = "1", upper = "" }
+      , data = Segment 10 (Zone 1 inf)
+      }
+      ( { text = { probPerc = "", limit = Between, lower = "", upper = "10" }
+        , data = Segment 10 (Zone 1 inf)
+        }
+            |> reset
+      )
+
+    , test "Resetting AtMost fact when all text is changed should change all, and lower should be empty" <|
+      assertEqual
+      { text = { probPerc = "15", limit = AtMost, lower = "", upper = "1000" }
+      , data = Segment 15 (Zone -inf 1000)
+      }
+      ( { text = { probPerc = "", limit = Between, lower = "0", upper = "" }
+        , data = Segment 15 (Zone -inf 1000)
+        }
+            |> reset
       )
 
     ]
