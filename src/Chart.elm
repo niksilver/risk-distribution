@@ -1,6 +1,5 @@
 module Chart exposing (view)
 
-import FactList
 import Axis exposing (Scale)
 import Spec exposing (Spec, ViewDims, Transformer)
 import Block exposing (Rect)
