@@ -1,4 +1,3 @@
-import DistributionTest exposing (all)
 import ZoneTest exposing (all)
 import ConstraintTest exposing (all)
 import SegmentTest exposing (all)
@@ -24,8 +23,7 @@ main : Program Never
 main =
     runSuiteHtml <|
         suite "All tests"
-        [ DistributionTest.all
-        , ZoneTest.all
+        [ ZoneTest.all
         , ConstraintTest.all
         , SegmentTest.all
         , DerivationTest.all
