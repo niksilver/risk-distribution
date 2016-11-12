@@ -1,7 +1,5 @@
 module Chart exposing (view)
 
-import Curve
-import Spline
 import FactList
 import Axis exposing (Scale)
 import Spec exposing (Spec, ViewDims, Transformer)
@@ -35,13 +33,6 @@ viewDim =
 view : Spec -> Html x
 view spec =
     let
-        -- Get the distribution curve and its min and max points
-
-        curve = Curve.distribution spec
-        (curveMin, curveMax) =
-            Spline.yMinMax curve
-                |> Maybe.withDefault (0, spec.maxY)
-
         -- Rescale the chart spec to include an x-axis with nice max and min
         -- and a curve that might go higher than the tallest rect
 
@@ -50,7 +41,7 @@ view spec =
             { spec
             | minX = scale.min
             , maxX = scale.max
-            , maxY = max spec.maxY curveMax
+            , maxY = spec.maxY
             }
         transformer = Spec.transformer viewDim scaledSpec
 
@@ -65,7 +56,6 @@ view spec =
         , SvgA.viewBox viewBoxDim
         ]
         [ viewBlocks transformer scaledSpec
-        , Curve.view transformer curve
         , Axis.viewXAxis transformer scale
         ]
 
