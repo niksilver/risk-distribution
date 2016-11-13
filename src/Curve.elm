@@ -1,4 +1,8 @@
-module Curve exposing (view, distribution)
+module Curve exposing
+    ( view, distribution
+    , curvePointsForRect
+    , bracketRects
+    )
 
 import Spec exposing (Spec, Transformer)
 import Path exposing (Path (Path), Instruction (M, L))
@@ -51,7 +55,7 @@ distribution spec =
         -- Squash the curve up if it falls below the x-axis
     in
         rects
-            |> Spec.bracketRects
+            |> bracketRects
             |> Util.sliding 3
             |> List.map curvePoints
             |> List.concat
@@ -66,7 +70,7 @@ curvePoints : List Rect -> List Pos
 curvePoints rects =
     case rects of
         prev :: rect :: next :: [] ->
-            Spec.curvePointsForRect prev rect next
+            curvePointsForRect prev rect next
         _ ->
             []
 
@@ -121,3 +125,50 @@ addBackOfSpline rects points =
             |> List.reverse
             |> addPosIfDifferent pos
             |> List.reverse
+
+-- Given a rectangle (and the rectangles before and after it)
+-- return a list of points where a distribution curve should run through.
+-- If a point needs to go on the border between two neighbouring rectangles
+-- then it's assumed to be set by the right hand one.
+
+curvePointsForRect : Rect -> Rect -> Rect -> List Pos
+curvePointsForRect prev rect next =
+    let
+        height = rect.height
+        mid = (rect.left + rect.right) / 2
+        midLeft  = (2 * rect.left / 3) + (rect.right / 3)
+        midRight = (rect.left / 3) + (2 * rect.right / 3)
+    in
+        case (compare height prev.height, compare next.height height) of
+            (GT, GT) -> [Pos mid height]
+            (LT, LT) -> [Pos mid height]
+            (LT, GT) -> [Pos midLeft height, Pos midRight height]
+            (GT, LT) -> [Pos midLeft height, Pos midRight height]
+            (EQ, EQ) -> [Pos rect.left height]
+            (GT, EQ) -> [Pos midLeft height]
+            (EQ, LT) -> [Pos rect.left height, Pos midRight height]
+            (EQ, GT) -> [Pos rect.left height, Pos midRight height]
+            (LT, EQ) -> [Pos midLeft height]
+
+-- Take a list of rectangles and bracket it (one zero-height rect on the
+-- start and end).
+
+type End = Front | Back
+
+bracketRects : List Rect -> List Rect
+bracketRects rects =
+    Util.bracketMap
+        (bracketRects1 Front)
+        (bracketRects1 Back)
+        rects
+
+bracketRects1 : End -> Rect -> Rect
+bracketRects1 end rect =
+    let
+        width = rect.right - rect.left
+    in
+        case end of
+            Front ->
+                Rect (rect.left - width) rect.left 0
+            Back ->
+                Rect rect.right (rect.right + width) 0

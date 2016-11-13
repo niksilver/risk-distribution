@@ -2,8 +2,6 @@ module Spec exposing
     ( Spec, ViewDims, Transformer
     , fromSegments, rects
     , transformX, transformY, scaleX, scaleY, transformer
-    , curvePointsForRect
-    , bracketRects
     )
 
 import Segment exposing (Segment)
@@ -122,50 +120,3 @@ transformer viewDim spec =
     , scX = scaleX viewDim spec
     , scY = scaleY viewDim spec
     }
-
--- Given a rectangle (and the rectangles before and after it)
--- return a list of points where a distribution curve should run through.
--- If a point needs to go on the border between two neighbouring rectangles
--- then it's assumed to be set by the right hand one.
-
-curvePointsForRect : Rect -> Rect -> Rect -> List Pos
-curvePointsForRect prev rect next =
-    let
-        height = rect.height
-        mid = (rect.left + rect.right) / 2
-        midLeft  = (2 * rect.left / 3) + (rect.right / 3)
-        midRight = (rect.left / 3) + (2 * rect.right / 3)
-    in
-        case (compare height prev.height, compare next.height height) of
-            (GT, GT) -> [Pos mid height]
-            (LT, LT) -> [Pos mid height]
-            (LT, GT) -> [Pos midLeft height, Pos midRight height]
-            (GT, LT) -> [Pos midLeft height, Pos midRight height]
-            (EQ, EQ) -> [Pos rect.left height]
-            (GT, EQ) -> [Pos midLeft height]
-            (EQ, LT) -> [Pos rect.left height, Pos midRight height]
-            (EQ, GT) -> [Pos rect.left height, Pos midRight height]
-            (LT, EQ) -> [Pos midLeft height]
-
--- Take a list of rectangles and bracket it (one zero-height rect on the
--- start and end).
-
-type End = Front | Back
-
-bracketRects : List Rect -> List Rect
-bracketRects rects =
-    Util.bracketMap
-        (bracketRects1 Front)
-        (bracketRects1 Back)
-        rects
-
-bracketRects1 : End -> Rect -> Rect
-bracketRects1 end rect =
-    let
-        width = rect.right - rect.left
-    in
-        case end of
-            Front ->
-                Rect (rect.left - width) rect.left 0
-            Back ->
-                Rect rect.right (rect.right + width) 0

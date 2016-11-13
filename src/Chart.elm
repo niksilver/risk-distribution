@@ -2,6 +2,7 @@ module Chart exposing (view)
 
 import Axis exposing (Scale)
 import Spec exposing (Spec, ViewDims, Transformer)
+import Curve  -- Only needed when we want to render an actual curve
 import Block exposing (Rect)
 import Value exposing (Value (Exactly, Maximum, Contradiction))
 
