@@ -33,14 +33,12 @@ view : Spec -> Html x
 view spec =
     let
         -- Rescale the chart spec to include an x-axis with nice max and min
-        -- and a curve that might go higher than the tallest rect
 
         scale = Axis.scale spec.minX spec.maxX maxTicks
         scaledSpec =
             { spec
             | minX = scale.min
             , maxX = scale.max
-            , maxY = spec.maxY
             }
         transformer = Spec.transformer viewDim scaledSpec
 
