@@ -15,6 +15,7 @@ all =
     , taperZoneWidthTest
     , taperComparatorTest
     , toChartBlockTest
+    , toOverlayBlockTest
     ]
 
 trimTest : Test
@@ -392,3 +393,64 @@ toChartBlockTest =
         -- we're confident this is robust
 
         ]
+
+toOverlayBlockTest : Test
+toOverlayBlockTest =
+    suite "toOverlayBlockTest"
+
+    [ test "If a block is within the bounds, the overlay should be the same" <|
+      let
+        block = Block (Zone 5 52) (Exactly 25 [2])
+      in
+        assertEqual
+        { zone = block.zone
+        , value = block.value
+        , rect = Rect 5 52 25
+        }
+        (toOverlayBlock 0 1000 26 block)
+
+    , test "If a block's left is out of bounds, the overlay should be cut at minX" <|
+      let
+        block = Block (Zone -inf 52) (Exactly 25 [2])
+      in
+        assertEqual
+        { zone = block.zone
+        , value = block.value
+        , rect = Rect 0 52 25
+        }
+        (toOverlayBlock 0 1000 26 block)
+
+    , test "If a block's right is out of bounds, the overlay should be cut at maxX" <|
+      let
+        block = Block (Zone 5 inf) (Exactly 25 [2])
+      in
+        assertEqual
+        { zone = block.zone
+        , value = block.value
+        , rect = Rect 5 1000 25
+        }
+        (toOverlayBlock 0 1000 26 block)
+
+    , test "If a block's height is out of bounds, the overlay should be cut at maxY" <|
+      let
+        block = Block (Zone 5 52) (Exactly 25 [2])
+      in
+        assertEqual
+        { zone = block.zone
+        , value = block.value
+        , rect = Rect 5 52 20
+        }
+        (toOverlayBlock 0 1000 20 block)
+
+    , test "A contradictory block's overlay should be cut at maxY" <|
+      let
+        block = Block (Zone 5 52) (Contradiction [2, 0, 1])
+      in
+        assertEqual
+        { zone = block.zone
+        , value = block.value
+        , rect = Rect 5 52 33
+        }
+        (toOverlayBlock 0 1000 33 block)
+
+    ]

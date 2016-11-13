@@ -1,7 +1,8 @@
 module Block exposing
-    ( Block, Rect, ChartBlock
+    ( Block, Rect, ChartBlock, OverlayBlock
     , trim, taperBlocks, taperZoneWidth
     , taperComparator, toChartBlock
+    , toOverlayBlock
     )
 
 -- Module to help work out the shapes needed to lay out and display
@@ -31,6 +32,15 @@ type alias Rect =
 -- out on a chart
 
 type alias ChartBlock =
+    { zone : Zone
+    , value : Value
+    , rect : Rect
+    }
+
+-- A block representing an area on a chart where we can overlay information.
+-- It corresponds to a Block, but it will be within the bounds of a chart.
+
+type alias OverlayBlock =
     { zone : Zone
     , value : Value
     , rect : Rect
@@ -232,4 +242,24 @@ makeTaperingChartBlock block blocks dir idx =
         { zone = block.zone
         , value = block.value
         , rect = Rect left right height
+        }
+
+-- Covert a Block to an OverlayBlock, give the bounds we should be working in
+
+toOverlayBlock : Float -> Float -> Float -> Block -> OverlayBlock
+toOverlayBlock minX maxX maxY block =
+    let
+        height =
+            Value.percent block.value
+            |> Maybe.map toFloat
+            |> Maybe.withDefault maxY
+            |> min maxY
+    in
+        { zone = block.zone
+        , value = block.value
+        , rect =
+            { left = max minX block.zone.from
+            , right = min maxX block.zone.to
+            , height = height
+            }
         }
