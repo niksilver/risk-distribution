@@ -398,14 +398,14 @@ toOverlayBlockTest : Test
 toOverlayBlockTest =
     suite "toOverlayBlockTest"
 
-    [ test "If a block is within the bounds, the overlay should be the same" <|
+    [ test "If a block is within the bounds, the overlay should be the same (but height should be max)" <|
       let
         block = Block (Zone 5 52) (Exactly 25 [2])
       in
         assertEqual
         { zone = block.zone
         , value = block.value
-        , rect = Rect 5 52 25
+        , rect = Rect 5 52 26
         }
         (toOverlayBlock 0 1000 26 block)
 
@@ -416,7 +416,7 @@ toOverlayBlockTest =
         assertEqual
         { zone = block.zone
         , value = block.value
-        , rect = Rect 0 52 25
+        , rect = Rect 0 52 26
         }
         (toOverlayBlock 0 1000 26 block)
 
@@ -427,7 +427,7 @@ toOverlayBlockTest =
         assertEqual
         { zone = block.zone
         , value = block.value
-        , rect = Rect 5 1000 25
+        , rect = Rect 5 1000 26
         }
         (toOverlayBlock 0 1000 26 block)
 
@@ -442,7 +442,7 @@ toOverlayBlockTest =
         }
         (toOverlayBlock 0 1000 20 block)
 
-    , test "A contradictory block's overlay should be cut at maxY" <|
+    , test "A contradictory block's overlay should go to maxY" <|
       let
         block = Block (Zone 5 52) (Contradiction [2, 0, 1])
       in

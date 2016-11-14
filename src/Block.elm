@@ -248,18 +248,11 @@ makeTaperingChartBlock block blocks dir idx =
 
 toOverlayBlock : Float -> Float -> Float -> Block -> OverlayBlock
 toOverlayBlock minX maxX maxY block =
-    let
-        height =
-            Value.percent block.value
-            |> Maybe.map toFloat
-            |> Maybe.withDefault maxY
-            |> min maxY
-    in
-        { zone = block.zone
-        , value = block.value
-        , rect =
-            { left = max minX block.zone.from
-            , right = min maxX block.zone.to
-            , height = height
-            }
+    { zone = block.zone
+    , value = block.value
+    , rect =
+        { left = max minX block.zone.from
+        , right = min maxX block.zone.to
+        , height = maxY
         }
+    }
