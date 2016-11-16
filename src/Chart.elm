@@ -57,24 +57,28 @@ view spec =
         , Axis.viewXAxis transformer scale
         ]
 
--- Render just the distribution area as blocks,
+-- Render just the distribution area as chart bars,
 -- given functions to transform and scale a given spec
 
 viewBlocks : Transformer -> Spec -> Svg x
 viewBlocks transformer spec =
     let
-        draw chBlock =
-            case chBlock.value of
+        draw bar =
+            case bar.value of
                 Exactly _ _ ->
-                    drawExactly transformer chBlock.rect
+                    drawExactly transformer bar.rect
                 Maximum pc _ ->
-                    drawMaximum transformer chBlock.rect pc
+                    drawMaximum transformer bar.rect pc
                 _ ->
                     Svg.svg [] []
+        bars =
+            spec.blocks
+                |> List.map .bars
+                |> List.concat
     in
         Svg.g
         []
-        (List.map draw spec.blocks)
+        (List.map draw bars)
 
 drawExactly : Transformer -> Rect -> Svg x
 drawExactly transformer rect =

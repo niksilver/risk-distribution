@@ -4,22 +4,28 @@ module Spec exposing
     , transformX, transformY, scaleX, scaleY, transformer
     )
 
+import Zone exposing (Zone)
 import Segment exposing (Segment)
 import Derivation
 import DerivationScheme
-import Block exposing (Rect, ChartBlock)
+import Block exposing (Rect, ChartBlock, OverlayBlock)
 import ZoneDict
+import Value exposing (Value(Exactly))
 import Spline exposing (Pos)
 import Util
 
 
--- Specification for a chart
+-- Specification for a chart.
+-- It will have some bounds, and some block areas.
+-- Each block area consists of an overlay, and it will be displayed as
+-- a number of bars - usually one, but a zone tapering off to infinity
+-- might be displayed as several bars.
 
 type alias Spec =
     { minX : Float
     , maxX : Float
     , maxY : Float
-    , blocks : List ChartBlock
+    , blocks : List { overlay : OverlayBlock, bars : List ChartBlock }
     }
 
 -- Dimensions for a viewBox
@@ -42,6 +48,7 @@ type alias Transformer =
     , scY : Float -> Float    -- Scale a y co-ordinate
     }
 
+tmpOverlay = OverlayBlock (Zone 0 1) (Exactly 0 []) (Rect 0 0 0)
 
 -- Create a spec from some segments.
 -- It isn't scaled at all.
@@ -63,18 +70,22 @@ fromSegments segments =
                 |> Block.trim
         chartBlocks =
             List.map (\b -> Block.toChartBlock b blocks) blocks
-                |> List.concat
+        allBars = chartBlocks |> List.concat |> List.map .rect
         maybeMinX =
-            chartBlocks |> List.map .rect |> List.map .left |> List.minimum
+            allBars |> List.map .left |> List.minimum
         maybeMaxX =
-            chartBlocks |> List.map .rect |> List.map .right |> List.maximum
+            allBars |> List.map .right |> List.maximum
         maybeMaxY =
-            chartBlocks |> List.map .rect |> List.map .height |> List.maximum
+            allBars |> List.map .height |> List.maximum
         toSpec minX maxX maxY =
             { minX = minX
             , maxX = maxX
             , maxY = maxY
-            , blocks = chartBlocks
+            , blocks =
+                List.map2
+                    (\ov chs -> { overlay = ov, bars = chs})
+                    (List.repeat (List.length chartBlocks) tmpOverlay)
+                    (chartBlocks)
             }
     in
         Maybe.map3
@@ -83,11 +94,14 @@ fromSegments segments =
             maybeMaxX
             maybeMaxY
 
--- Extract just the rects from a spec
+-- Extract just the ChartBlock rects from a spec
 
 rects : Spec -> List Rect
 rects spec =
-    List.map .rect spec.blocks
+    spec.blocks
+        |> List.map .bars
+        |> List.concat
+        |> List.map .rect
 
 -- Scale a length on the x- or y-axis from a spec to a view box.
 
