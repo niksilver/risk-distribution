@@ -42,7 +42,7 @@ view transformer curve =
 distribution : Spec -> List Pos
 distribution spec =
     let
-        rects = Spec.rects spec
+        bars = Spec.bars spec
 
         -- To create the path for distribution curve we take
         -- the initial set of rectangles in the chart spec and...
@@ -54,12 +54,12 @@ distribution spec =
         -- Join up the points with a spline.
         -- Squash the curve up if it falls below the x-axis
     in
-        rects
+        bars
             |> bracketRects
             |> Util.sliding 3
             |> List.map curvePoints
             |> List.concat
-            |> addEndsOfSpline rects
+            |> addEndsOfSpline bars
             |> Spline.splines 20
             |> squash
 

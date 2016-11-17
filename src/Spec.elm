@@ -1,17 +1,15 @@
 module Spec exposing
     ( Spec, ViewDims, Transformer
-    , fromSegments, rects
+    , fromSegments, bars
     , transformX, transformY, scaleX, scaleY, transformer
     )
 
 import Zone exposing (Zone)
 import Segment exposing (Segment)
-import Derivation
 import DerivationScheme
 import Block exposing (Rect, ChartBars, OverlayBlock)
 import ZoneDict
-import Value exposing (Value(Exactly))
-import Spline exposing (Pos)
+import Spline exposing (Pos) -- Only if we add a curve to the view
 import Util
 
 
@@ -93,10 +91,10 @@ fromSegments segments =
             maybeMaxX
             maybeMaxY
 
--- Extract just the ChartBlock rects from a spec
+-- Extract just the ChartBars (all together) from a spec
 
-rects : Spec -> List Rect
-rects spec =
+bars : Spec -> List Rect
+bars spec =
     spec.blocks
         |> List.map .bars
         |> List.concat

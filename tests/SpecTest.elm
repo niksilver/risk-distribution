@@ -14,7 +14,7 @@ all : Test
 all =
     suite "SpecTest"
     [ fromSegmentsTest
-    , rectsTest
+    , barsTest
     , scaleXTest
     , scaleYTest
     , transformXTest
@@ -76,9 +76,9 @@ fromSegmentsTest =
 
     ]
 
-rectsTest : Test
-rectsTest =
-    suite "rectsTest"
+barsTest : Test
+barsTest =
+    suite "barsTest"
 
     [ test "Should return rects for simple spec" <|
       let
@@ -104,7 +104,7 @@ rectsTest =
         , Rect 2 7 10
         , Rect 7 11 5
         ]
-        (rects spec)
+        (bars spec)
     ]
 
 scaleXTest : Test
