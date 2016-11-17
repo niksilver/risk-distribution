@@ -8,7 +8,7 @@ import Zone exposing (Zone)
 import Segment exposing (Segment)
 import Derivation
 import DerivationScheme
-import Block exposing (Rect, ChartBlock, OverlayBlock)
+import Block exposing (Rect, ChartBars, OverlayBlock)
 import ZoneDict
 import Value exposing (Value(Exactly))
 import Spline exposing (Pos)
@@ -25,7 +25,7 @@ type alias Spec =
     { minX : Float
     , maxX : Float
     , maxY : Float
-    , blocks : List { overlay : OverlayBlock, bars : List ChartBlock }
+    , blocks : List { overlay : OverlayBlock, bars : ChartBars }
     }
 
 -- Dimensions for a viewBox
@@ -48,7 +48,6 @@ type alias Transformer =
     , scY : Float -> Float    -- Scale a y co-ordinate
     }
 
-tmpOverlay = OverlayBlock (Zone 0 1) (Exactly 0 []) (Rect 0 0 0)
 
 -- Create a spec from some segments.
 -- It isn't scaled at all.
@@ -68,9 +67,9 @@ fromSegments segments =
         blocks =
             List.map toBlock entries
                 |> Block.trim
-        chartBlocks =
-            List.map (\b -> Block.toChartBlock b blocks) blocks
-        allBars = chartBlocks |> List.concat |> List.map .rect
+        chartBars =
+            List.map (\b -> Block.toChartBars b blocks) blocks
+        allBars = chartBars |> List.concat
         maybeMinX =
             allBars |> List.map .left |> List.minimum
         maybeMaxX =
@@ -84,8 +83,8 @@ fromSegments segments =
             , blocks =
                 List.map2
                     (\ov chs -> { overlay = ov, bars = chs})
-                    (List.repeat (List.length chartBlocks) tmpOverlay)
-                    (chartBlocks)
+                    (List.map (Block.toOverlayBlock minX maxX maxY) blocks)
+                    (chartBars)
             }
     in
         Maybe.map3
@@ -101,7 +100,6 @@ rects spec =
     spec.blocks
         |> List.map .bars
         |> List.concat
-        |> List.map .rect
 
 -- Scale a length on the x- or y-axis from a spec to a view box.
 

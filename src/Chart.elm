@@ -63,22 +63,24 @@ view spec =
 viewBlocks : Transformer -> Spec -> Svg x
 viewBlocks transformer spec =
     let
-        draw bar =
-            case bar.value of
+        draw (value, bar) =
+            case value of
                 Exactly _ _ ->
-                    drawExactly transformer bar.rect
+                    drawExactly transformer bar
                 Maximum pc _ ->
-                    drawMaximum transformer bar.rect pc
+                    drawMaximum transformer bar pc
                 _ ->
                     Svg.svg [] []
-        bars =
+        valBar block =
+            List.map (\bar -> (block.overlay.value, bar)) block.bars
+        valBars =
             spec.blocks
-                |> List.map .bars
+                |> List.map valBar
                 |> List.concat
     in
         Svg.g
         []
-        (List.map draw bars)
+        (List.map draw valBars)
 
 drawExactly : Transformer -> Rect -> Svg x
 drawExactly transformer rect =

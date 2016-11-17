@@ -5,7 +5,7 @@ import Spec exposing (..)
 import Zone exposing (Zone, inf)
 import Segment exposing (Segment)
 import Value exposing (Value(..))
-import Block exposing (Rect, ChartBlock, OverlayBlock)
+import Block exposing (Rect, ChartBars, OverlayBlock)
 
 import ElmTest exposing (..)
 
@@ -24,8 +24,6 @@ all =
 
 -- Helper functions
 
-tmpOverlay = OverlayBlock (Zone 0 1) (Exactly 0 []) (Rect 0 0 0)
-
 removeSources : Spec -> Spec
 removeSources spec =
     let
@@ -34,15 +32,13 @@ removeSources spec =
                 Exactly pc _ -> Exactly pc []
                 Maximum pc _ -> Maximum pc []
                 Contradiction _ -> Contradiction []
-        updateChartBlock block =
-            { block | value = updateValue block.value }
-        updateChartBlocks blocks =
-            List.map updateChartBlock blocks
-        updateBlocksRecord rec =
-            { rec | bars = updateChartBlocks rec.bars }
+        updateOverlayBlock oBlock =
+            { oBlock | value = updateValue oBlock.value }
+        updateBlockRec rec =
+            { rec | overlay = updateOverlayBlock rec.overlay }
 
     in
-        { spec | blocks = List.map updateBlocksRecord spec.blocks }
+        { spec | blocks = List.map updateBlockRec spec.blocks }
 
 
 -- The tests...
@@ -64,9 +60,15 @@ fromSegmentsTest =
             , maxX = 11
             , maxY = 15
             , blocks =
-                [ { overlay = tmpOverlay, bars = [ ChartBlock (Zone 0 2)  (Exactly 30 []) (Rect 0 2 15) ] }
-                , { overlay = tmpOverlay, bars = [ ChartBlock (Zone 2 7)  (Exactly 50 []) (Rect 2 7 10) ] }
-                , { overlay = tmpOverlay, bars = [ ChartBlock (Zone 7 11) (Exactly 20 []) (Rect 7 11 5) ] }
+                [ { overlay = OverlayBlock (Zone 0 2)  (Exactly 30 []) (Rect 0 2 15)
+                  , bars = [ Rect 0 2 15 ]
+                  }
+                , { overlay = OverlayBlock (Zone 2 7)  (Exactly 50 []) (Rect 2 7 15)
+                  , bars = [ Rect 2 7 10 ]
+                  }
+                , { overlay = OverlayBlock (Zone 7 11) (Exactly 20 []) (Rect 7 11 15)
+                  , bars = [ Rect 7 11 5 ]
+                  }
                 ]
             }
         )
@@ -85,9 +87,15 @@ rectsTest =
           , maxX = 11
           , maxY = 15
           , blocks =
-              [ { overlay = tmpOverlay, bars = [ ChartBlock (Zone 0 2)  (Exactly 30 []) (Rect 0 2 15) ] }
-              , { overlay = tmpOverlay, bars = [ ChartBlock (Zone 2 7)  (Exactly 50 []) (Rect 2 7 10) ] }
-              , { overlay = tmpOverlay, bars = [ ChartBlock (Zone 7 11) (Exactly 20 []) (Rect 7 11 5) ] }
+              [ { overlay = OverlayBlock (Zone 0 2)  (Exactly 30 []) (Rect 0 2 15)
+                , bars = [ Rect 0 2 15 ]
+                }
+              , { overlay = OverlayBlock (Zone 2 7)  (Exactly 50 []) (Rect 2 7 15)
+                , bars = [ Rect 2 7 10 ]
+                }
+              , { overlay = OverlayBlock (Zone 7 11) (Exactly 20 []) (Rect 7 11 15)
+                , bars = [ Rect 7 11 5 ]
+                }
               ]
           }
       in
@@ -115,21 +123,11 @@ scaleXTest =
             , maxX = 5
             , maxY = 10
             , blocks =
-                [ { overlay = tmpOverlay
-                  , bars =
-                      [ ChartBlock
-                        (Zone 1 4)
-                        (Exactly 8 [0, 1])
-                        { left = 1, right = 4, height = 8 }
-                      ]
+                [ { overlay = OverlayBlock (Zone 1 4) (Exactly 8 [0, 1]) (Rect 1 4 10)
+                  , bars = [ { left = 1, right = 4, height = 8 } ]
                   }
-                , { overlay = tmpOverlay
-                  , bars =
-                      [ ChartBlock
-                        (Zone 4 5)
-                        (Exactly 10 [1])
-                        { left = 4, right = 5, height = 10 }
-                      ]
+                , { overlay = OverlayBlock (Zone 4 5) (Exactly 10 [1]) (Rect 4 5 10)
+                  , bars = [ { left = 4, right = 5, height = 10 } ]
                   }
                 ]
             }
@@ -169,21 +167,11 @@ scaleYTest =
             , maxX = 5
             , maxY = 10
             , blocks =
-                [ { overlay = tmpOverlay
-                  , bars =
-                      [ ChartBlock
-                        (Zone 1 4)
-                        (Exactly 8 [1, 2])
-                        { left = 1, right = 4, height = 8 }
-                      ]
+                [ { overlay = OverlayBlock (Zone 1 4) (Exactly 8 [1, 2]) (Rect 1 4 10)
+                  , bars = [ { left = 1, right = 4, height = 8 } ]
                   }
-                , { overlay = tmpOverlay
-                  , bars =
-                      [ ChartBlock
-                        (Zone 4 5)
-                        (Exactly 10 [2, 0])
-                        { left = 4, right = 5, height = 10 }
-                      ]
+                , { overlay = OverlayBlock (Zone 4 5) (Exactly 10 [2, 0]) (Rect 4 5 10)
+                  , bars = [ { left = 4, right = 5, height = 10 } ]
                   }
                 ]
             }
@@ -224,21 +212,11 @@ transformXTest =
             , maxX = 5
             , maxY = 10
             , blocks =
-                [ { overlay = tmpOverlay
-                  , bars =
-                      [ ChartBlock
-                        (Zone 1 4)
-                        (Exactly 8 [1, 2])
-                        { left = 1, right = 4, height = 8 }
-                      ]
+                [ { overlay = OverlayBlock (Zone 1 4) (Exactly 8 [1, 2]) (Rect 1 4 10)
+                  , bars = [ { left = 1, right = 4, height = 8 } ]
                   }
-                , { overlay = tmpOverlay
-                  , bars =
-                      [ ChartBlock
-                        (Zone 4 5)
-                        (Exactly 10 [2, 0])
-                        { left = 4, right = 5, height = 10 }
-                      ]
+                , { overlay = OverlayBlock (Zone 4 5) (Exactly 10 [2, 0]) (Rect 4 5 10)
+                  , bars = [ { left = 4, right = 5, height = 10 } ]
                   }
                 ]
             }
@@ -278,21 +256,11 @@ transformYTest =
             , maxX = 5
             , maxY = 10
             , blocks =
-                [ { overlay = tmpOverlay
-                  , bars =
-                      [ ChartBlock
-                        (Zone 1 4)
-                        (Exactly 8 [1, 2])
-                        { left = 1, right = 4, height = 8 }
-                      ]
+                [ { overlay = OverlayBlock (Zone 1 4) (Exactly 8 [1, 2]) (Rect 1 4 10)
+                  , bars = [ { left = 1, right = 4, height = 8 } ]
                   }
-                , { overlay = tmpOverlay
-                  , bars =
-                      [ ChartBlock
-                        (Zone 4 5)
-                        (Exactly 10 [2, 0])
-                        { left = 4, right = 5, height = 10 }
-                      ]
+                , { overlay = OverlayBlock (Zone 4 5) (Exactly 10 [2, 0]) (Rect 4 5 10)
+                  , bars = [ { left = 4, right = 5, height = 10 } ]
                   }
                 ]
             }

@@ -14,7 +14,7 @@ all =
     [ trimTest
     , taperZoneWidthTest
     , taperComparatorTest
-    , toChartBlockTest
+    , toChartBarsTest
     , toOverlayBlockTest
     ]
 
@@ -181,8 +181,8 @@ taperComparatorTest =
 
         ]
 
-toChartBlockTest : Test
-toChartBlockTest =
+toChartBarsTest : Test
+toChartBarsTest =
     let
         -- When we list all these blocks they don't have to be contiguous
         -- for the sake of the function, even though we expect them to
@@ -198,34 +198,33 @@ toChartBlockTest =
 
         bCon = Block (Zone 10 20) (Contradiction [22, 33])
     in
-        suite "toChartBlockTest"
+        suite "toChartBarsTest"
 
-        [ test "ChartBlock for exact finite %age should have rect height spread over width" <|
+        [ test "ChartBars for exact finite %age should have rect height spread over width" <|
           assertEqual
-          [ChartBlock (Zone 0 4) (Exactly 5 [1, 0]) (Rect 0 4 (5/4))]
-          (toChartBlock b2 [b0, b1, b2])
+          [ Rect 0 4 (5/4) ]
+          (toChartBars b2 [b0, b1, b2])
 
-        , test "ChartBlock for maximum finite %age should have rect height spread over width" <|
+        , test "ChartBars for maximum finite %age should have rect height spread over width" <|
           assertEqual
-          [ChartBlock (Zone 10 20) (Maximum 85 [2, 3]) (Rect 10 20 (85/10))]
-          (toChartBlock b5 [b0, b1, b2, b5])
+          [ Rect 10 20 (85/10) ]
+          (toChartBars b5 [b0, b1, b2, b5])
 
         , test "Among blocks with zeros and a Contradiction, an infinite Block gets rects of a sensible size" <|
           assertEqual
           [Ok True, Ok True, Ok True, Ok True, Ok True] -- Assumes taperBlocks >= 5
-          (toChartBlock b6 [bCon, b3, b4, b6]
-            |> List.map .rect
+          (toChartBars b6 [bCon, b3, b4, b6]
             |> List.map .height
             |> List.map (\h -> if h > 0 then Ok True else Err h)
             |> List.take 5
           )
 
-        , test "Contradiction ChartBlock should generate Rect of zero height and same width" <|
+        , test "Contradiction Blocks should generate Rect of zero height and same width" <|
           assertEqual
-          [ChartBlock (Zone 10 20) (Contradiction [22, 33]) (Rect 10 20 0)]
-          (toChartBlock bCon [b0, b1, b2, bCon, b6])
+          [ Rect 10 20 0 ]
+          (toChartBars bCon [b0, b1, b2, bCon, b6])
 
-        , suite "For Block which runs from -inf and is next to a non-zero finite block"
+        , suite "For Block which runs from -inf and is next to a non-zero finite bar"
           -- We're looking at a block of size 25% tapering off to -inf
           -- next to a block of 10% size and 4 wide (from -4 to 0)
           -- (therefore its rect height is 10 / 4 = 2.5).
@@ -237,64 +236,55 @@ toChartBlockTest =
           -- and its third block should be 0.3125 high and 20 wide, etc
           -- for five blocks (because that's our taperBlocks).
 
-          [ test "Last ChartBlock should be appropriate dimensions" <|
+          [ test "Last bar should be appropriate dimensions" <|
             assertEqual
             (Just
-                { zone = Zone -inf -4
-                , value = Exactly 25 [2]
-                , rect =
-                    { left = -4 - 10
-                    , right = -4
-                    , height = 2.5 / 2
-                    }
-                })
-            (toChartBlock b0 [ b0, b1, b2 ]
+                { left = -4 - 10
+                , right = -4
+                , height = 2.5 / 2
+                }
+            )
+            (toChartBars b0 [ b0, b1, b2 ]
                 |> List.reverse
                 |> Util.ith 0
             )
 
-          , test "Second last ChartBlock should be appropriate dimensions" <|
+          , test "Second last bar should be appropriate dimensions" <|
             assertEqual
             (Just
-                { zone = Zone -inf -4
-                , value = Exactly 25 [2]
-                , rect =
-                    { left = -4 - 2*10
-                    , right = -4 - 10
-                    , height = 2.5 / 4
-                    }
-                })
-            (toChartBlock b0 [ b0, b1, b2 ]
+                { left = -4 - 2*10
+                , right = -4 - 10
+                , height = 2.5 / 4
+                }
+            )
+            (toChartBars b0 [ b0, b1, b2 ]
                 |> List.reverse
                 |> Util.ith 1
             )
 
-          , test "Third last ChartBlock should be appropriate dimensions" <|
+          , test "Third last bar should be appropriate dimensions" <|
             assertEqual
             (Just
-                { zone = Zone -inf -4
-                , value = Exactly 25 [2]
-                , rect =
-                    { left = -4 - 3*10
-                    , right = -4 - 2*10
-                    , height = 2.5 / 8
-                    }
-                })
-            (toChartBlock b0 [ b0, b1, b2 ]
+                { left = -4 - 3*10
+                , right = -4 - 2*10
+                , height = 2.5 / 8
+                }
+            )
+            (toChartBars b0 [ b0, b1, b2 ]
                 |> List.reverse
                 |> Util.ith 2
             )
 
-          , test "There should be taperBlocks ChartBlock elements" <|
+          , test "There should be taperBlocks bar elements" <|
             assertEqual
             taperBlocks
-            (toChartBlock b0 [ b0, b1, b2 ]
+            (toChartBars b0 [ b0, b1, b2 ]
                 |> List.length
             )
 
           ]
 
-        , suite "For Block which runs to inf and is next to a non-zero finite block"
+        , suite "For Block which runs to inf and is next to a non-zero finite bar"
           -- We're looking at a block of size 17% tapering off to inf
           -- next to a block of 85% size and 10 wide (from 10 to 20)
           -- (therefore its rect height is 85 / 10 = 8.5).
@@ -306,55 +296,46 @@ toChartBlockTest =
           -- and its third block should be 1.0625 high and 2 wide, etc
           -- for five blocks (because that's our taperBlocks).
 
-          [ test "First ChartBlock should be appropriate dimensions" <|
+          [ test "First bar should be appropriate dimensions" <|
             assertEqual
             (Just
-                { zone = Zone 20 inf
-                , value = Maximum 17 [3, 0]
-                , rect =
-                    { left = 20
-                    , right = 20 + 2
-                    , height = 8.5 / 2
-                    }
-                })
-            (toChartBlock b6 [ b3, b4, b5, b6 ]
+                { left = 20
+                , right = 20 + 2
+                , height = 8.5 / 2
+                }
+            )
+            (toChartBars b6 [ b3, b4, b5, b6 ]
                 |> Util.ith 0
             )
 
-          , test "Second ChartBlock should be appropriate dimensions" <|
+          , test "Second bar should be appropriate dimensions" <|
             assertEqual
             (Just
-                { zone = Zone 20 inf
-                , value = Maximum 17 [3, 0]
-                , rect =
-                    { left = 20 + 2
-                    , right = 20 + 2*2
-                    , height = 8.5 / 4
-                    }
-                })
-            (toChartBlock b6 [ b3, b4, b5, b6 ]
+                { left = 20 + 2
+                , right = 20 + 2*2
+                , height = 8.5 / 4
+                }
+            )
+            (toChartBars b6 [ b3, b4, b5, b6 ]
                 |> Util.ith 1
             )
 
-          , test "Third ChartBlock should be appropriate dimensions" <|
+          , test "Third bar should be appropriate dimensions" <|
             assertEqual
             (Just
-                { zone = Zone 20 inf
-                , value = Maximum 17 [3, 0]
-                , rect =
-                    { left = 20 + 2*2
-                    , right = 20 + 3*2
-                    , height = 8.5 / 8
-                    }
-                })
-            (toChartBlock b6 [ b3, b4, b5, b6 ]
+                { left = 20 + 2*2
+                , right = 20 + 3*2
+                , height = 8.5 / 8
+                }
+            )
+            (toChartBars b6 [ b3, b4, b5, b6 ]
                 |> Util.ith 2
             )
 
-          , test "There should be taperBlocks ChartBlock elements" <|
+          , test "There should be taperBlocks bar elements" <|
             assertEqual
             taperBlocks
-            (toChartBlock b6 [ b3, b4, b5, b6 ]
+            (toChartBars b6 [ b3, b4, b5, b6 ]
                 |> List.length
             )
 
@@ -368,10 +349,9 @@ toChartBlockTest =
           in
             assertEqual
             (Just 4)
-            (toChartBlock b0 [ b0, b1, b2 ]
+            (toChartBars b0 [ b0, b1, b2 ]
                 |> List.reverse
                 |> List.head
-                |> Maybe.map .rect
                 |> Maybe.map .right
             )
 
@@ -383,9 +363,8 @@ toChartBlockTest =
           in
             assertEqual
             (Just 15)
-            (toChartBlock b2 [ b0, b1, b2 ]
+            (toChartBars b2 [ b0, b1, b2 ]
                 |> List.head
-                |> Maybe.map .rect
                 |> Maybe.map .left
             )
 

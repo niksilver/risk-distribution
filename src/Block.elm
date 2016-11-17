@@ -1,7 +1,7 @@
 module Block exposing
-    ( Block, Rect, ChartBlock, OverlayBlock
+    ( Block, Rect, ChartBars, OverlayBlock
     , trim, taperBlocks, taperZoneWidth
-    , taperComparator, toChartBlock
+    , taperComparator, toChartBars
     , toOverlayBlock
     )
 
@@ -28,14 +28,11 @@ type alias Rect =
     , height : Float
     }
 
--- A block representing a zone in a probability distribution, to be laid
+-- Bars illustrating a zone in a probability distribution, to be laid
 -- out on a chart
 
-type alias ChartBlock =
-    { zone : Zone
-    , value : Value
-    , rect : Rect
-    }
+type alias ChartBars =
+    List Rect
 
 -- A block representing an area on a chart where we can overlay information.
 -- It corresponds to a Block, but it will be within the bounds of a chart.
@@ -143,36 +140,32 @@ taperComparator block blocks =
         List.head comparators
             |> Maybe.withDefault default
 
--- Convert a block to one (or more) that can be laid out on a chart.
--- Mostly this will be one block, but a zone tapering off to infinity
--- will be represented by several chart blocks.
+-- Convert a block to one (or more) bars that can be laid out on a chart.
+-- Mostly this will be one rect, but a zone tapering off to infinity
+-- will be represented by several chart bars.
 
-toChartBlock : Block -> List Block -> List ChartBlock
-toChartBlock block blocks =
+toChartBars : Block -> List Block -> ChartBars
+toChartBars block blocks =
     if (Value.percent block.value == Nothing) then
-        [ addZeroRectToBlock block ]
+        [ zeroRect block ]
     else if (Zone.isFinite block.zone) then
-        [ addRectToBlock block ]
+        [ finiteRect block ]
     else if (block.zone.from == -inf) then
         taperRange
-            |> List.map (makeTaperingChartBlock block blocks -1)
+            |> List.map (makeTaperingBar block blocks -1)
             |> List.reverse
     else
         taperRange
-            |> List.map (makeTaperingChartBlock block blocks 1)
+            |> List.map (makeTaperingBar block blocks 1)
 
--- Add a zero-height rect to a Block to make it a ChartBlock.
+-- Create a zero-height rect for a Block.
 -- Used when the Value of a Block is a Contradiction.
 
-addZeroRectToBlock : Block -> ChartBlock
-addZeroRectToBlock block =
-    { zone = block.zone
-    , value = block.value
-    , rect =
-        { left = block.zone.from
-        , right = block.zone.to
-        , height = 0
-        }
+zeroRect : Block -> Rect
+zeroRect block =
+    { left = block.zone.from
+    , right = block.zone.to
+    , height = 0
     }
 
 -- Get the percent of a value, using a default if the value is
@@ -182,22 +175,18 @@ percentWithDefault : Value -> Int
 percentWithDefault value =
     Value.percent value |> Maybe.withDefault -1
 
--- Turn a finite Block into a ChartBlock by adding an appropriate Rect
+-- From a finite Block create an appropriate Rect
 
-addRectToBlock : Block -> ChartBlock
-addRectToBlock block =
+finiteRect : Block -> Rect
+finiteRect block =
     let
         from = block.zone.from
         to = block.zone.to
         pc = percentWithDefault block.value
     in
-        { zone = block.zone
-        , value = block.value
-        , rect =
-            { left = from
-            , right = to
-            , height = (toFloat pc) / (to - from)
-            }
+        { left = from
+        , right = to
+        , height = (toFloat pc) / (to - from)
         }
 
 -- Make list [0, 1, 2, ...] which has length `taperBlocks`
@@ -210,13 +199,13 @@ taperRange =
         List.indexedMap (\i elt -> i) base
 
 -- Given an infinite Block tapering to the left (dir = -1) or right (dir = 1),
--- make a ChartBlock that is one of those that makes the tapering.
--- The index is which ChartBlock this is:
+-- make a bar that is one of those that makes the tapering.
+-- The index is which Rect this is:
 -- idx = 0 means the tallest,
 -- idx = 1 means the second tallest, etc.
 
-makeTaperingChartBlock : Block -> List Block -> Int -> Int -> ChartBlock
-makeTaperingChartBlock block blocks dir idx =
+makeTaperingBar : Block -> List Block -> Int -> Int -> Rect
+makeTaperingBar block blocks dir idx =
     let
         pc = percentWithDefault block.value
         bFrom = block.zone.from
@@ -239,10 +228,7 @@ makeTaperingChartBlock block blocks dir idx =
                 (bFrom + nearDistance, bFrom + farDistance)
         height = (toFloat pc / width) / shrinkage
     in
-        { zone = block.zone
-        , value = block.value
-        , rect = Rect left right height
-        }
+        Rect left right height
 
 -- Covert a Block to an OverlayBlock, give the bounds we should be working in
 
