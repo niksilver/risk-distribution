@@ -33,6 +33,32 @@ viewDim =
 view : Spec -> Html x
 view spec =
     let
+        -- If the spec looks like this we'll get warnings when rendering
+        -- because the Exactly -10 will render result in Infinity and nearDistance
+        -- values going into SVG x, y, x1, etc attributes.
+        --
+        -- spec =
+        --     { minX = -inf
+        --     , maxX = inf
+        --     , maxY = 0
+        --     , blocks =
+        --         [{ overlay = { zone = { from = -inf, to = 0 }, value = Contradiction [0,1,2,3], rect = { left = -inf, right = 0, height = 0 } }
+        --          , bars = [{ left = -inf, right = 0, height = 0 }]
+        --          }
+        --         ,{ overlay = { zone = { from = 0, to = 2 }, value = Contradiction [0,1,2,3], rect = { left = 0, right = 2, height = 0 } }
+        --          , bars = [{ left = 0, right = 2, height = 0 }]
+        --          }
+        --         ,{ overlay = { zone = { from = 2, to = 3 }, value = Exactly -10 [2,3], rect = { left = 2, right = 3, height = 0 } }
+        --          , bars = [{ left = 2, right = 3, height = -10 }]
+        --          }
+        --         ,{ overlay = { zone = { from = 3, to = 10 }, value = Contradiction [2,3,0,1], rect = { left = 3, right = 10, height = 0 } }
+        --          , bars = [{ left = 3, right = 10, height = 0 }]
+        --          }
+        --         ,{ overlay = { zone = { from = 10, to = inf }, value = Contradiction [0,1,2,3], rect = { left = 10, right = inf, height = 0 } }
+        --          , bars = [{ left = 10, right = inf, height = 0 }]
+        --          }
+        --         ]
+        --     }
         -- Rescale the chart spec to include an x-axis with nice max and min
 
         scale = Axis.scale spec.minX spec.maxX maxTicks
@@ -118,3 +144,26 @@ drawMaximum transformer rect pc =
         Svg.g
         []
         (List.map drawLine indices)
+
+-- spec =
+--     { minX = -Infinity
+--     , maxX = Infinity
+--     , maxY = 0
+--     , blocks =
+--         [{ overlay = { zone = { from = -Infinity, to = 0 }, value = Contradiction [0,1,2,3], rect = { left = -Infinity, right = 0, height = 0 } }
+--          , bars = [{ left = -Infinity, right = 0, height = 0 }]
+--          }
+--         ,{ overlay = { zone = { from = 0, to = 2 }, value = Contradiction [0,1,2,3], rect = { left = 0, right = 2, height = 0 } }
+--          , bars = [{ left = 0, right = 2, height = 0 }]
+--          }
+--         ,{ overlay = { zone = { from = 2, to = 3 }, value = Exactly -10 [2,3], rect = { left = 2, right = 3, height = 0 } }
+--          , bars = [{ left = 2, right = 3, height = -10 }]
+--          }
+--         ,{ overlay = { zone = { from = 3, to = 10 }, value = Contradiction [2,3,0,1], rect = { left = 3, right = 10, height = 0 } }
+--          , bars = [{ left = 3, right = 10, height = 0 }]
+--          }
+--         ,{ overlay = { zone = { from = 10, to = Infinity }, value = Contradiction [0,1,2,3], rect = { left = 10, right = Infinity, height = 0 } }
+--          , bars = [{ left = 10, right = Infinity, height = 0 }]
+--          }
+--         ]
+--     }

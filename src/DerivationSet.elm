@@ -2,7 +2,7 @@ module DerivationSet exposing
     ( empty
     , size, put, putList
     , isNew, toReverseList
-    , isContradiction, skip
+    , introducesError, skip
     , zeroPcDerivations
     , deriveOnce, deriveAll, deriveAllWithLists
     , lastIsAContradiction
@@ -78,11 +78,11 @@ get : Derivation -> DerivationSet -> Maybe Derivation
 get deriv dSet =
     Dict.get (toKey deriv) dSet.dict
 
--- A Derivation is a contradiction to a set if the set contains another
+-- A Derivation introduces an error to a set if the set contains another
 -- Derivation which is the same coeffs but a different percentage
 
-isContradiction : Derivation -> DerivationSet -> Bool
-isContradiction deriv dSet =
+introducesError : Derivation -> DerivationSet -> Bool
+introducesError deriv dSet =
     case (get deriv dSet) of
         Nothing ->
             False
@@ -176,7 +176,7 @@ deriveAll derivations seed =
                 derivations
                 [ seed ]
                 { skip = (\xs h -> skip h xs)
-                , stop = (\xs h -> isContradiction h xs)
+                , stop = (\xs h -> introducesError h xs)
                 , grow = deriveOnce
                 , update = (\xs h -> put h xs)
                 }

@@ -16,7 +16,7 @@ all =
     , putListTest
     , isNewTest
     , toReverseListTest
-    , isContradictionTest
+    , introducesErrorTest
     , skipTest
     , zeroPcDerivationsTest
     , deriveOnceTest
@@ -204,19 +204,19 @@ toReverseListTest =
 
     ]
 
-isContradictionTest : Test
-isContradictionTest =
-    suite "isContradictionTest"
+introducesErrorTest : Test
+introducesErrorTest =
+    suite "introducesErrorTest"
 
-    [ test "A Derivation should not be a contradition to the empty set" <|
+    [ test "A Derivation should not introduce an error to the empty set" <|
       let
         der0 = deriv [1, 0, 0, 1] 50 [2, 3]
       in
       assertEqual
       (False)
-      (empty |> isContradiction der0)
+      (empty |> introducesError der0)
 
-    , test "A Derivation should not be a contradition to a set which contains just itself" <|
+    , test "A Derivation should not introduce an error to a set which contains just itself" <|
       let
         der0 = deriv [1, 0, 0, 1] 50 [2, 3]
       in
@@ -224,10 +224,10 @@ isContradictionTest =
       (False)
       ( empty
             |> put der0
-            |> isContradiction der0
+            |> introducesError der0
       )
 
-    , test "A Derivation should not be a contradition to a set which contains the same thing from other sources" <|
+    , test "A Derivation should not introduce an error to a set which contains the same thing from other sources" <|
       let
         der0 = deriv [1, 0, 0, 1] 50 [2, 3]
         der1 = deriv [1, 0, 0, 1] 50 [0]  -- The same thing but from different sources
@@ -236,10 +236,10 @@ isContradictionTest =
       (False)
       ( empty
             |> put der0
-            |> isContradiction der1
+            |> introducesError der1
       )
 
-    , test "A Derivation should be a contradition to a set which contains a different percentage for the same coeffs" <|
+    , test "A Derivation should introduce an error to a set which contains a different percentage for the same coeffs" <|
       let
         der0 = deriv [1, 0, 0, 1] 50 [2, 3]
         der1 = deriv [1, 0, 0, 1] 45 [0]  -- Different percentage
@@ -248,7 +248,7 @@ isContradictionTest =
       (True)
       ( empty
             |> put der0
-            |> isContradiction der1
+            |> introducesError der1
       )
 
     ]
