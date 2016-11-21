@@ -208,7 +208,7 @@ introducesErrorTest : Test
 introducesErrorTest =
     suite "introducesErrorTest"
 
-    [ test "A Derivation should not introduce an error to the empty set" <|
+    [ test "A Derivation of a positive %age should not introduce an error to the empty set" <|
       let
         der0 = deriv [1, 0, 0, 1] 50 [2, 3]
       in
@@ -216,7 +216,15 @@ introducesErrorTest =
       (False)
       (empty |> introducesError der0)
 
-    , test "A Derivation should not introduce an error to a set which contains just itself" <|
+    , test "A Derivation of a negative %age should introduce an error to some set" <|
+      let
+        der0 = deriv [1, 0, 0, 1] -50 [2, 3]
+      in
+      assertEqual
+      (True)
+      (empty |> introducesError der0)
+
+    , test "A Derivation of a should not introduce an error to a set which contains just itself" <|
       let
         der0 = deriv [1, 0, 0, 1] 50 [2, 3]
       in

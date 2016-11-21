@@ -78,16 +78,20 @@ get : Derivation -> DerivationSet -> Maybe Derivation
 get deriv dSet =
     Dict.get (toKey deriv) dSet.dict
 
--- A Derivation introduces an error to a set if the set contains another
--- Derivation which is the same coeffs but a different percentage
+-- A Derivation introduces an error to a set if it has a -ve percentage,
+-- or if the set contains another Derivation which is the same coeffs but
+-- a different percentage
 
 introducesError : Derivation -> DerivationSet -> Bool
 introducesError deriv dSet =
-    case (get deriv dSet) of
-        Nothing ->
-            False
-        Just der2 ->
-            Cons.isContradiction deriv.cons der2.cons
+    if (deriv.cons.pc < 0) then
+        True
+    else
+        case (get deriv dSet) of
+            Nothing ->
+                False
+            Just der2 ->
+                Cons.isContradiction deriv.cons der2.cons
 
 -- True if we skip the given Derivation with this DerivationSet.
 -- We should skip it if it's equal to one already there (same coeffs)
