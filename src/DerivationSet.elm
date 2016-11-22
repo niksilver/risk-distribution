@@ -172,13 +172,13 @@ deriveOnce derivations seed =
 -- If we stopped due to an error, then we'll return the problematic
 -- derivation with an Err type.
 
-deriveAll : DerivationSet -> Derivation -> Result Derivation DerivationSet
-deriveAll derivations seed =
+deriveAll : DerivationSet -> List Derivation -> Result Derivation DerivationSet
+deriveAll derivations seeds =
     let
         (dSet, maybeError) =
             Expand.expand
                 derivations
-                [ seed ]
+                seeds
                 { skip = (\xs h -> skip h xs)
                 , stop = (\xs h -> introducesError h xs)
                 , grow = deriveOnce
@@ -195,11 +195,11 @@ deriveAll derivations seed =
 -- that go into the set (in order), and we return a correctly-ordered
 -- list at the end (or an error with the problem derivation)
 
-deriveAllWithLists : List Derivation -> Derivation -> Result Derivation (List Derivation)
-deriveAllWithLists derivs seed =
+deriveAllWithLists : List Derivation -> List Derivation -> Result Derivation (List Derivation)
+deriveAllWithLists derivs seeds =
     let
         dSet = putList derivs empty
-        result = deriveAll dSet seed
+        result = deriveAll dSet seeds
     in
         Result.map (toReverseList >> List.reverse) result
 

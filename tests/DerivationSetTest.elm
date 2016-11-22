@@ -497,7 +497,7 @@ deriveAllTest =
       in
         assertEqual
         (Ok [der1, der2, seed, res2, res1, res3, res4])
-        (deriveAll set seed
+        (deriveAll set [seed]
             |> Result.map toReverseList
             |> Result.map List.reverse
         )
@@ -520,7 +520,7 @@ deriveAllTest =
       in
         assertEqual
         (Ok [der1, der2, seed, res2, res1, res3, res4])
-        (deriveAll set seed
+        (deriveAll set [seed]
             |> Result.map toReverseList
             |> Result.map List.reverse
         )
@@ -543,7 +543,7 @@ deriveAllTest =
       in
         assertEqual
         (Ok [der1, der2, seed, res1, res2, res4, res3])
-        (deriveAll set seed
+        (deriveAll set [seed]
             |> Result.map toReverseList
             |> Result.map List.reverse
         )
@@ -554,7 +554,7 @@ deriveAllTest =
       in
         assertEqual
         (Ok [seed])
-        (deriveAll empty seed
+        (deriveAll empty [seed]
             |> Result.map toReverseList
             |> Result.map List.reverse
         )
@@ -575,34 +575,10 @@ deriveAllTest =
       in
         assertEqual
         (Ok [der0, der1, res1, res2, res3])
-        (deriveAll set der1
+        (deriveAll set [der1]
             |> Result.map toReverseList
             |> Result.map List.reverse
             |> Result.map (List.take 5)
-        )
-
-    , test "deriveAll should terminate if there's an inconsistent 'between' derivation" <|
-      -- This error derives from entering the following constraints:
-      -- There's a 100% chance it's between 0 and 10  [1]
-      -- There's a  50% chance it's between 2 and 8   [2]
-      -- There's a  40% chance it's between 2 and 8   [3]
-      -- (Plus the implicit 100% chance it's between -inf and inf)
-      -- So the zones are: -inf to 0,  0 to 2,  2 to 8,  8 to 10,  10 to inf
-      let
-        der0 = deriv [1, 1, 1, 1, 1] 100  [0]
-        der1 = deriv [0, 1, 1, 1, 0] 100  [1]
-        der2 = deriv [0, 0, 1, 0, 0]  50  [2]
-        der3 = deriv [0, 0, 1, 0, 0]  40  [3]
-
-        -- Our starter set is...
-        set = put der0 empty
-        res1 = deriveAll set der1
-        res2 = Result.andThen res1 (\res -> deriveAll res der2)
-      in
-        assertEqual
-        Nothing
-        (Result.andThen res2 (\res -> deriveAll res der3)
-            |> Result.toMaybe
         )
 
     , test "If there's an inconsistent 'between' derivation we should return the problem derivation" <|
@@ -617,15 +593,10 @@ deriveAllTest =
         der1 = deriv [0, 1, 1, 1, 0] 100  [1]
         der2 = deriv [0, 0, 1, 0, 0]  50  [2]
         der3 = deriv [0, 0, 1, 0, 0]  40  [3]
-
-        -- Our starter set is...
-        set = put der0 empty
-        res1 = deriveAll set der1
-        res2 = Result.andThen res1 (\res -> deriveAll res der2)
       in
         assertEqual
         (Err der3)
-        (Result.andThen res2 (\res -> deriveAll res der3))
+        (deriveAll empty [der0, der1, der2, der3])
 
     , test "deriveAll should work quickly in this case (previously it took ages)" <|
       -- This isn't testing anything really, we just want to run it and see
@@ -639,15 +610,10 @@ deriveAllTest =
         der2 = deriv [1, 1, 0, 0, 0, 0, 0]  50  [2]
         der3 = deriv [0, 0, 0, 0, 1, 1, 1]  10  [3]
         der4 = deriv [0, 0, 0, 1, 1, 0, 0]   0  [4]
-
-        res0 = put der0 empty
-        res1 = deriveAll res0 der1
-        res2 = Result.andThen res1 (\res -> deriveAll res der2)
-        res3 = Result.andThen res2 (\res -> deriveAll res der3)
       in
         assertEqual
         (Ok 127)
-        (Result.andThen res3 (\res -> deriveAll res der4)
+        (deriveAll empty [der0, der1, der2, der3, der4]
             |> Result.map size
         )
 
@@ -672,7 +638,7 @@ deriveAllWithListsTest =
       in
         assertEqual
         (Ok [der1, der2, seed, res1, res2, res4, res3])
-        (deriveAllWithLists [der1, der2] seed)
+        (deriveAllWithLists [der1, der2] [seed])
 
     ]
 
