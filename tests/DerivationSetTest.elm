@@ -498,6 +498,7 @@ deriveAllTest =
         assertEqual
         [der1, der2, seed, res2, res1, res3, res4]
         (deriveAll set seed
+            |> Result.withDefault empty
             |> toReverseList
             |> List.reverse
         )
@@ -521,6 +522,7 @@ deriveAllTest =
         assertEqual
         [der1, der2, seed, res2, res1, res3, res4]
         (deriveAll set seed
+            |> Result.withDefault empty
             |> toReverseList
             |> List.reverse
         )
@@ -544,6 +546,7 @@ deriveAllTest =
         assertEqual
         [der1, der2, seed, res1, res2, res4, res3]
         (deriveAll set seed
+            |> Result.withDefault empty
             |> toReverseList
             |> List.reverse
         )
@@ -555,6 +558,7 @@ deriveAllTest =
         assertEqual
         [seed]
         (deriveAll empty seed
+            |> Result.withDefault empty
             |> toReverseList
             |> List.reverse
         )
@@ -576,6 +580,7 @@ deriveAllTest =
         assertEqual
         [der0, der1, res1, res2, res3]
         (deriveAll set der1
+            |> Result.withDefault empty
             |> toReverseList
             |> List.reverse
             |> List.take 5
@@ -597,18 +602,15 @@ deriveAllTest =
         -- Our starter set is...
         set = put der0 empty
         res1 = deriveAll set der1
-        res2 = deriveAll res1 der2
+        res2 = Result.andThen res1 (\res -> deriveAll res der2)
       in
         assertEqual
-        False
-        (deriveAll res2 der3
-            |> toReverseList
-            |> List.isEmpty
+        Nothing
+        (Result.andThen res2 (\res -> deriveAll res der3)
+            |> Result.toMaybe
         )
 
-    , test ("If there's an inconsistent 'between' derivation "
-        ++ "deriveAll shouldn't generate excessive derivations "
-        ++ "and the last one should be a contradiction") <|
+    , test "If there's an inconsistent 'between' derivation we should return the problem derivation" <|
       -- This error derives from entering the following constraints:
       -- There's a 100% chance it's between 0 and 10  [1]
       -- There's a  50% chance it's between 2 and 8   [2]
@@ -624,13 +626,11 @@ deriveAllTest =
         -- Our starter set is...
         set = put der0 empty
         res1 = deriveAll set der1
-        res2 = deriveAll res1 der2
+        res2 = Result.andThen res1 (\res -> deriveAll res der2)
       in
         assertEqual
-        (True, True)
-        (deriveAll res2 der3
-            |> \ds -> ((toReverseList ds |> List.length) <= 20, lastIsAContradiction ds)
-        )
+        (Err der3)
+        (Result.andThen res2 (\res -> deriveAll res der3))
 
     , test "deriveAll should work quickly in this case (previously it took ages)" <|
       -- This isn't testing anything really, we just want to run it and see
@@ -647,12 +647,14 @@ deriveAllTest =
 
         res0 = put der0 empty
         res1 = deriveAll res0 der1
-        res2 = deriveAll res1 der2
-        res3 = deriveAll res2 der3
+        res2 = Result.andThen res1 (\res -> deriveAll res der2)
+        res3 = Result.andThen res2 (\res -> deriveAll res der3)
       in
         assertEqual
-        (127)
-        (deriveAll res3 der4 |> size)
+        (Ok 127)
+        (Result.andThen res3 (\res -> deriveAll res der4)
+            |> Result.map size
+        )
 
     ]
 
@@ -674,7 +676,7 @@ deriveAllWithListsTest =
         res4 = deriv [1, 0, 0] 15  [2, 0, 1, 2]
       in
         assertEqual
-        [der1, der2, seed, res1, res2, res4, res3]
+        (Ok [der1, der2, seed, res1, res2, res4, res3])
         (deriveAllWithLists [der1, der2] seed)
 
     ]

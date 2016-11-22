@@ -46,6 +46,7 @@ scheme segments =
         newZones = List.map .zone segments2
         zones = Zone.integrate newZones []
         derFn seed derivs = DerivationSet.deriveAllWithLists derivs seed
+            |> Result.withDefault []  -- temp hack!
         seeds = derivations segments2 zones
     in
         { segments = segments2

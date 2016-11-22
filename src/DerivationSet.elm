@@ -169,13 +169,13 @@ deriveOnce derivations seed =
 
 -- Derive all the derivations we can from some existing ones by
 -- adding a new one... including the original ones.
--- If we stopped due to a contradiction, then the last derivation
--- added to the set will be that.
+-- If we stopped due to an error, then we'll return the problematic
+-- derivation with an Err type.
 
-deriveAll : DerivationSet -> Derivation -> DerivationSet
+deriveAll : DerivationSet -> Derivation -> Result Derivation DerivationSet
 deriveAll derivations seed =
     let
-        (dSet, maybeContra) =
+        (dSet, maybeError) =
             Expand.expand
                 derivations
                 [ seed ]
@@ -185,24 +185,24 @@ deriveAll derivations seed =
                 , update = (\xs h -> put h xs)
                 }
     in
-        case maybeContra of
+        case maybeError of
             Nothing ->
-                dSet
-            Just contraDeriv ->
-                put contraDeriv dSet
+                Ok dSet
+            Just contraError ->
+                Err contraError
 
 -- Like deriveAll, but instead of a set we provide a list of derivations
 -- that go into the set (in order), and we return a correctly-ordered
--- list at the end
+-- list at the end (or an error with the problem derivation)
 
-deriveAllWithLists : List Derivation -> Derivation -> List Derivation
+deriveAllWithLists : List Derivation -> Derivation -> Result Derivation (List Derivation)
 deriveAllWithLists derivs seed =
     let
         dSet = putList derivs empty
+        result = deriveAll dSet seed
     in
-        deriveAll dSet seed
-            |> toReverseList
-            |> List.reverse
+        Result.map (toReverseList >> List.reverse) result
+
 
 -- See if the last derivation put into a derivation set is a contradiction
 -- of any of the others
