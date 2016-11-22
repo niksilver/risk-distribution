@@ -496,11 +496,10 @@ deriveAllTest =
         set = putList [der1, der2] empty
       in
         assertEqual
-        [der1, der2, seed, res2, res1, res3, res4]
+        (Ok [der1, der2, seed, res2, res1, res3, res4])
         (deriveAll set seed
-            |> Result.withDefault empty
-            |> toReverseList
-            |> List.reverse
+            |> Result.map toReverseList
+            |> Result.map List.reverse
         )
 
     , test "deriveAll should work when the seed is the larger constraint, to be subtracted from" <|
@@ -520,11 +519,10 @@ deriveAllTest =
         set = putList [der1, der2] empty
       in
         assertEqual
-        [der1, der2, seed, res2, res1, res3, res4]
+        (Ok [der1, der2, seed, res2, res1, res3, res4])
         (deriveAll set seed
-            |> Result.withDefault empty
-            |> toReverseList
-            |> List.reverse
+            |> Result.map toReverseList
+            |> Result.map List.reverse
         )
 
     , test "deriveAll should skip constraint where it can't subtract" <|
@@ -544,11 +542,10 @@ deriveAllTest =
         set = putList [der1, der2] empty
       in
         assertEqual
-        [der1, der2, seed, res1, res2, res4, res3]
+        (Ok [der1, der2, seed, res1, res2, res4, res3])
         (deriveAll set seed
-            |> Result.withDefault empty
-            |> toReverseList
-            |> List.reverse
+            |> Result.map toReverseList
+            |> Result.map List.reverse
         )
 
     , test "deriveAll returns just the seed if we're starting with no constraints" <|
@@ -556,11 +553,10 @@ deriveAllTest =
         seed = deriv [1, 1, 0] 30  [0]
       in
         assertEqual
-        [seed]
+        (Ok [seed])
         (deriveAll empty seed
-            |> Result.withDefault empty
-            |> toReverseList
-            |> List.reverse
+            |> Result.map toReverseList
+            |> Result.map List.reverse
         )
 
     , test "If a 0% is derived then all constituent zones should be 0%" <|
@@ -578,12 +574,11 @@ deriveAllTest =
         set = put der0 empty
       in
         assertEqual
-        [der0, der1, res1, res2, res3]
+        (Ok [der0, der1, res1, res2, res3])
         (deriveAll set der1
-            |> Result.withDefault empty
-            |> toReverseList
-            |> List.reverse
-            |> List.take 5
+            |> Result.map toReverseList
+            |> Result.map List.reverse
+            |> Result.map (List.take 5)
         )
 
     , test "deriveAll should terminate if there's an inconsistent 'between' derivation" <|
