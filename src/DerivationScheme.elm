@@ -19,7 +19,7 @@ import DerivationSet
 type alias Scheme =
     { segments : List Segment
     , zones : List Zone
-    , derivations : List Derivation
+    , derivations : Result Derivation (List Derivation)
     }
 
 
@@ -45,11 +45,10 @@ scheme segments =
         segments2 = Segment.base :: segments
         newZones = List.map .zone segments2
         zones = Zone.integrate newZones []
-        derFn seed derivs = DerivationSet.deriveAllWithLists derivs [seed]
-            |> Result.withDefault []  -- temp hack!
         seeds = derivations segments2 zones
+        derivs = DerivationSet.deriveAllWithLists [] seeds
     in
         { segments = segments2
         , zones = zones
-        , derivations = List.foldl derFn [] seeds
+        , derivations = derivs
         }

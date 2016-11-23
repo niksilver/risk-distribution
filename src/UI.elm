@@ -39,14 +39,20 @@ view model =
     let
         segments = FactList.segments model
         dScheme = DerivationScheme.scheme segments
+        derivations =
+            case dScheme.derivations of
+                Ok derivs ->
+                    derivs
+                Err badDeriv ->
+                    [ badDeriv ]
     in
         div []
         [ FactList.view model
         , chartView segments
         --, segmentsView dScheme.segments
         --, zonesView dScheme.zones
-        --, derivationsView dScheme.derivations
-        , valuesView dScheme.zones dScheme.derivations
+        --, derivationsView derivations
+        , valuesView dScheme.zones derivations
         ]
 
 segmentsView : List Segment -> Html Msg

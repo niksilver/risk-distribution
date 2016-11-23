@@ -49,7 +49,7 @@ type alias Transformer =
 
 -- Create a spec from some segments.
 -- It isn't scaled at all.
--- Will produce Nothing if the input is an empty list
+-- Will produce Nothing if the input is an empty list or an error
 
 fromSegments : List Segment -> Maybe Spec
 fromSegments segments =
@@ -58,7 +58,9 @@ fromSegments segments =
         zones = dScheme.zones
         derivations = dScheme.derivations
         entries =
-            ZoneDict.fill zones derivations
+            derivations
+                |> Result.withDefault []
+                |> ZoneDict.fill zones
                 |> ZoneDict.toList
         toBlock (zone, value) =
             { zone = zone, value = value }

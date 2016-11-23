@@ -74,8 +74,9 @@ schemeTest =
             , zones =
                 [ Zone -inf inf ]
             , derivations =
-                [ deriv [1] 100  [0]
-                ]
+                Ok
+                    [ deriv [1] 100  [0]
+                    ]
             }
       in
         assertEqual
@@ -95,25 +96,27 @@ schemeTest =
             -- Some of the derivations will be reversed, so we'll use a concat
             -- and the odd reverse to lay them out here in proper forward order
             , derivations =
-                [ [ deriv [1, 1, 1, 1] 100 [0]            -- Baseline, always
-                  , deriv [0, 0, 1, 0] 50  [1]            -- seg1
-                  , deriv [1, 1, 0, 1] 50  [0, 1]         --   Baseline - seg1  [A]
-                  , deriv [0, 1, 1, 1] 60  [2]          ] -- seg2
-                , [ deriv [1, 0, 0, 0] 40  [0, 2]         --   Baseline - seg2  [B]
-                  , deriv [0, 1, 0, 1] 10  [2, 1]       ] --   seg2 - seg1      [C]
-                  |> List.reverse
-                , [ deriv [1, 0, 1, 0] 90  [0, 2, 1]      --   Baseline - [C]   [D]
-                  , deriv [0, 0, 0, 1]  5  [3]          ] -- seg3
-                , [ deriv [1, 1, 1, 0] 95  [0, 3]         --   Baseline - seg3  [E]
-                  , deriv [1, 1, 0, 0] 45  [0, 1, 3]      --   [A] - seg3       [F]
-                  , deriv [0, 1, 1, 0] 55  [2, 3]         --   seg2 - seg3      [G]
-                  , deriv [0, 1, 0, 0]  5  [2, 1, 3]    ] --   [C] - seg3       [H]
-                  |> List.reverse
-                , [ deriv [0, 0, 1, 1] 55  [2, 2, 1, 3]   --   seg2 - [H]       [I]
-                  , deriv [1, 0, 0, 1] 45  [0, 1, 2, 1, 3] --  [A] - [H]        [J]
-                  , deriv [1, 0, 1, 1] 95  [0, 2, 1, 3] ] --   Baseline - [H]
-                ]
-                |> List.concat
+                Ok
+                    [ [ deriv [1, 1, 1, 1] 100 [0]            -- Baseline, always
+                      , deriv [0, 0, 1, 0] 50  [1]            -- seg1
+                      , deriv [0, 1, 1, 1] 60  [2]            -- seg2
+                      , deriv [0, 0, 0, 1]  5  [3]          ]  -- seg3
+                    , [ deriv [1, 1, 0, 1] 50  [0, 1]       ] --   Baseline - seg1  [A]
+                    , [ deriv [1, 0, 0, 0] 40  [0, 2]         --   Baseline - seg2  [B]
+                      , deriv [0, 1, 0, 1] 10  [2, 1]       ] --   seg2 - seg1      [C]
+                      |> List.reverse
+                    , [ deriv [1, 1, 1, 0] 95  [0, 3]         --   Baseline - seg3  [D]
+                      , deriv [0, 1, 1, 0] 55  [2, 3]       ] --   seg2 - seg3      [E]
+                      |> List.reverse
+                    , [ deriv [1, 1, 0, 0] 45  [0, 1, 3]    ] --   [A] - seg3       [F]
+                    , [ deriv [1, 0, 1, 0] 90  [0, 2, 1]      --   Baseline - [C]
+                      , deriv [0, 1, 0, 0]  5  [2, 1, 3]    ] --   [C] - seg3       [G]
+                      |> List.reverse
+                    , [ deriv [1, 0, 0, 1] 45  [0, 2, 3]    ] --   Baseline - [E]
+                    , [ deriv [0, 0, 1, 1] 55  [0, 0, 1, 3] ] --   Baseline - [F]
+                    , [ deriv [1, 0, 1, 1] 95  [0, 2, 1, 3] ] --   Baseline - [G]
+                    ]
+                |> Result.map List.concat
             }
       in
         assertEqual

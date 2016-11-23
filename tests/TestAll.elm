@@ -2,7 +2,6 @@ import ZoneTest exposing (all)
 import ConstraintTest exposing (all)
 import SegmentTest exposing (all)
 import DerivationTest exposing (all)
-import ErrorTest exposing (all)
 import ValueTest exposing (all)
 import ZoneDictTest exposing (all)
 import BlockTest exposing (all)
@@ -28,7 +27,6 @@ main =
         , ConstraintTest.all
         , SegmentTest.all
         , DerivationTest.all
-        , ErrorTest.all
         , ValueTest.all
         , ZoneDictTest.all
         , BlockTest.all
