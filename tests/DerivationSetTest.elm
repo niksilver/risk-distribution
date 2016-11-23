@@ -494,12 +494,15 @@ deriveAllTest =
 
         -- Our starter set is
         set = putList [der1, der2] empty
+
+        -- Function to extract derivs as list...
+        asList set =
+            set |> toReverseList |> List.reverse
       in
         assertEqual
-        (Ok [der1, der2, seed, res2, res1, res3, res4])
+        ([der1, der2, seed, res2, res1, res3, res4], Nothing)
         (deriveAll set [seed]
-            |> Result.map toReverseList
-            |> Result.map List.reverse
+            |> \(fst, snd) -> (asList fst, snd)
         )
 
     , test "deriveAll should work when the seed is the larger constraint, to be subtracted from" <|
@@ -517,12 +520,15 @@ deriveAllTest =
 
         -- Our starter set is...
         set = putList [der1, der2] empty
+
+        -- Function to extract derivs as list...
+        asList set =
+            set |> toReverseList |> List.reverse
       in
         assertEqual
-        (Ok [der1, der2, seed, res2, res1, res3, res4])
+        ([der1, der2, seed, res2, res1, res3, res4], Nothing)
         (deriveAll set [seed]
-            |> Result.map toReverseList
-            |> Result.map List.reverse
+            |> \(fst, snd) -> (asList fst, snd)
         )
 
     , test "deriveAll should skip constraint where it can't subtract" <|
@@ -540,23 +546,29 @@ deriveAllTest =
 
         -- Our starter set is...
         set = putList [der1, der2] empty
+
+        -- Function to extract derivs as list...
+        asList set =
+            set |> toReverseList |> List.reverse
       in
         assertEqual
-        (Ok [der1, der2, seed, res1, res2, res4, res3])
+        ([der1, der2, seed, res1, res2, res4, res3], Nothing)
         (deriveAll set [seed]
-            |> Result.map toReverseList
-            |> Result.map List.reverse
+            |> \(fst, snd) -> (asList fst, snd)
         )
 
     , test "deriveAll returns just the seed if we're starting with no constraints" <|
       let
         seed = deriv [1, 1, 0] 30  [0]
+
+        -- Function to extract derivs as list...
+        asList set =
+            set |> toReverseList |> List.reverse
       in
         assertEqual
-        (Ok [seed])
+        ([seed], Nothing)
         (deriveAll empty [seed]
-            |> Result.map toReverseList
-            |> Result.map List.reverse
+            |> \(fst, snd) -> (asList fst, snd)
         )
 
     , test "If a 0% is derived then all constituent zones should be 0%" <|
@@ -572,13 +584,15 @@ deriveAllTest =
 
         -- Our starter set is...
         set = put der0 empty
+
+        -- Function to take the first five...
+        firstFive set =
+            set |> toReverseList |> List.reverse |> List.take 5
       in
         assertEqual
-        (Ok [der0, der1, res1, res2, res3])
+        ([der0, der1, res1, res2, res3], Nothing)
         (deriveAll set [der1]
-            |> Result.map toReverseList
-            |> Result.map List.reverse
-            |> Result.map (List.take 5)
+            |> \(fst, snd) -> (firstFive fst, snd)
         )
 
     , test "If there's an inconsistent 'between' derivation we should return the problem derivation" <|
@@ -595,8 +609,8 @@ deriveAllTest =
         der3 = deriv [0, 0, 1, 0, 0]  40  [3]
       in
         assertEqual
-        (Err der3)
-        (deriveAll empty [der0, der1, der2, der3])
+        (Just der3)
+        (deriveAll empty [der0, der1, der2, der3] |> snd)
 
     , test "deriveAll should work quickly in this case (previously it took ages)" <|
       -- This isn't testing anything really, we just want to run it and see
@@ -612,9 +626,10 @@ deriveAllTest =
         der4 = deriv [0, 0, 0, 1, 1, 0, 0]   0  [4]
       in
         assertEqual
-        (Ok 127)
+        (127)
         (deriveAll empty [der0, der1, der2, der3, der4]
-            |> Result.map size
+            |> fst
+            |> size
         )
 
     ]
@@ -637,7 +652,7 @@ deriveAllWithListsTest =
         res4 = deriv [1, 0, 0] 15  [2, 0, 1, 2]
       in
         assertEqual
-        (Ok [der1, der2, seed, res1, res2, res4, res3])
+        ([der1, der2, seed, res1, res2, res4, res3], Nothing)
         (deriveAllWithLists [der1, der2] [seed])
 
     ]

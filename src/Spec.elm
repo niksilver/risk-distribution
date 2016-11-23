@@ -59,7 +59,7 @@ fromSegments segments =
         derivations = dScheme.derivations
         entries =
             derivations
-                |> Result.withDefault []
+                |> fst
                 |> ZoneDict.fill zones
                 |> ZoneDict.toList
         toBlock (zone, value) =

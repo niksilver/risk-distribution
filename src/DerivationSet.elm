@@ -169,39 +169,31 @@ deriveOnce derivations seed =
 
 -- Derive all the derivations we can from some existing ones by
 -- adding a new one... including the original ones.
--- If we stopped due to an error, then we'll return the problematic
--- derivation with an Err type.
+-- We return all the derivations possible, and maybe the erroneous one
+-- that caused an error.
 
-deriveAll : DerivationSet -> List Derivation -> Result Derivation DerivationSet
+deriveAll : DerivationSet -> List Derivation -> (DerivationSet, Maybe Derivation)
 deriveAll derivations seeds =
-    let
-        (dSet, maybeError) =
-            Expand.expand
-                derivations
-                seeds
-                { skip = (\xs h -> skip h xs)
-                , stop = (\xs h -> introducesError h xs)
-                , grow = deriveOnce
-                , update = (\xs h -> put h xs)
-                }
-    in
-        case maybeError of
-            Nothing ->
-                Ok dSet
-            Just contraError ->
-                Err contraError
+    Expand.expand
+        derivations
+        seeds
+        { skip = (\xs h -> skip h xs)
+        , stop = (\xs h -> introducesError h xs)
+        , grow = deriveOnce
+        , update = (\xs h -> put h xs)
+        }
 
 -- Like deriveAll, but instead of a set we provide a list of derivations
 -- that go into the set (in order), and we return a correctly-ordered
--- list at the end (or an error with the problem derivation)
+-- list at the end (and maybe the final problem derivation)
 
-deriveAllWithLists : List Derivation -> List Derivation -> Result Derivation (List Derivation)
+deriveAllWithLists : List Derivation -> List Derivation -> (List Derivation, Maybe Derivation)
 deriveAllWithLists derivs seeds =
     let
         dSet = putList derivs empty
-        result = deriveAll dSet seeds
+        (resultSet, maybeErr) = deriveAll dSet seeds
     in
-        Result.map (toReverseList >> List.reverse) result
+        (toReverseList resultSet |> List.reverse, maybeErr)
 
 
 -- See if the last derivation put into a derivation set is a contradiction

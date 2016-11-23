@@ -13,13 +13,13 @@ import DerivationSet
 -- A scheme represents:
 -- our segments (our judgements, or claims, over the distribution),
 -- the zones, and
--- the derivations
+-- the derivations (with maybe the error-causing derivation)
 
 
 type alias Scheme =
     { segments : List Segment
     , zones : List Zone
-    , derivations : Result Derivation (List Derivation)
+    , derivations : (List Derivation, Maybe Derivation)
     }
 
 

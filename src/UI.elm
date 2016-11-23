@@ -39,20 +39,15 @@ view model =
     let
         segments = FactList.segments model
         dScheme = DerivationScheme.scheme segments
-        derivations =
-            case dScheme.derivations of
-                Ok derivs ->
-                    derivs
-                Err badDeriv ->
-                    [ badDeriv ]
+        goodDerivs = fst dScheme.derivations
     in
         div []
         [ FactList.view model
-        , chartView segments
+        , chartView dScheme
         --, segmentsView dScheme.segments
         --, zonesView dScheme.zones
         --, derivationsView derivations
-        , valuesView dScheme.zones derivations
+        , valuesView dScheme.zones goodDerivs
         ]
 
 segmentsView : List Segment -> Html Msg
@@ -79,10 +74,18 @@ bulletListView trans xs =
         |> List.map (trans >> text >> singleton >> li [])
         |> ul []
 
-chartView : List Segment -> Html Msg
-chartView segments =
-    case (Spec.fromSegments segments) of
-        Just spec ->
-            Chart.view spec
-        Nothing ->
-            text "No chart"
+chartView : Scheme -> Html Msg
+chartView scheme =
+    let
+        segments = scheme.segments
+        (goodDerivs, errDeriv) = scheme.derivations
+    in
+        case errDeriv of
+            Just err ->
+                text ("Problem derivation " ++ toString err)
+            Nothing ->
+                case (Spec.fromSegments segments) of
+                    Just spec ->
+                        Chart.view spec
+                    Nothing ->
+                        text "No chart"

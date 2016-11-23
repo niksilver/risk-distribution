@@ -74,9 +74,10 @@ schemeTest =
             , zones =
                 [ Zone -inf inf ]
             , derivations =
-                Ok
-                    [ deriv [1] 100  [0]
-                    ]
+                ( [ deriv [1] 100  [0]
+                  ]
+                , Nothing
+                )
             }
       in
         assertEqual
@@ -96,8 +97,7 @@ schemeTest =
             -- Some of the derivations will be reversed, so we'll use a concat
             -- and the odd reverse to lay them out here in proper forward order
             , derivations =
-                Ok
-                    [ [ deriv [1, 1, 1, 1] 100 [0]            -- Baseline, always
+                (  [ [ deriv [1, 1, 1, 1] 100 [0]            -- Baseline, always
                       , deriv [0, 0, 1, 0] 50  [1]            -- seg1
                       , deriv [0, 1, 1, 1] 60  [2]            -- seg2
                       , deriv [0, 0, 0, 1]  5  [3]          ]  -- seg3
@@ -116,7 +116,9 @@ schemeTest =
                     , [ deriv [0, 0, 1, 1] 55  [0, 0, 1, 3] ] --   Baseline - [F]
                     , [ deriv [1, 0, 1, 1] 95  [0, 2, 1, 3] ] --   Baseline - [G]
                     ]
-                |> Result.map List.concat
+                    |> List.concat
+                , Nothing
+                )
             }
       in
         assertEqual
