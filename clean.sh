@@ -2,5 +2,5 @@
 
 echo "Deleting user's build artifacts"
 
-rm -r elm-stuff/build-artifacts/0.17.1/user/project
+rm -r elm-stuff/build-artifacts/0.18/user/project
 
